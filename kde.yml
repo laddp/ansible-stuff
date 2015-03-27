@@ -1,0 +1,23 @@
+---
+- hosts: desktops
+
+  tasks:
+  - name: Install X packages
+    yum: pkg={{ item }} state=latest
+    with_items:
+     - "\"@X Window System\""
+     - "@Fonts"
+     - gdm
+     - kde-workspace
+  - name: get default runlevel
+    command: systemctl get-default
+    register: runlevel
+  - name: Set graphical runlevel
+    command: systemctl set-default graphical.target
+    when: runlevel.stdout != "graphical.target"
+  - name: is graphical currently active
+    command: systemctl is-active graphical.target
+    register: graphical
+  - name: Switch to graphical runlevel
+    command: systemctl isolate graphical.target
+    when: graphical.stdout != "active"

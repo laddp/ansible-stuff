@@ -1,0 +1,28 @@
+---
+- hosts: icinga
+
+  tasks:
+  - name: check for pkg repository
+    stat: path=/etc/yum.repos.d/ICINGA-release.repo
+    register: yumrepo
+  - name: add pkg repository if missing
+    get_url: url=http://packages.icinga.org/epel/ICINGA-release.repo \
+             dest=/etc/yum.repos.d/ICINGA-release.repo
+    when: yumrepo.stat.exists == false
+  - name: icinga packages
+    yum: name={{ item }} state=latest
+    with_items:
+      - icinga
+      - icinga-gui
+      - icinga-doc
+      - icinga-idoutils-libdbi-mysql
+      - nagios-plugins
+  - name: mysql packages
+    yum: name={{ item }} state=latest
+    with_items:
+      - mariadb
+      - mariadb-server
+      - libdbi
+      - libdbi-devel
+      - libdbi-drivers
+      - libdbi-dbd-mysql

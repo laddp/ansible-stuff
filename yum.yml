@@ -1,0 +1,11 @@
+---
+- hosts: all
+
+  tasks:
+  - name: upgrade all packages
+    yum: name=* state=latest
+  - name: useful packages
+    yum: name={{ item }} state=latest
+    with_items:
+      - net-tools
+      - vim

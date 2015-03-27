@@ -1,0 +1,14 @@
+---
+- hosts: cacti
+
+  tasks:
+  - name: cacti packages
+    yum: name={{ item }} state=latest
+    with_items:
+    - cacti
+  - name: enable services
+    service: name={{ item }} enabled=yes state=started
+    with_items:
+    - httpd
+    - mariadb
+    - crond

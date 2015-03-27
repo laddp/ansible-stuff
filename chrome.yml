@@ -1,0 +1,5 @@
+---
+- hosts: desktops
+  roles:
+    - role: devbox.chrome
+      google_chrome_stable_enabled: yes

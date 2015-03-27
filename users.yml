@@ -1,0 +1,6 @@
+---
+- hosts: all
+
+  tasks:
+  - name: add Patrick
+    user: name=laddp comment="Patrick Ladd"
