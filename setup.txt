@@ -1,0 +1,19 @@
+* Centos 7 minimal install
+* yum install epel-release
+* yum install ansible
+~ add localhost to /etc/ansible/hosts, clear out sample contents
+~ graphical desktop: "@X Window System" "@Fonts" gdm kde-workspace
+     systemctl isolate graphical.target
+* Add chainloaders to /etc/grub.d/40_custom
+* BIOS update to v1.0.16 (fixes 1GB missing RAM)
+~ gparted ntfs-3g
+
+~ ansible devbox.chrome role
+  * add google-repo to /etc/ansible/roles/devbox.chrome/files/
+
+* run ansible-playbook mysql_secure_installation.yml --extra-vars "mysql_root_password=<your password>"
+
+
+
+
+~ task moved into Ansible
