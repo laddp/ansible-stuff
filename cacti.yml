@@ -7,11 +7,28 @@
     with_items:
     - cacti
     - MySQL-python
+
   - name: enable services
     service: name={{ item }} enabled=yes state=started
     with_items:
     - httpd
     - mariadb
     - crond
-#  - name: cacti db
-#  - name: cacti user
+
+  - name: cacti db
+    mysql_db: name=cacti state=present
+              login_user=root login_password={{ mysql_root_password }}
+    notify: create-cacti-db
+
+  - name: cacti user
+    mysql_user: name=cacti state=present password={{ cacti_db_password }}
+                append_privs=yes
+                login_user=root login_password={{ mysql_root_password }}
+                priv=cacti.*:ALL,GRANT
+
+  handlers:
+    - name: create-cacti-db
+#     command: echo mysql -u cacti --password={{ cacti_db_password }} cacti < /usr/share/doc/cacti-*/cacti.sql
+      mysql_db: name=cacti
+                login_password={{ cacti_db_password }} login_user=cacti
+                state=import target=/usr/share/doc/cacti-0.8.8b/cacti.sql
