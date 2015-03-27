@@ -26,3 +26,5 @@
       - libdbi-devel
       - libdbi-drivers
       - libdbi-dbd-mysql
+      - MySQL-python
+#  - name: mysql configuration

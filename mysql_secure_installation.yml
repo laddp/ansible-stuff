@@ -4,20 +4,24 @@
 
   tasks: 
   - name: delete anonymous MySQL server user for {{ ansible_hostname }}
-    action: mysql_user user="" host="{{ ansible_hostname }}" state="absent"
+    mysql_user: user="" host="{{ ansible_hostname }}" state="absent"
+                login_user=root login_password={{ mysql_root_password }} check_implicit_admin=yes
  
   - name: delete anonymous MySQL server user for localhost
-    action: mysql_user user="" state="absent"
+    mysql_user: user="" state="absent"
+                login_user=root login_password={{ mysql_root_password }} check_implicit_admin=yes
  
   - name: remove the MySQL test database
-    action: mysql_db db=test state=absent
+    mysql_db: name=test state=absent
+              login_user=root login_password={{ mysql_root_password }}
    
    
 # 'localhost' needs to be the last item for idempotency, see
 # http://ansible.cc/docs/modules.html#mysql-user   
   - name: Change root user password on first run
     mysql_user: login_user=root
-                login_password=''
+                login_password={{ mysql_root_password }}
+                check_implicit_admin=yes
                 name=root
                 password={{ mysql_root_password }}
                 priv=*.*:ALL,GRANT
