@@ -1,0 +1,9 @@
+---
+- hosts: desktops
+
+  tasks:
+  - name: disk management
+    yum: name={{ item }} state=latest
+    with_items:
+      - gparted
+      - ntfs-3g
