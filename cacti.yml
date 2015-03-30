@@ -21,14 +21,20 @@
     notify: create-cacti-db
 
   - name: cacti user
-    mysql_user: name=cacti state=present password={{ cacti_db_password }}
+    mysql_user: name=cactiuser state=present password={{ cacti_db_password }}
                 append_privs=yes
                 login_user=root login_password={{ mysql_root_password }}
                 priv=cacti.*:ALL,GRANT
+
+  - name: cacti db.php
+    replace: dest=/etc/cacti/db.php
+             regexp="^\$database_password =.*$"
+             replace='$database_password = "{{ cacti_db_password }}"'
+             backup=yes
 
   handlers:
     - name: create-cacti-db
 #     command: echo mysql -u cacti --password={{ cacti_db_password }} cacti < /usr/share/doc/cacti-*/cacti.sql
       mysql_db: name=cacti
-                login_password={{ cacti_db_password }} login_user=cacti
+                login_password={{ cacti_db_password }} login_user=cactiuser
                 state=import target=/usr/share/doc/cacti-0.8.8b/cacti.sql
