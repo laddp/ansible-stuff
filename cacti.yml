@@ -29,8 +29,20 @@
   - name: cacti db.php
     replace: dest=/etc/cacti/db.php
              regexp="^\$database_password =.*$"
-             replace='$database_password = "{{ cacti_db_password }}"'
+             replace='$database_password = "{{ cacti_db_password }}";'
              backup=yes
+
+  - name: cron
+    replace: dest=/etc/cron.d/cacti
+             regexp='^#(.*poller\.php.*)$'
+             replace='\1'
+             backup=yes
+
+  - name: configure firewall
+    command: echo TODO
+# firewall-cmd --permanent --zone=public --add-service=https
+# firewall-cmd --permanent --zone=public --add-service=http
+# firewall-cmd --reload
 
   handlers:
     - name: create-cacti-db
