@@ -1,0 +1,20 @@
+---
+- hosts: all
+
+  tasks:
+  - name: network packages
+    yum: name={{ item }} state=latest
+    with_items:
+    - nmap
+    - tcpdump
+    - wireshark
+    - bind-utils # for dig
+
+- hosts: desktops
+
+  tasks:
+  - name: network GUI packages
+    yum: name={{ item }} state=latest
+    with_items:
+    - nmap-frontend
+    - wireshark-gnome
