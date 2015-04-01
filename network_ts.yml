@@ -7,6 +7,7 @@
     with_items:
     - nmap
     - tcpdump
+    - traceroute
     - wireshark
     - bind-utils # for dig
 
