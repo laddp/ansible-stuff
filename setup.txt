@@ -13,7 +13,7 @@
 
 * run ansible-playbook mysql_secure_installation.yml --extra-vars "mysql_root_password=<your password>"
 
-
+* Run sensors-detect after installing lm-sensors
 
 
 ~ task moved into Ansible

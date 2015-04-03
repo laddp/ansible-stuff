@@ -1,0 +1,9 @@
+---
+- hosts: all
+
+  tasks:
+  - name: monitoring packages
+    yum: name={{ item }} state=latest
+    with_items:
+      - lm_sensors
+      - hddtemp
