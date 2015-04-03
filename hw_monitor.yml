@@ -7,3 +7,12 @@
     with_items:
       - lm_sensors
       - hddtemp
+
+- hosts: desktops
+
+  tasks:
+  - name: kde monitors
+    yum: name={{ item }} state=latest
+    with_items:
+      - ksysguard
+
