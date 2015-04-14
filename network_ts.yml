@@ -19,3 +19,4 @@
     with_items:
     - nmap-frontend
     - wireshark-gnome
+    - firewall-config

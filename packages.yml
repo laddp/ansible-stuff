@@ -10,3 +10,12 @@
       - net-tools
       - vim
       - ntpdate
+
+- hosts: desktops
+
+  tasks:
+  - name: desktop utility
+    yum: name={{ item }} state=latest
+    with_items:
+      - network-manager-applet
+
