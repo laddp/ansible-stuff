@@ -2,18 +2,27 @@
 - hosts: icinga
 
   tasks:
+#############################################
   - name: check for pkg repository
     stat: path=/etc/yum.repos.d/ICINGA-release.repo
     register: yumrepo
+
+#############################################
   - name: add pkg repository if missing
     get_url: url=http://packages.icinga.org/epel/ICINGA-release.repo \
              dest=/etc/yum.repos.d/ICINGA-release.repo
     when: yumrepo.stat.exists == false
+
+#############################################
   - name: icinga packages
     yum: name={{ item }} state=latest
     with_items:
       - icinga2
       - nagios-plugins-all
+      - icingaweb2
+      - icingacli
+
+#############################################
   - name: mysql packages
     yum: name={{ item }} state=latest
     with_items:
@@ -22,33 +31,43 @@
       - icinga2-ido-mysql
       - MySQL-python
 
+#############################################
   - name: icinga db
     mysql_db: name=icinga state=present
               login_user=root login_password={{ mysql_root_password }}
     notify: create-icinga-db
 
+#############################################
   - name: icinga user
     mysql_user: name=icinga state=present password={{ icinga_db_password }}
                 append_privs=yes
                 login_user=root login_password={{ mysql_root_password }}
                 priv='icinga.*:SELECT,INSERT,UPDATE,DELETE,DROP,CREATE VIEW,INDEX,EXECUTE'
 
+#############################################
   - name: enable services
     service: name={{ item }} enabled=yes state=started
     with_items:
     - httpd
     - mariadb
-    - crond
     - icinga2
 
+#############################################
   - name: Gather icinga2 enabled features
     command: icinga2 feature list
     register: icinga2feat
 
-  - name: Set icinga2 feature facts
-    set_fact:
-      enabled:  icinga2feat.stdout
-      disabled: icinga2feat.stdout
+#############################################
+  - name: Enable ido-mysql feature
+    command: icinga2 feature enable command
+    when:  "{{ icinga2feat.stdout | search('Disabled features:.* ido-mysql.*\n') }}"
+    notify: restart-icinga
+
+#############################################
+  - name: Enable command feature
+    command: icinga2 feature enable command
+    when:  "{{ icinga2feat.stdout | search('Disabled features:.* command.*\n') }}"
+    notify: restart-icinga
 
 #  - name: restart icinga
 #    : "Feature added - restart required"
@@ -56,10 +75,12 @@
 #    notify: restart-icinga
 
   handlers:
+#############################################
     - name: create-icinga-db
       mysql_db: name=icinga
                 login_password={{ mysql_root_password }} login_user=root
                 state=import target=/usr/share/icinga2-ido-mysql/schema/mysql.sql
 
+#############################################
     - name: restart-icinga
-      service: icinga2 state=restarted
+      service: name=icinga2 state=restarted

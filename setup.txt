@@ -15,9 +15,22 @@
 
 * run ansible-playbook mysql_secure_installation.yml --extra-vars "mysql_root_password=<your password>"
 
+* run ansible-playbook cacti.yml --extra-vars "mysql_root_password=<your password> cacti_db_password=<your password>"
+* run ansible-playbook cacti.yml --extra-vars "mysql_root_password=<your password> icinga_db_password=<your password>"
+
 * Run sensors-detect after installing lm-sensors
 
+* vim syntax highlighting:
+  * PREFIX=~/.vim
+  * mkdir -p $PREFIX/{syntax,ftdetect}
+  * cp /usr/share/doc/icinga2-common-2.3.3/syntax/vim/syntax/icinga2.vim $PREFIX/syntax
+  * cp /usr/share/doc/icinga2-common-2.3.3/syntax/vim/ftdetect/icinga2.vim $PREFIX/ftdetect/
+  
 
-
+* icingaweb2 setup:
+  * setup dir & generate tokens:
+    * icingacli setup config directory --group icingaweb2
+    * icingacli setup token create
+  * visit http://localhost/icingaweb2/setup & enter generated token
 
 ~ task moved into Ansible
