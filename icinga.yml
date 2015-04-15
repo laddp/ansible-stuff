@@ -48,8 +48,18 @@
                 priv='icinga.*:SELECT,INSERT,UPDATE,DELETE,DROP,CREATE VIEW,INDEX,EXECUTE'
 
 #############################################
+  - name: store MySQL login parms for icinga
+    lineinfile:
+      dest=/etc/icinga2/features-available/ido-mysql.conf
+      regexp='^\s*password\s*=\s*"'
+      line='   password = "{{ icinga_db_password }}"' 
+      insertafter="^.*IdoMysqlConnection.*{"
+# '
+    notify: reload-icinga
+
+#############################################
   - name: PHP default timezone
-    lineinfile: dest=/etc/php.ini regexp="^\w*date.timezone=" line="date.timezone=America/New_York" insertafter="^;date.timezone"
+    lineinfile: dest=/etc/php.ini regexp="^\s*date.timezone=" line="date.timezone=America/New_York" insertafter="^;date.timezone"
 
 #############################################
   - name: Turn off SELinux for httpd - icingaweb2 cant hack it
@@ -80,7 +90,6 @@
     when:  "{{ icinga2feat.stdout | search('Disabled features:.* command.*\n') }}"
     notify: restart-icinga
 
-
 #############################################
   handlers:
     - name: create-icinga-db
@@ -91,6 +100,10 @@
 #############################################
     - name: restart-icinga
       service: name=icinga2 state=restarted
+
+#############################################
+    - name: reload-icinga
+      service: name=icinga2 state=reloaded
 
 #############################################
     - name: reload-httpd
