@@ -52,27 +52,8 @@
     lineinfile: dest=/etc/php.ini regexp="^\w*date.timezone=" line="date.timezone=America/New_York" insertafter="^;date.timezone"
 
 #############################################
-  - name: SELinux fixes for icingaweb2
-    command: chcon -Rv --type=nagios_etc_t /etc/icingaweb2/
-    command: semanage fcontext --add -t=nagios_etc_t "/etc/icingaweb2(/.*)?"
-    notify: reload-httpd
-
-#############################################
-  - name: SELinux policy drop dir
-    file: path={{ selinux_policy_drop_dir }} state=directory owner=root group=root mode=0750
-
-#############################################
-  - name: SELinux policy fix for icingaweb2
-    copy: dest={{ selinux_policy_drop_dir }}/{{ item }} src={{ item }} force=no
-    with_items:
-    - icingaweb2.pp
-    register: icingaweb2_selinux_policy_output
-
-#############################################
-  - name: Load/reload SELinux custom policies
-    shell: semodule -u {{ selinux_policy_drop_dir }}/{{ item.item }}
-    with_items: icingaweb2_selinux_policy_output.results
-    when: item.changed
+  - name: Turn off SELinux for httpd - icingaweb2 cant hack it
+    command: semanage permissive -a httpd_t
 
 #############################################
   - name: enable services
