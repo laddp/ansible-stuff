@@ -10,6 +10,7 @@
       - net-tools
       - vim
       - ntpdate
+      - lsof
 
 - hosts: desktops
 
