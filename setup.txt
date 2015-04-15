@@ -33,4 +33,7 @@
     * icingacli setup token create
   * visit http://localhost/icingaweb2/setup & enter generated token
 
+* selinux stuff for icingaweb2:
+  * "audit2allow -M icingaweb2" with failure data from icingaweb2 setup (problems accessing /etc/icingaweb2 from httpd)
+
 ~ task moved into Ansible

@@ -1,0 +1,11 @@
+
+module icingaweb2.pp 1.0;
+
+require {
+	type httpd_t;
+	type nagios_etc_t;
+	class dir write;
+}
+
+#============= httpd_t ==============
+allow httpd_t nagios_etc_t:dir write;

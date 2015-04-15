@@ -1,0 +1,11 @@
+---
+- hosts: all
+
+- hosts: desktops
+
+  tasks:
+  - name: selinux tools
+    yum: name={{ item }} state=latest
+    with_items:
+      - setroubleshoot
+

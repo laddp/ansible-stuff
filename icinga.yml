@@ -1,6 +1,9 @@
 ---
 - hosts: icinga
 
+  vars:
+    selinux_policy_drop_dir: /tmp/selinux_ansible_drop
+
   tasks:
 #############################################
   - name: check for pkg repository
@@ -14,22 +17,22 @@
     when: yumrepo.stat.exists == false
 
 #############################################
-  - name: icinga packages
-    yum: name={{ item }} state=latest
-    with_items:
-      - icinga2
-      - nagios-plugins-all
-      - icingaweb2
-      - icingacli
-
-#############################################
   - name: mysql packages
     yum: name={{ item }} state=latest
     with_items:
       - mariadb
       - mariadb-server
-      - icinga2-ido-mysql
       - MySQL-python
+
+#############################################
+  - name: icinga packages
+    yum: name={{ item }} state=latest
+    with_items:
+      - icinga2
+      - nagios-plugins-all
+      - icinga2-ido-mysql
+      - icingaweb2
+      - icingacli
 
 #############################################
   - name: icinga db
@@ -43,6 +46,33 @@
                 append_privs=yes
                 login_user=root login_password={{ mysql_root_password }}
                 priv='icinga.*:SELECT,INSERT,UPDATE,DELETE,DROP,CREATE VIEW,INDEX,EXECUTE'
+
+#############################################
+  - name: PHP default timezone
+    lineinfile: dest=/etc/php.ini regexp="^\w*date.timezone=" line="date.timezone=America/New_York" insertafter="^;date.timezone"
+
+#############################################
+  - name: SELinux fixes for icingaweb2
+    command: chcon -Rv --type=nagios_etc_t /etc/icingaweb2/
+    command: semanage fcontext --add -t=nagios_etc_t "/etc/icingaweb2(/.*)?"
+    notify: reload-httpd
+
+#############################################
+  - name: SELinux policy drop dir
+    file: path={{ selinux_policy_drop_dir }} state=directory owner=root group=root mode=0750
+
+#############################################
+  - name: SELinux policy fix for icingaweb2
+    copy: dest={{ selinux_policy_drop_dir }}/{{ item }} src={{ item }} force=no
+    with_items:
+    - icingaweb2.pp
+    register: icingaweb2_selinux_policy_output
+
+#############################################
+  - name: Load/reload SELinux custom policies
+    shell: semodule -u {{ selinux_policy_drop_dir }}/{{ item.item }}
+    with_items: icingaweb2_selinux_policy_output.results
+    when: item.changed
 
 #############################################
   - name: enable services
@@ -69,13 +99,9 @@
     when:  "{{ icinga2feat.stdout | search('Disabled features:.* command.*\n') }}"
     notify: restart-icinga
 
-#  - name: restart icinga
-#    : "Feature added - restart required"
-#    when: "'restart' in icinga2feat.stdout"
-#    notify: restart-icinga
 
-  handlers:
 #############################################
+  handlers:
     - name: create-icinga-db
       mysql_db: name=icinga
                 login_password={{ mysql_root_password }} login_user=root
@@ -84,3 +110,7 @@
 #############################################
     - name: restart-icinga
       service: name=icinga2 state=restarted
+
+#############################################
+    - name: reload-httpd
+      service: name=httpd state=reloaded
