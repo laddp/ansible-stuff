@@ -12,19 +12,54 @@
   - name: icinga packages
     yum: name={{ item }} state=latest
     with_items:
-      - icinga
-      - icinga-gui
-      - icinga-doc
-      - icinga-idoutils-libdbi-mysql
-      - nagios-plugins
+      - icinga2
+      - nagios-plugins-all
   - name: mysql packages
     yum: name={{ item }} state=latest
     with_items:
       - mariadb
       - mariadb-server
-      - libdbi
-      - libdbi-devel
-      - libdbi-drivers
-      - libdbi-dbd-mysql
+      - icinga2-ido-mysql
       - MySQL-python
-#  - name: mysql configuration
+
+  - name: icinga db
+    mysql_db: name=icinga state=present
+              login_user=root login_password={{ mysql_root_password }}
+    notify: create-icinga-db
+
+  - name: icinga user
+    mysql_user: name=icinga state=present password={{ icinga_db_password }}
+                append_privs=yes
+                login_user=root login_password={{ mysql_root_password }}
+                priv='icinga.*:SELECT,INSERT,UPDATE,DELETE,DROP,CREATE VIEW,INDEX,EXECUTE'
+
+  - name: enable services
+    service: name={{ item }} enabled=yes state=started
+    with_items:
+    - httpd
+    - mariadb
+    - crond
+    - icinga2
+
+  - name: Gather icinga2 enabled features
+    command: icinga2 feature list
+    register: icinga2feat
+
+  - name: Set icinga2 feature facts
+    set_fact:
+      enabled:  icinga2feat.stdout
+      disabled: icinga2feat.stdout
+
+#  - name: restart icinga
+#    : "Feature added - restart required"
+#    when: "'restart' in icinga2feat.stdout"
+#    notify: restart-icinga
+
+  handlers:
+    - name: create-icinga-db
+      mysql_db: name=icinga
+                login_password={{ mysql_root_password }} login_user=root
+                state=import target=/usr/share/icinga2-ido-mysql/schema/mysql.sql
+
+    - name: restart-icinga
+      service: icinga2 state=restarted
