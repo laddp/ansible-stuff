@@ -21,3 +21,14 @@
     - name: set hostname
       hostname: name=pladd.corporate.nypiua.com
 
+    - name: ssh lock out root for password logins
+      lineinfile:
+        dest=/etc/ssh/sshd_config
+        regexp="^\s*PermitRootLogin "
+        line="PermitRootLogin without-password"
+        insertafter="^\s*#\s*PermitRootLogin"
+      notify: restart-sshd
+
+  handlers:
+    - name: restart-sshd
+      service: name=sshd state=restarted
