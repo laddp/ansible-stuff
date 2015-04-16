@@ -66,6 +66,18 @@
     command: semanage permissive -a httpd_t
 
 #############################################
+  - name: copy http root index file
+    copy: dest=/var/www/html/index.html src=index.html force=no
+
+#############################################
+  - name: insert icinga link in http index file
+    lineinfile:
+      dest=/var/www/html/index.html
+      regexp="/icingaweb2/"
+      line="<a href="/icingaweb2/">Icinga Monitoring</a>"
+      insertafter="<ul>"
+
+#############################################
   - name: enable services
     service: name={{ item }} enabled=yes state=started
     with_items:
