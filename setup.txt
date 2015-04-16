@@ -15,8 +15,8 @@
 
 * run ansible-playbook mysql_secure_installation.yml --extra-vars "mysql_root_password=<your password>"
 
-* run ansible-playbook cacti.yml --extra-vars "mysql_root_password=<your password> cacti_db_password=<your password>"
-* run ansible-playbook cacti.yml --extra-vars "mysql_root_password=<your password> icinga_db_password=<your password>"
+* run ansible-playbook cacti.yml  --extra-vars "mysql_root_password=<your password> cacti_db_password=<your password>"
+* run ansible-playbook icinga.yml --extra-vars "mysql_root_password=<your password> icinga_db_password=<your password>"
 
 * Run sensors-detect after installing lm-sensors
 
