@@ -1,0 +1,19 @@
+# Network setup
+---
+- hosts: all
+
+  tasks:
+    - name: ntp packages
+      yum: name={{ item }} state=latest
+      with_items:
+      - ntp
+
+    - name: setup timezone
+      command: "timedatectl set-timezone America/New_York"
+
+    - name: start ntp
+      service: name=ntpd state=started enabled=yes
+
+  handlers:
+    - name: restart-ntpd
+      service: name=ntpd state=restarted
