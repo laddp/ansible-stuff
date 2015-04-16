@@ -2,12 +2,14 @@
 - hosts: cacti
 
   tasks:
+#############################################
   - name: cacti packages
     yum: name={{ item }} state=latest
     with_items:
     - cacti
     - MySQL-python
 
+#############################################
   - name: enable services
     service: name={{ item }} enabled=yes state=started
     with_items:
@@ -15,29 +17,50 @@
     - mariadb
     - crond
 
+#############################################
   - name: cacti db
     mysql_db: name=cacti state=present
               login_user=root login_password={{ mysql_root_password }}
     notify: create-cacti-db
 
+#############################################
   - name: cacti user
     mysql_user: name=cactiuser state=present password={{ cacti_db_password }}
                 append_privs=yes
                 login_user=root login_password={{ mysql_root_password }}
                 priv=cacti.*:ALL,GRANT
 
+#############################################
   - name: cacti db.php
     replace: dest=/etc/cacti/db.php
              regexp="^\$database_password =.*$"
              replace='$database_password = "{{ cacti_db_password }}";'
              backup=yes
 
+#############################################
   - name: cron
     replace: dest=/etc/cron.d/cacti
              regexp='^#(.*poller\.php.*)$'
              replace='\1'
              backup=yes
 
+#############################################
+  - name: SUID for ICMP ping
+    file: name=/usr/bin/ping mode=u+s
+
+#############################################
+  - name: copy http root index file
+    copy: dest=/var/www/html/index.html src=index.html force=no
+
+#############################################
+  - name: insert icinga link in http index file
+    lineinfile:
+      dest=/var/www/html/index.html
+      regexp="/cacti/"
+      line="<li><a href="/cacti/">Cacti Graphing</a></li>"
+      insertafter="<ul>"
+
+#############################################
   - name: configure firewall
     command: echo TODO
 # firewall-cmd --permanent --zone=public --add-service=https
@@ -45,6 +68,7 @@
 # firewall-cmd --reload
 
   handlers:
+#############################################
     - name: create-cacti-db
 #     command: echo mysql -u cacti --password={{ cacti_db_password }} cacti < /usr/share/doc/cacti-*/cacti.sql
       mysql_db: name=cacti

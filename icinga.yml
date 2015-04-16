@@ -74,7 +74,7 @@
     lineinfile:
       dest=/var/www/html/index.html
       regexp="/icingaweb2/"
-      line="<a href="/icingaweb2/">Icinga Monitoring</a>"
+      line="<li><a href="/icingaweb2/">Icinga Monitoring</a></li>"
       insertafter="<ul>"
 
 #############################################
