@@ -17,3 +17,7 @@
            netmask: 255.0.0.0
            gateway: 192.168.16.1
 
+  tasks:
+    - name: set hostname
+      hostname: name=pladd.corporate.nypiua.com
+
