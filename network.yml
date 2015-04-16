@@ -7,11 +7,13 @@
       network_ether_interfaces:
       - device: enp0s25
         bootproto: dhcp
+        metric: 100
       - device: enp3s0
         bootproto: static
         address: 192.168.16.46
         netmask: 255.255.255.0
         gateway: 192.168.16.1
+        metric: 200
         route:
          - network: 10.0.0.0
            netmask: 255.0.0.0
