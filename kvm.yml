@@ -1,0 +1,12 @@
+---
+- hosts: all
+
+  tasks:
+  - name: Virt packages
+    yum: name={{ item }} state=latest
+    with_items:
+      - qemu-kvm 
+      - libvirt
+      - virt-install
+      - bridge-utils
+
