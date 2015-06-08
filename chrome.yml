@@ -3,3 +3,4 @@
   roles:
     - role: devbox.chrome
       google_chrome_stable_enabled: yes
+      google_talkplugin_enabled: yes
