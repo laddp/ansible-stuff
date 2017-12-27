@@ -3,14 +3,14 @@
 
   tasks:
   - name: git packages
-    yum: name={{ item }} state=latest
+    package: name={{ item }} state=latest
     with_items:
       - git
 
 - hosts: desktops
   tasks:
   - name: git interface
-    yum: name={{ item }} state=latest
+    package: name={{ item }} state=latest
     with_items:
       - git-cola
 

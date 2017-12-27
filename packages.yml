@@ -3,20 +3,22 @@
 
   tasks:
   - name: upgrade all packages
-    yum: name=* state=latest
+    package: name=* state=latest
   - name: useful packages
-    yum: name={{ item }} state=latest
+    package: name={{ item }} state=latest
     with_items:
       - net-tools
       - vim
       - ntpdate
       - lsof
+      - bash-completion
+      - libselinux-python # needed for lots of ansible scripts
 
 - hosts: desktops
 
   tasks:
   - name: desktop utility
-    yum: name={{ item }} state=latest
+    package: name={{ item }} state=latest
     with_items:
       - network-manager-applet
 

@@ -1,4 +1,4 @@
 localhost
 
 [desktops]
-localhost
+localhost ansible_user=root
