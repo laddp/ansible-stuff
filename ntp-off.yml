@@ -1,0 +1,7 @@
+# Network setup
+---
+- hosts: all
+
+  tasks:
+    - name: stop ntp
+      service: name=ntpd state=stopped enabled=no
