@@ -1,4 +1,8 @@
-localhost
+rhel75.pladd.net ansible_host=192.168.42.194 ansible_user=root
+unms.pladd.net ansible_host=192.168.42.50 ansible_become=yes
 
-[desktops]
-localhost ansible_user=root
+[rhel_hosts]
+rhel75.pladd.net
+
+[ubuntu_hosts]
+unms.pladd.net

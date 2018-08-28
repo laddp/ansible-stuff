@@ -1,0 +1,113 @@
+---
+- name: setup Ubiquiti network management system host
+  hosts: unms.pladd.net
+
+  tasks:
+    - name: set hostname
+      hostname:
+        name: unms.pladd.net
+
+    - name: ssh lock out root for password logins
+      lineinfile:
+        dest=/etc/ssh/sshd_config
+        regexp="^\s*PermitRootLogin "
+        line="PermitRootLogin without-password"
+        insertafter="^\s*#\s*PermitRootLogin"
+      notify: restart-sshd
+
+    - name: sudo without password
+      lineinfile:
+        path: /etc/sudoers
+        state: present
+        regexp: '^%sudo'
+        line: '%sudo ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
+
+    - name: pladd ssh key
+      authorized_key:
+        key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDq47bMVsjkxsCc9CZdh6NXouVezxMjtiis2TEZNM7w9whQsEcVR8qL4e8kXCVnuTRKWvWSXK6lYSytiHvjqt7NYDTiD0FAfnbQHuNqgUGiQzuBdvOSorERRHG8WVcBYYSUCPbfauKXFRL2fpJmPlUiut8C0e+1tTfwAqf95dqRsIK7uUwp6mzm92SRyv5ehNfeZPwaccsFDGdHnJtBM/8XmLn+Q0p3sUIydRUml3B87/ZkrdkKQxCzY2OMoHl52iomnQAEz4E6Z65arRTuXef7gsbQTO0CEEBnQL47a8R4uQnyUJhTBV6tIoYOr3yCa+oRWR6XRJG/Qj3oocmYV2/f pladd@pladd.remote.csb"
+        user: pladd
+
+    - name: install needed apt packages
+      apt:
+        name:
+          - python-apt
+          - aptitude
+          - debconf
+        state: latest
+        force_apt_get: yes
+
+    - name: add apt keys for UniFi and mongodb
+      apt_key:
+        keyserver: keyserver.ubuntu.com
+        id: "{{ item }}"
+      with_items:
+        - 06E85760C0A52C50
+        - 7F0CEB10
+
+    - name: Install needed UniFi repositories
+      apt_repository:
+        repo: "{{ item }}"
+      with_items:
+        - "deb http://www.ubnt.com/downloads/unifi/debian stable ubiquiti"
+        - "deb http://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/3.0 multiverse"
+        - "ppa:webupd8team/java"
+        - "deb http://nl.archive.ubuntu.com/ubuntu bionic main universe"
+
+    - name: accept java crap
+      debconf:
+        name: oracle-java8-installer
+        question: shared/accepted-oracle-license-v1-1
+        vtype: select
+        value: 'true'
+
+    - name: Install java
+      apt:
+        name:
+          - oracle-java8-installer
+        state: latest
+
+    - name: Install java
+      apt:
+        name:
+          - oracle-java8-set-default
+        state: latest
+
+    - name: set JAVA_HOME
+      lineinfile:
+        line: "JAVA_HOME=\"/usr/lib/jvm/java-8-oracle\""
+        dest: /etc/environment
+
+    - name: Install more java
+      apt:
+        name:
+          - jsvc
+          - libcommons-daemon-java
+        state: latest
+
+    - name: Install UniFi controller
+      apt:
+        name: unifi
+        state: latest
+
+    - name: Upgrade all packages to the latest version
+      apt:
+        name: "*"
+        state: latest
+
+    - name: download latest UNMS
+      get_url:
+        url: "https://unms.com/install"
+        dest: "/root/unms_inst.sh"
+        force: yes
+        mode: "u=rx,go=r"
+
+    - name: install/update UNMS
+      command: /root/unms_inst.sh --unattended --update
+      register: UNMS_install
+
+    - debug: msg="{{ UNMS_install.stdout_lines }}"
+
+  handlers:
+    - name: restart-sshd
+      service: name=sshd state=restarted
