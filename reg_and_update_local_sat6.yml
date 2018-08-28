@@ -1,0 +1,60 @@
+---
+- name: register server, install useful packages
+  hosts: rhel_hosts
+
+  tasks:
+  - name: variables
+    include_vars: subscription-manager-local.vault
+
+  - name: Install local sat6 rpm 
+    command: "rpm -Uh --force http://sat6.pladd.net/pub/katello-ca-consumer-latest.noarch.rpm"
+    args:
+      warn: False
+
+  - name: subscribe system
+    redhat_subscription:
+      username: "{{ subscription_manager_id }}"
+      password: "{{ subscription_manager_pw }}"
+      environment: Library
+      pool_ids:
+        - 4028fa5565165fc001651f55104d04a9 # RHEL Guest
+        - 4028fa5565165fc001651f5b32a1051a # Ansible
+
+  - name: repositories
+    rhsm_repository:
+      name:
+        - "rhel-7-server-rpms"
+        - "rhel-7-server-optional-rpms"
+        - "rhel-7-server-extras-rpms"
+        - "rhel-7-server-ansible-2.6-rpms"
+        - "rhel-7-server-satellite-tools-6.3-rpms"
+      state: enabled
+
+  - name: System up to date
+    yum:
+      name:  '*'
+      state: latest
+
+  - name: package installation
+    yum:
+      name:
+        - katello-agent
+        - bash-completion
+        - pciutils
+        - unzip
+        - vim
+        - wget
+        - numactl
+        - sos
+        - ansible
+        - iotop
+        - net-tools
+        - nmap
+        - tcpdump
+        - traceroute
+        - wireshark
+        - bind-utils # for dig
+        - rsync
+      state: latest
+
+...

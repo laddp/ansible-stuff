@@ -1,8 +1,21 @@
-rhel75.pladd.net ansible_host=192.168.42.194 ansible_user=root
+#rhel75.pladd.net ansible_host=192.168.42.194 ansible_user=root
 unms.pladd.net ansible_host=192.168.42.50 ansible_become=yes
+#ocp-m1.pladd.net ansible_host=192.168.42.180 ansible_user=root
+ocp-m1.pladd.net ansible_user=root
+ocp-m2.pladd.net ansible_user=root
+ocp-m3.pladd.net ansible_user=root
 
 [rhel_hosts]
-rhel75.pladd.net
+#rhel75.pladd.net
+ocp-m1.pladd.net
+ocp-m2.pladd.net
+ocp-m3.pladd.net
 
 [ubuntu_hosts]
 unms.pladd.net
+
+[ocp_masters]
+ocp-m1.pladd.net
+ocp-m2.pladd.net
+ocp-m3.pladd.net
+
