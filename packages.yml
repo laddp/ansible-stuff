@@ -1,18 +1,32 @@
 ---
-- hosts: all
+- hosts: rhel_hosts
 
   tasks:
   - name: upgrade all packages
-    package: name=* state=latest
+    package:
+      name: '*'
+      state: latest
+
+  - name: EPEL repo
+    yum:
+      name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    when: "{{ ansible.distribution = RedHat }}"
+      
   - name: useful packages
-    package: name={{ item }} state=latest
-    with_items:
-      - net-tools
-      - vim
-      - ntpdate
-      - lsof
-      - bash-completion
-      - libselinux-python # needed for lots of ansible scripts
+    yum:
+      name:
+        - net-tools
+        - vim
+        - ntpdate
+        - lsof
+        - bash-completion
+        - libselinux-python # needed for lots of ansible scripts
+        - tree
+        # monitoring tools
+        - iotop
+        - dstat
+        - nmon
+      state: latest
 
 - hosts: desktops
 

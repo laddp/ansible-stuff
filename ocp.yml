@@ -49,4 +49,18 @@
         - docker-1.13.1
       state: latest
 
+  - name: docker lv
+    lvol:
+      lv: docker-lv 
+      vg: rhel
+      size: 20G
+
+  - name: config for docker-storage
+    lineinfile:
+      dest: /etc/sysconfig/docker-storage-setup
+      line: "{{ item }}"
+    with_items:
+      - "DEVS=/dev/vdc"
+      - "VG=docker-vg"
+
 ...
