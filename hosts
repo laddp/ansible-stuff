@@ -4,6 +4,7 @@ unms.pladd.net ansible_host=192.168.42.50 ansible_become=yes
 ocp-m1.pladd.net ansible_user=root
 ocp-m2.pladd.net ansible_user=root
 ocp-m3.pladd.net ansible_user=root
+ocp-n1.pladd.net ansible_user=root
 beast.pladd.net ansible_user=root
 
 [rhel_hosts]
@@ -11,6 +12,7 @@ beast.pladd.net ansible_user=root
 ocp-m1.pladd.net
 ocp-m2.pladd.net
 ocp-m3.pladd.net
+ocp-n1.pladd.net
 beast.pladd.net
 
 [ubuntu_hosts]
@@ -20,4 +22,7 @@ unms.pladd.net
 ocp-m1.pladd.net
 ocp-m2.pladd.net
 ocp-m3.pladd.net
+
+[ocp_nodes]
+ocp-n1.pladd.net
 
