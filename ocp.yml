@@ -1,6 +1,8 @@
 ---
 - name: basic setup for OCP hosts
-  hosts: ocp_masters
+  hosts:
+    - ocp_masters
+    - ocp_nodes
   vars_files:
     - subscription-manager-local.vault
 
