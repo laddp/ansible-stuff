@@ -10,3 +10,18 @@
       - virt-install
       - bridge-utils
 
+  - name: polikit permission
+    copy:
+      dest: /etc/polkit-1/rules.d/50-libvirt.rules
+      src: kvm/50-libvirt.rules
+      backup: yes
+      mode: "u=rw,g=r,o=r"
+      owner: root
+      group: root
+
+  - name: add user to libvirt group 
+    user:
+      name:   pladd
+      groups: libvirt
+      append: yes
+...
