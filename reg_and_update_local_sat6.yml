@@ -1,10 +1,10 @@
 ---
 - name: register server, install useful packages
   hosts: rhel_hosts
+  vars_files:
+    - subscription-manager-local.vault
 
   tasks:
-  - name: variables
-    include_vars: subscription-manager-local.vault
 
   - name: Install local sat6 rpm 
     command: "rpm -Uh --force http://sat6.pladd.net/pub/katello-ca-consumer-latest.noarch.rpm"
@@ -44,7 +44,6 @@
         - unzip
         - vim
         - wget
-        - numactl
         - sos
         - ansible
         - iotop

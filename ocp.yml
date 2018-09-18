@@ -52,6 +52,13 @@
         - docker-1.13.1
       state: latest
 
+  - name: copy ssh private key to masters
+    copy:
+      dest: /root/.ssh/
+      src:  ~/.ssh/id_rsa
+      mode: preserve
+    when: "'ocp_masters' in group_names"
+
 #  - name: config for docker-storage
 #    lineinfile:
 #      dest: /etc/sysconfig/docker-storage-setup
