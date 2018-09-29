@@ -1,17 +1,21 @@
 #rhel75.pladd.net ansible_host=192.168.42.194 ansible_user=root
+pladd-laptop.usersys.redhat.com ansible_become=yes
 unms.pladd.net ansible_host=192.168.42.50 ansible_become=yes
 #ocp-m1.pladd.net ansible_host=192.168.42.180 ansible_user=root
 ocp-m1.pladd.net ansible_user=root
 ocp-m2.pladd.net ansible_user=root
 ocp-m3.pladd.net ansible_user=root
 beast.pladd.net ansible_user=root
+tower.pladd.net ansible_user=root
 
 [rhel_hosts]
 #rhel75.pladd.net
+pladd-laptop.usersys.redhat.com
 ocp-m1.pladd.net
 ocp-m2.pladd.net
 ocp-m3.pladd.net
 beast.pladd.net
+tower.pladd.net
 
 [ubuntu_hosts]
 unms.pladd.net
@@ -21,3 +25,10 @@ ocp-m1.pladd.net
 ocp-m2.pladd.net
 ocp-m3.pladd.net
 
+[ocp_nodes]
+ocp-n1.pladd.net
+ocp-n2.pladd.net
+
+[kvm_hosts]
+pladd-laptop.usersys.redhat.com
+beast.pladd.net

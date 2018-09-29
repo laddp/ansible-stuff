@@ -1,5 +1,5 @@
 ---
-- hosts: all
+- hosts: kvm_hosts
 
   tasks:
   - name: Virt packages
