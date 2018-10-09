@@ -1,0 +1,41 @@
+---
+- name: NFS exports for beast
+  hosts:
+    - beast.pladd.net
+
+  # NFS export for OCP persistent storage
+  vars:
+    ocp_pv_path: "/export/ocp_pv"
+    nfs_exports: [ "{{ ocp_pv_path}} *(rw,sync)" ]
+    nfs_rpcbind_state: started
+    nfs_rpcbind_enabled: true
+  roles:
+    - { role: geerlingguy.nfs }
+
+  tasks:
+    - name: SElinux booleans
+      seboolean:
+        name: nfs_export_all_rw
+        state: yes
+        persistent: yes
+
+    - name: NFS service
+      service:
+        name: nfs
+        state: started
+        enabled: true
+
+    - name: Firewall
+      firewalld:
+        service: "{{ item }}"
+        state: enabled
+        immediate: true
+      with_items:
+        - nfs
+        - rpc-bind
+
+    - name: NFS export for OCP pv
+      file:
+        path:  "{{ ocp_pv_path }}"
+        state: directory
+...
