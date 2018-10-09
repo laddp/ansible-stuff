@@ -1,0 +1,25 @@
+---
+- name: configure NFS persistent volume
+  hosts:
+    - ocp-m1.pladd.net
+
+  tasks:
+    - name: create PV
+      k8s: 
+        api_version: v1
+        kind: PersistentVolumeClaim
+        name: beast_nfs
+        host: ocp-m1.pladd.net
+        resource_definition:
+          spec:
+            capacity:
+              storage: 20Gi
+            accessModes:
+              - ReadWriteOnce
+              - ReadWriteMany
+            nfs:
+              path: /export/ocp_nfs
+              server: 192.168.42.200
+            persistentVolumeReclaimPolicy: Recycle
+
+...
