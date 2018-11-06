@@ -1,0 +1,46 @@
+---
+- name: caching DNS setup
+  hosts: pladd-laptop.usersys.redhat.com
+
+  tasks:
+    - name: dnsmasq package
+      package: name={{ item }} state=latest
+      with_items:
+      - dnsmasq
+
+    - name: dnsmasq config
+      copy:
+        src:    dnsmasq/dnsmasq-local-caching.conf
+        dest:   /etc/dnsmasq.conf
+        group:  dnsmasq
+        owner:  dnsmasq
+        mode:   u=rw,go=r
+        backup: true
+      notify:
+        - restart dnsmasq
+
+    - name: resolv.conf
+      copy:
+        src:    dnsmasq/resolv.conf
+        dest:   /etc/resolv.conf
+        group:  root
+        owner:  root
+        mode:   u=rw,go=r
+        backup: true
+
+    - name: NetworkManager config
+      lineinfile:
+        line: 'dns=dnsmasq'
+        path: /etc/NetworkManager/NetworkManager.conf
+
+    - name: start dnsmasq
+      service:
+        name:    dnsmasq
+        state:   started
+        enabled: yes
+
+  handlers:
+    - name: restart dnsmasq
+      service:
+        name: dnsmasq
+        state: restarted
