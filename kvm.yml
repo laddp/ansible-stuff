@@ -19,9 +19,12 @@
       owner: root
       group: root
 
-  - name: add user to libvirt group 
+  - name: add user to libvirt and wheel group 
+    # libvirt lets them manage virt stuff per above policy
+    # wheel is needed to sudo and change permissions on files to use chmod on virsh created qcow files
     user:
       name:   pladd
-      groups: libvirt
+      groups: libvirt,wheel
       append: yes
+
 ...
