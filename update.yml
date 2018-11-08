@@ -1,0 +1,11 @@
+---
+- name: register server, install useful packages
+  hosts: rhel_hosts
+
+  tasks:
+  - name: System up to date
+    yum:
+      name:  '*'
+      state: latest
+
+...

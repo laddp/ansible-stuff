@@ -1,11 +1,10 @@
 ---
 - name: register server, install useful packages
   hosts: rhel_hosts
+  vars_files:
+    - subscription-manager.vault
 
   tasks:
-  - name: variables
-    include_vars: subscription-manager.vault
-
   - name: subscribe system
     redhat_subscription:
       username: "{{ subscription_manager_id }}"

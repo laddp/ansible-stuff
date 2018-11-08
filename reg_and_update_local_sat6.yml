@@ -7,7 +7,7 @@
   tasks:
 
   - name: Install local sat6 rpm 
-    command: "rpm -Uh --force http://sat6.pladd.net/pub/katello-ca-consumer-latest.noarch.rpm"
+    command: "rpm -Uh --force http://sat6.home.pladd.net/pub/katello-ca-consumer-latest.noarch.rpm"
     args:
       warn: False
 

@@ -1,0 +1,97 @@
+{% raw %}
+###################
+# Cluster variables
+###################
+# Set variables common for all OSEv3 hosts
+[OSEv3:vars]
+openshift_deployment_type=openshift-enterprise
+os_firewall_use_firewalld=True
+ansible_ssh_user=root
+
+#routing
+openshift_master_default_subdomain=ocp.pladd.net
+
+# registry stuff
+{% endraw %}
+oreg_auth_user='{{ oreg_auth_user }}'
+oreg_auth_password='{{ oreg_auth_password }}'
+{% raw %}
+
+# required because NFS storage is being used...
+openshift_enable_unsupported_configurations=True
+
+# metrics
+openshift_metrics_install_metrics=true
+openshift_metrics_storage_kind=nfs
+openshift_metrics_storage_access_modes=['ReadWriteOnce']
+openshift_metrics_storage_nfs_directory=/exports
+openshift_metrics_storage_nfs_options='*(rw,root_squash)'
+openshift_metrics_storage_volume_name=metrics
+openshift_metrics_storage_volume_size=10Gi
+
+# registry
+openshift_hosted_registry_storage_kind=nfs
+openshift_hosted_registry_storage_access_modes=['ReadWriteMany']
+openshift_hosted_registry_storage_nfs_directory=/exports
+openshift_hosted_registry_storage_nfs_options='*(rw,root_squash)'
+openshift_hosted_registry_storage_volume_name=registry
+openshift_hosted_registry_storage_volume_size=10Gi
+
+# htpasswd authentication
+openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider'}]
+openshift_master_htpasswd_users={'ocadmin': '$apr1$BhfZKWg7$bmkVTJOWEWetI..huFKcT.'}
+
+# logging
+openshift_logging_install_logging=true
+openshift_logging_storage_kind=nfs
+openshift_logging_storage_access_modes=['ReadWriteOnce']
+openshift_logging_storage_nfs_directory=/exports
+openshift_logging_storage_nfs_options='*(rw,root_squash)'
+openshift_logging_storage_volume_name=logging
+openshift_logging_storage_volume_size=10Gi
+openshift_logging_es_nodeselector={"node-role.kubernetes.io/infra":"true"}
+openshift_logging_es_memory_limit=4G
+
+# hosted etcd - for OAB
+openshift_hosted_etcd_storage_kind=nfs
+openshift_hosted_etcd_storage_nfs_options="*(rw,root_squash,sync,no_wdelay)"
+openshift_hosted_etcd_storage_nfs_directory=/exports
+openshift_hosted_etcd_storage_volume_name=etcd-vol2
+openshift_hosted_etcd_storage_access_modes=["ReadWriteOnce"]
+openshift_hosted_etcd_storage_volume_size=1G
+openshift_hosted_etcd_storage_labels={'storage': 'etcd'}
+
+# Operator Lifecycle Manager
+openshift_enable_olm=true
+#openshift_additional_registry_credentials=[{'host':'registry.connect.redhat.com','user':'{{ }}','password':'{{ }}','test_image':'mongodb/enterprise-operator:0.3.2'}]
+
+###################
+# Host definitions
+###################
+# host group for masters
+[masters]
+ocp-m1.home.pladd.net openshift_node_group_name='node-config-master-infra'
+ocp-m2.home.pladd.net openshift_node_group_name='node-config-master-infra'
+ocp-m3.home.pladd.net openshift_node_group_name='node-config-master-infra'
+
+# host group for etcd
+[etcd]
+ocp-m1.home.pladd.net
+ocp-m2.home.pladd.net
+ocp-m3.home.pladd.net
+
+[nfs]
+ocp-m1.home.pladd.net
+
+# host group for nodes, includes region info
+[nodes]
+ocp-m[1:3].home.pladd.net openshift_node_group_name='node-config-master-infra'
+ocp-n[1:2].home.pladd.net openshift_node_group_name='node-config-compute'
+
+# Create an OSEv3 group that contains the masters, nodes, and etcd groups
+[OSEv3:children]
+masters
+nodes
+etcd
+nfs
+{% endraw %}

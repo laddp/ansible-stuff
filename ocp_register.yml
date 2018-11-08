@@ -1,0 +1,26 @@
+---
+- name: subscriptions for OCP hosts
+  hosts:
+    - ocp_hosts
+  vars_files:
+    - subscription-manager-local.vault
+
+  tasks:
+  - name: Install local sat6 rpm
+    command: "rpm -Uh --force http://sat6.home.pladd.net/pub/katello-ca-consumer-latest.noarch.rpm"
+    args:
+      warn: False
+
+  - name: subscribe system
+    redhat_subscription:
+#      username: "{{ subscription_manager_id }}"
+#      password: "{{ subscription_manager_pw }}"
+#      environment: Library
+      org_id: wonder-widgets
+      activationkey: ocp_library
+      force_register: True
+      pool_ids:
+        - 4028fa5565165fc001651f55104d04a9 # RHEL Guest
+        - 4028fa5565165fc001651f5b32a1051a # Ansible
+        - 4028fa5565165fc001651f55104d04a9 # OCP
+...

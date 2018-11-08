@@ -1,40 +1,42 @@
 #rhel75.pladd.net ansible_host=192.168.42.194 ansible_user=root
 pladd-laptop.usersys.redhat.com ansible_become=yes
-unms.pladd.net ansible_host=192.168.42.50 ansible_become=yes
-#ocp-m1.pladd.net ansible_host=192.168.42.180 ansible_user=root
-ocp-m1.pladd.net ansible_user=root
-ocp-m2.pladd.net ansible_user=root
-ocp-m3.pladd.net ansible_user=root
-ocp-n1.pladd.net ansible_user=root
-ocp-n2.pladd.net ansible_user=root
-ocp-lb.pladd.net ansible_user=root
-beast.pladd.net ansible_user=root
-tower.pladd.net ansible_user=root
+unms.home.pladd.net ansible_become=yes
+ocp-m1.home.pladd.net ansible_user=root
+ocp-m2.home.pladd.net ansible_user=root
+ocp-m3.home.pladd.net ansible_user=root
+ocp-n1.home.pladd.net ansible_user=root
+ocp-n2.home.pladd.net ansible_user=root
+beast.home.pladd.net ansible_user=root
+tower.home.pladd.net ansible_user=root
+rhel75.home.pladd.net ansible_user=root
 
 [rhel_hosts]
-#rhel75.pladd.net
+rhel75.home.pladd.net
 pladd-laptop.usersys.redhat.com
-ocp-m1.pladd.net
-ocp-m2.pladd.net
-ocp-m3.pladd.net
-ocp-n1.pladd.net
-ocp-n2.pladd.net
-ocp-lb.pladd.net
-beast.pladd.net
-tower.pladd.net
+ocp-m1.home.pladd.net
+ocp-m2.home.pladd.net
+ocp-m3.home.pladd.net
+ocp-n1.home.pladd.net
+ocp-n2.home.pladd.net
+beast.home.pladd.net
+tower.home.pladd.net
 
 [ubuntu_hosts]
-unms.pladd.net
+unms.home.pladd.net
 
 [ocp_masters]
-ocp-m1.pladd.net
-ocp-m2.pladd.net
-ocp-m3.pladd.net
+ocp-m1.home.pladd.net
+ocp-m2.home.pladd.net
+ocp-m3.home.pladd.net
 
 [ocp_nodes]
-ocp-n1.pladd.net
-ocp-n2.pladd.net
+ocp-n1.home.pladd.net
+ocp-n2.home.pladd.net
+
+[ocp_hosts:children]
+ocp_masters
+ocp_nodes
 
 [kvm_hosts]
 pladd-laptop.usersys.redhat.com
-beast.pladd.net
+beast.home.pladd.net

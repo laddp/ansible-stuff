@@ -1,0 +1,41 @@
+---
+- name: Set memory on OCP VMs
+  hosts:
+    - beast.pladd.net
+  vars:
+    masters:
+    - ocp-m1
+    - ocp-m2
+    - ocp-m3
+    nodes:
+    - ocp-n1
+    - ocp-n2
+
+  tasks:
+  - name: get node statuses
+    virt:
+      command: status
+      name: "{{ item }}"
+    register: virt_status
+    with_items:
+    - "{{ masters }}"
+    - "{{ nodes }}"
+
+  - debug:
+      var: virt_status
+
+  - name: masters memory - 16GB / 8 CPU
+    command: "virsh 'setmaxmem {{ item }} --config 16G; setmem {{ item }} --config 16G; setvcpus {{ item }} --config 8'"
+    with_items: "{{ masters }}"
+
+  - name: node memory - 8GB / 8 CPU
+    command: "virsh 'setmaxmem {{ item }} --config  8G; setmem {{ item }} --config  8G; setvcpus {{ item }} --config 8'"
+    with_items: "{{ nodes }}"
+
+#  - name: disk size - 80GB
+#    command: "virsh 'vol-resize --pool virtual_machines {{ item }}.qcow2 80G'"
+#    with_items:
+#      - "{{ masters }}"
+#      - "{{ nodes }}"
+
+...
