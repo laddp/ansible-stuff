@@ -8,26 +8,6 @@
       with_items:
       - dnsmasq
 
-#    - name: dnsmasq config
-#      copy:
-#        src:    dnsmasq/dnsmasq-local-caching.conf
-#        dest:   /etc/dnsmasq.conf
-#        group:  dnsmasq
-#        owner:  dnsmasq
-#        mode:   u=rw,go=r
-#        backup: true
-#      notify:
-#        - restart dnsmasq
-
-#    - name: resolv.conf
-#      copy:
-#        src:    dnsmasq/resolv.conf
-#        dest:   /etc/resolv.conf
-#        group:  root
-#        owner:  root
-#        mode:   u=rw,go=r
-#        backup: true
-
     - name: NetworkManager config
       lineinfile:
         path: /etc/NetworkManager/NetworkManager.conf
@@ -37,17 +17,7 @@
       notify:
         - reload NetworkManager
 
-#    - name: start dnsmasq
-#      service:
-#        name:    dnsmasq
-#        state:   started
-#        enabled: yes
-
   handlers:
-#    - name: restart dnsmasq
-#      serv#ice:
-#        name: dnsmasq
-#        state: restarted
     - name: reload NetworkManager
       service:
         name: NetworkManager
