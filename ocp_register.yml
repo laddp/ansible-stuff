@@ -22,5 +22,5 @@
       pool_ids:
         - 4028fa5565165fc001651f55104d04a9 # RHEL Guest
         - 4028fa5565165fc001651f5b32a1051a # Ansible
-        - 4028fa5565165fc001651f55104d04a9 # OCP
+        - 4028fa5563f6ca6d0163f71ef11d0955 # OCP
 ...

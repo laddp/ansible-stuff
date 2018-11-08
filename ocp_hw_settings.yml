@@ -1,7 +1,7 @@
 ---
 - name: Set memory on OCP VMs
   hosts:
-    - beast.pladd.net
+    - beast.home.pladd.net
   vars:
     masters:
     - ocp-m1
