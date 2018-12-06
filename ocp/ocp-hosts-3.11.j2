@@ -8,6 +8,9 @@ openshift_deployment_type=openshift-enterprise
 os_firewall_use_firewalld=True
 ansible_ssh_user=root
 
+# Upgrade behavior - restart systems, not just services
+openshift_rolling_restart_mode=system
+
 #routing
 openshift_master_default_subdomain=ocp.pladd.net
 
@@ -19,6 +22,11 @@ oreg_auth_password='{{ oreg_auth_password }}'
 
 # required because NFS storage is being used...
 openshift_enable_unsupported_configurations=True
+
+# use cri-o engine too
+openshift_use_crio=True
+openshift_use_crio_only=False
+openshift_crio_enable_docker_gc=True
 
 # metrics
 openshift_metrics_install_metrics=true
@@ -64,6 +72,10 @@ openshift_hosted_etcd_storage_labels={'storage': 'etcd'}
 # Operator Lifecycle Manager
 openshift_enable_olm=true
 #openshift_additional_registry_credentials=[{'host':'registry.connect.redhat.com','user':'{{ }}','password':'{{ }}','test_image':'mongodb/enterprise-operator:0.3.2'}]
+
+# Node problem detector
+openshift_node_problem_detector_install=true
+
 
 ###################
 # Host definitions

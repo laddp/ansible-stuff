@@ -1,0 +1,17 @@
+---
+- hosts: beast.home.pladd.net
+
+  tasks:
+  - name: APC UPS packages
+    yum:
+      name:
+        - apcupsd
+        - apcupsd-cgi
+        - usbutils
+      state: latest
+
+  - name: apcupsd service
+    service:
+      name: apcupsd
+      state: started
+      enabled: true

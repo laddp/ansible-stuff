@@ -22,10 +22,10 @@
       name:
         - rhel-7-server-rpms
         - rhel-7-server-extras-rpms
-        - "rhel-7-server-ose-{{ ocp_version}}-rpms"
+        - "rhel-7-server-ose-{{ ocp_version }}-rpms"
         - rhel-7-fast-datapath-rpms
         - "rhel-7-server-ansible-{{ ocp_ansible_version }}-rpms"
-        - "rhel-7-server-satellite-tools-{{ sat_tools_version}}-rpms"
+        - "rhel-7-server-satellite-tools-{{ sat_tools_version }}-rpms"
       state: enabled
 
   - name: package installation

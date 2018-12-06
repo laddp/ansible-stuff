@@ -1,0 +1,9 @@
+---
+- hosts: rhel_hosts
+
+  tasks:
+  - name: EPEL repo
+    yum:
+      name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    when: "{{ ansible.distribution = RedHat }}"
+...

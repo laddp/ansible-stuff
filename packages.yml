@@ -2,16 +2,6 @@
 - hosts: rhel_hosts
 
   tasks:
-  - name: upgrade all packages
-    package:
-      name: '*'
-      state: latest
-
-  - name: EPEL repo
-    yum:
-      name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-    when: "{{ ansible.distribution = RedHat }}"
-      
   - name: useful packages
     yum:
       name:
@@ -25,7 +15,7 @@
         # monitoring tools
         - iotop
         - dstat
-        - nmon
+#        - nmon   # needs EPEL
       state: latest
 
 - hosts: desktops
