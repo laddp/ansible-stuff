@@ -18,7 +18,7 @@
 #      environment: Library
       org_id: wonder-widgets
       activationkey: ocp_library
-      force_register: True
+#      force_register: True
       pool_ids:
         - 4028fa5565165fc001651f55104d04a9 # RHEL Guest
         - 4028fa5565165fc001651f5b32a1051a # Ansible
