@@ -40,18 +40,18 @@
       name:
         - katello-agent
         - bash-completion
-        - pciutils
-        - unzip
+#        - pciutils
+#        - unzip
         - vim
         - wget
         - sos
-        - ansible
+#        - ansible
         - iotop
         - net-tools
-        - nmap
+#        - nmap
         - tcpdump
         - traceroute
-        - wireshark
+#        - wireshark
         - bind-utils # for dig
         - rsync
       state: latest

@@ -4,93 +4,96 @@
     - ocp_masters
     - ocp_nodes
   vars:
-    ocp_version: "3.11"
-    docker_version: "1.13.1"
-    ocp_ansible_version: "2.6"
+    ocp_version: "3.9"
+    docker_version_for_ocp:
+      "3.9": "1.13.1"
+      "3.10": "1.13.1"
+      "3.11": "1.13.1"
+    ansible_version_for_ocp:
+      "3.9":  "2.4"
+      "3.10": "2.6"
+      "3.11": "2.6"
     sat_tools_version: "6.4"
   vars_files:
     - ocp/ocp_keys.vault
 
   tasks:
-  - name: Disable all RHSM repositories
-    rhsm_repository:
-      name: '*'
-      state: disabled
+    - name: Disable all RHSM repositories
+      rhsm_repository:
+        name: '*'
+        state: disabled
 
-  - name: repositories
-    rhsm_repository:
-      name:
-        - rhel-7-server-rpms
-        - rhel-7-server-extras-rpms
-        - "rhel-7-server-ose-{{ ocp_version }}-rpms"
-        - rhel-7-fast-datapath-rpms
-        - "rhel-7-server-ansible-{{ ocp_ansible_version }}-rpms"
-        - "rhel-7-server-satellite-tools-{{ sat_tools_version }}-rpms"
-      state: enabled
+    - name: repositories
+      rhsm_repository:
+        name:
+          - rhel-7-server-rpms
+          - rhel-7-server-extras-rpms
+          - "rhel-7-server-ose-{{ ocp_version }}-rpms"
+          - rhel-7-fast-datapath-rpms
+          - "rhel-7-server-ansible-{{ ansible_version_for_ocp[ocp_version] }}-rpms"
+          - "rhel-7-server-satellite-tools-{{ sat_tools_version }}-rpms"
+        state: enabled
 
-  - name: package installation
-    yum:
-      name:
-        - katello-agent # to talk to satellite
-        # required list from OCP install docs below
-        - wget
-        - git
-        - net-tools 
-        - bind-utils
-        - yum-utils
-        - iptables-services 
-        - bridge-utils 
-        - bash-completion 
-        - kexec-tools 
-        - sos 
-        - psacct
-        - atomic
-        - "docker-{{ docker_version }}"
-      state: latest
+    - name: package installation
+      yum:
+        name:
+          - katello-agent  # to talk to satellite
+          # required list from OCP install docs below
+          - wget
+          - git
+          - net-tools
+          - bind-utils
+          - yum-utils
+          - iptables-services
+          - bridge-utils
+          - bash-completion
+          - kexec-tools
+          - sos
+          - psacct
+          - atomic
+          - "docker-{{ docker_version_for_ocp[ocp_version] }}"
+        state: latest
 
-  - name: installer package installation
-    yum:
-      name:
-        - openshift-ansible
-    when: "'ocp_masters' in group_names"
+    - name: installer package installation
+      yum:
+        name:
+          - openshift-ansible
+      when: "'ocp_masters' in group_names"
 
+    - name: copy ssh private key to masters
+      copy:
+        dest: /root/.ssh/
+        src:  ~/.ssh/id_rsa
+        mode: preserve
+      when: "'ocp_masters' in group_names"
 
-  - name: copy ssh private key to masters
-    copy:
-      dest: /root/.ssh/
-      src:  ~/.ssh/id_rsa
-      mode: preserve
-    when: "'ocp_masters' in group_names"
+    - name: image signature support
+      command: "atomic --assumeyes trust add --sigstoretype web \
+                --sigstore https://access.redhat.com/webassets/docker/content/sigstore \
+                --pubkeys /etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release \
+                registry.redhat.io"
 
+#    - name: config for docker-storage
+#      lineinfile:
+#        dest: /etc/sysconfig/docker-storage-setup
+#        line: "{{ item }}"
+#      with_items:
+#        - "VG=docker-vg"
+#        - "DEV=/dev/sdb"
 
-  - name: image signature support
-    command: "atomic --assumeyes trust add --sigstoretype web \
-  --sigstore https://access.redhat.com/webassets/docker/content/sigstore \
-  --pubkeys /etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release \
-  registry.redhat.io"
+    - name: docker service
+      service:
+        name: docker
+        state: started
+        enabled: true
 
-#  - name: config for docker-storage
-#    lineinfile:
-#      dest: /etc/sysconfig/docker-storage-setup
-#      line: "{{ item }}"
-#    with_items:
-#      - "VG=docker-vg"
-#      - "DEV=/dev/sdb"
-
-  - name: docker service
-    service:
-      name: docker
-      state: started
-      enabled: yes
-
-  - name: cluster hosts file
-    template:
-      src: ocp/ocp-hosts-3.11.j2
-      dest: /etc/ansible/hosts
-      backup: yes
-      mode: u=rw,go=r
-      owner: root
-      group: root
-    when: "'ocp_masters' in group_names"
-
+    - name: cluster hosts file
+      template:
+        src: ocp/ocp-inventory-{{ ocp_version }}.j2
+        dest: /etc/ansible/hosts
+        backup: true
+        mode: u=rw,go=r
+        owner: root
+        group: root
+      when: "'ocp_masters' in group_names"
 ...
