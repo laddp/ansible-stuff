@@ -9,9 +9,16 @@ ocp-n2.home.pladd.net ansible_user=root
 beast.home.pladd.net ansible_user=root
 tower.home.pladd.net ansible_user=root
 rhel75.home.pladd.net ansible_user=root
+rhel76.home.pladd.net ansible_user=root ansible_host=192.168.122.101
+rhel76upgrade.home.pladd.net ansible_user=root
+gluster34.home.pladd.net ansible_user=root
+awx ansible_host=192.168.122.60 ansible_user=root
+tower ansible_host=192.168.122.13 ansible_user=root
 
 [rhel_hosts]
 rhel75.home.pladd.net
+rhel76.home.pladd.net
+rhel76upgrade.home.pladd.net
 pladd-laptop.usersys.redhat.com
 ocp-m1.home.pladd.net
 ocp-m2.home.pladd.net
@@ -20,6 +27,9 @@ ocp-n1.home.pladd.net
 ocp-n2.home.pladd.net
 beast.home.pladd.net
 tower.home.pladd.net
+gluster34.home.pladd.net
+awx
+tower
 
 [ubuntu_hosts]
 unms.home.pladd.net
@@ -40,3 +50,5 @@ ocp_nodes
 [kvm_hosts]
 pladd-laptop.usersys.redhat.com
 beast.home.pladd.net
+
+[gluster_hosts]

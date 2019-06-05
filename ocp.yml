@@ -54,11 +54,21 @@
           - "docker-{{ docker_version_for_ocp[ocp_version] }}"
         state: latest
 
-    - name: installer package installation
+    - name: installer package installation (3.9)
+      yum:
+        name:
+          - atomic-openshift-utils
+      when:
+        - "'ocp_masters' in group_names"
+        - "ocp_version is version_compare('3.9', '=')"
+
+    - name: installer package installation (3.10 / 3.11)
       yum:
         name:
           - openshift-ansible
-      when: "'ocp_masters' in group_names"
+      when:
+        - "'ocp_masters' in group_names"
+        - "ocp_version is version_compare('3.9', '<')"
 
     - name: copy ssh private key to masters
       copy:

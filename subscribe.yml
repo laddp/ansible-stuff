@@ -1,0 +1,34 @@
+---
+- name: register server, install useful packages
+  hosts: rhel_hosts
+  vars:
+    repositories_for_rhel_version:
+      "7":
+        - "rhel-7-server-rpms"
+        - "rhel-7-server-optional-rpms"
+        - "rhel-7-server-extras-rpms"
+        - "rhel-7-server-ansible-2-rpms"
+      "8":
+        - "rhel-8-for-x86_64-baseos-rpms"
+        - "ansible-2.8-for-rhel-8-x86_64-rpms"
+        - "rhel-8-for-x86_64-appstream-rpms"
+  vars_files:
+    - subscription-manager.vault
+
+  tasks:
+  - name: fail if vault not decrypted
+    fail: msg="Vault not decrypted"
+    when: subscription_manager_id is undefined or subscription_manager_pw is undefined
+
+  - name: subscribe system
+    redhat_subscription:
+      username: "{{ subscription_manager_id }}"
+      password: "{{ subscription_manager_pw }}"
+      pool_ids: "8a85f9833e1404a9013e3cddf99305e6" # Employee SKU
+
+  - name: repositories
+    rhsm_repository:
+      name: "{{ repositories_for_rhel_version[ansible_distribution_major_version] }}"
+      state: enabled
+
+...

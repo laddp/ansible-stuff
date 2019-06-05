@@ -5,17 +5,27 @@
   - name: useful packages
     yum:
       name:
-        - net-tools
+        - bash-completion
+        - pciutils
+        - unzip
         - vim
+        - wget
+        - numactl
+        - sos
+        - ansible
+        - iotop
+        - net-tools
+        - nmap
+        - tcpdump
+        - traceroute
+        - wireshark
+        - bind-utils # for dig
+        - rsync
         - ntpdate
         - lsof
-        - bash-completion
         - libselinux-python # needed for lots of ansible scripts
         - tree
-        # monitoring tools
-        - iotop
         - dstat
-#        - nmon   # needs EPEL
       state: latest
 
 - hosts: desktops
