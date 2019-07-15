@@ -1,0 +1,49 @@
+---
+- hosts: vdo_hosts
+
+  tasks:
+  - name: vdo packages
+    yum:
+      name:
+        - vdo
+        - kmod-kvdo
+      state: latest
+
+  - name: vdo service
+    service:
+      name: vdo
+      state: started
+      enabled: true
+
+- hosts: beast
+  tasks:
+  - name: LV for VDO
+    lvol:
+      vg: rootvg
+      lv: vdolv
+      size: 500G
+
+# waiting on https://github.com/ansible/ansible/issues/54556 - fails after created
+# - name: vdo volume
+#   vdo:
+#     name: vdovar
+#     state: present
+#     running: yes
+#     device: /dev/mapper/rootvg-vdolv
+#     logicalsize: 1T
+
+# waiting on https://github.com/ansible/ansible/issues/33979 - fails after created
+# - name: xfs format
+#   filesystem:
+#     dev:  /dev/mapper/vdovar
+#     fstype: xfs
+#     resizefs: yes
+
+  - name: vdo mount
+    mount:
+      path: /mnt/testvdo
+      src:  /dev/mapper/vdovar
+      fstype: xfs
+      opts: "x-systemd.requires=vdo.service"
+      state: mounted
+...

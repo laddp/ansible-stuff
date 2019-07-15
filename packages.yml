@@ -19,11 +19,11 @@
         - tcpdump
         - traceroute
         - wireshark
-        - bind-utils # for dig
+#        - bind-utils # for dig
         - rsync
-        - ntpdate
+#        - ntpdate
         - lsof
-        - libselinux-python # needed for lots of ansible scripts
+#        - libselinux-python # needed for lots of ansible scripts
         - tree
         - dstat
       state: latest

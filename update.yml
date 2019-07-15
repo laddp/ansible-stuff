@@ -1,5 +1,5 @@
 ---
-- name: register server, install useful packages
+- name: Update all existing packages
   hosts: rhel_hosts
 
   tasks:

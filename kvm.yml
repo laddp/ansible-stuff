@@ -1,14 +1,26 @@
 ---
 - hosts: kvm_hosts
+  roles:
+    - role: linux-system-roles.tuned
+      vars:
+        use_recommended_profile: false
+        profile: virtual-host
 
   tasks:
   - name: Virt packages
-    yum: name={{ item }} state=latest
-    with_items:
-      - qemu-kvm 
-      - libvirt
-      - virt-install
-      - bridge-utils
+    yum:
+      name:
+        - qemu-kvm 
+        - libvirt
+        - virt-install
+       #- bridge-utils
+      state: latest
+
+  - name: libvirt service start
+    service:
+      name: libvirtd
+      state: started
+      enabled: true
 
   - name: polikit permission
     copy:

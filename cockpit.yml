@@ -1,0 +1,40 @@
+---
+- hosts: rhel_hosts
+
+  tasks:
+  - name: cockpit
+    yum:
+      name:
+        - cockpit
+        - cockpit-dashboard
+        - cockpit-ws
+        - cockpit-session-recording
+        - cockpit-packagekit
+        - cockpit-storaged
+        - cockpit-composer
+        - cockpit-system
+        - cockpit-pcp
+        - cockpit-bridge
+        - subscription-manager-cockpit
+      state: latest
+
+  - name: cockpit service socket
+    service:
+      name: cockpit.socket
+      state: started
+      enabled: true
+
+  - name: cockpit store metrics
+    service:
+      name: pmlogger.service
+      state: started
+      enabled: true
+
+- hosts: kvm_hosts
+  tasks:
+  - name: cockpit VM management
+    yum:
+      name:
+        - cockpit-machines
+      state: latest
+...

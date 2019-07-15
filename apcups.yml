@@ -1,5 +1,5 @@
 ---
-- hosts: beast.home.pladd.net
+- hosts: beast
 
   tasks:
   - name: APC UPS packages
