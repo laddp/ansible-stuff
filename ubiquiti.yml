@@ -1,0 +1,39 @@
+---
+- name: Create Ubiquiti management VM
+  hosts: beast
+  vars:
+    ubvm:
+    - name: ubiquiti
+      memory: 4
+      memory_units: G
+      vcpu: 8
+      disks:
+      - name: ubiquiti
+        path: /var/lib/libvirt/images
+        disk_driver: virtio
+        format: qcow2
+      network_interfaces:
+      - type: direct
+        source: enp65s1
+        mode: bridge
+
+  tasks:
+  - name: store template file for testing
+    template:
+      dest: /root/ubiquiti.xml
+      src: vm_template.xml.j2
+    with_items: "{{ ubvm }}"
+
+  - name: define vm from xml and set autostart
+    virt:
+      command: define
+      xml: "{{ lookup('template', 'vm_template.xml.j2') }}"
+      autostart: yes
+    with_items: "{{ ubvm }}"
+
+  - name: start VM
+    virt:
+      state: running
+      name: ubiquiti
+
+...

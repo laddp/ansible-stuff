@@ -26,7 +26,7 @@
 # waiting on https://github.com/ansible/ansible/issues/54556 - fails after created
 # - name: vdo volume
 #   vdo:
-#     name: vdovar
+#     name: vdovirt
 #     state: present
 #     running: yes
 #     device: /dev/mapper/rootvg-vdolv
@@ -35,14 +35,14 @@
 # waiting on https://github.com/ansible/ansible/issues/33979 - fails after created
 # - name: xfs format
 #   filesystem:
-#     dev:  /dev/mapper/vdovar
+#     dev:  /dev/mapper/vdovirt
 #     fstype: xfs
 #     resizefs: yes
 
   - name: vdo mount
     mount:
-      path: /mnt/testvdo
-      src:  /dev/mapper/vdovar
+      path: /var/lib/libvirt
+      src:  /dev/mapper/vdovirt
       fstype: xfs
       opts: "x-systemd.requires=vdo.service"
       state: mounted
