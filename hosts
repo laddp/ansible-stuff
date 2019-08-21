@@ -16,7 +16,8 @@ awx ansible_host=192.168.122.60 ansible_user=root
 tower ansible_host=192.168.122.13 ansible_user=root
 home_switch ansible_host=192.168.42.2 ansible_user=pmladd
 home_gw ansible_host=192.168.42.1 ansible_user=pmladd
-rhel8 ansible_host=192.168.122.128 ansible_user=root
+rhel80 ansible_user=root
+rhel77 ansible_user=root
 
 
 [rhel_hosts]
@@ -34,7 +35,8 @@ tower.home.pladd.net
 gluster34.home.pladd.net
 awx
 tower
-rhel8
+rhel80
+rhel77
 
 [ubuntu_hosts]
 unms.home.pladd.net

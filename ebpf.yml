@@ -1,0 +1,12 @@
+---
+- hosts: rhel_hosts
+
+  tasks:
+  - name: packages for ebpf
+    yum:
+      name:
+        - bcc
+        - bcc-tools
+        - python3-bcc 
+      state: latest
+...

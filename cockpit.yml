@@ -8,7 +8,6 @@
         - cockpit
         - cockpit-dashboard
         - cockpit-ws
-        - cockpit-session-recording
         - cockpit-packagekit
         - cockpit-storaged
         - cockpit-composer
@@ -17,6 +16,12 @@
         - cockpit-bridge
         - subscription-manager-cockpit
       state: latest
+
+  - name: cockpit on rhel8
+    yum:
+      name:
+        - cockpit-session-recording
+    when: "{{ ansible_distribution_major_version==8 }}"
 
   - name: cockpit service socket
     service:
