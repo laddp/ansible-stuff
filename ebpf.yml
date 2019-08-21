@@ -7,6 +7,17 @@
       name:
         - bcc
         - bcc-tools
-        - python3-bcc 
       state: latest
+
+  - name: rhel7 package
+    yum:
+      name:
+        - python-bcc 
+    when: ansible_distribution_major_version == 7
+
+  - name: rhel8+ package
+    yum:
+      name:
+        - python3-bcc
+    when: ansible_distribution_major_version|int >= 8
 ...
