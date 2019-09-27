@@ -1,12 +1,12 @@
 #rhel75.pladd.net ansible_host=192.168.42.194 ansible_user=root
-pladd-laptop.usersys.redhat.com ansible_become=yes
+pladd-laptop.usersys.redhat.com ansible_become=yes ansible_become_method=su ansible_python_interpreter=/usr/bin/python3
 unms.home.pladd.net ansible_become=yes
 ocp-m1.home.pladd.net ansible_user=root
 ocp-m2.home.pladd.net ansible_user=root
 ocp-m3.home.pladd.net ansible_user=root
 ocp-n1.home.pladd.net ansible_user=root
 ocp-n2.home.pladd.net ansible_user=root
-beast ansible_user=root ansible_host=192.168.42.201
+beast ansible_user=root ansible_host=192.168.42.200
 tower.home.pladd.net ansible_user=root
 rhel75.home.pladd.net ansible_user=root
 rhel76.home.pladd.net ansible_user=root ansible_host=192.168.122.101
@@ -18,13 +18,18 @@ home_switch ansible_host=192.168.42.2 ansible_user=pmladd
 home_gw ansible_host=192.168.42.1 ansible_user=pmladd
 rhel80 ansible_user=root
 rhel77 ansible_user=root
+master-0.pladdocp311.lab.rdu2.cee.redhat.com ansible_user=quicklab ansible_become=yes
+master-1.pladdocp311.lab.rdu2.cee.redhat.com ansible_user=quicklab ansible_become=yes
+master-2.pladdocp311.lab.rdu2.cee.redhat.com ansible_user=quicklab ansible_become=yes
+infra-0.pladdocp311.lab.rdu2.cee.redhat.com ansible_user=quicklab ansible_become=yes
+node-0.pladdocp311.lab.rdu2.cee.redhat.com ansible_user=quicklab ansible_become=yes
+node-1.pladdocp311.lab.rdu2.cee.redhat.com ansible_user=quicklab ansible_become=yes
 
 
 [rhel_hosts]
 rhel75.home.pladd.net
 rhel76.home.pladd.net
 rhel76upgrade.home.pladd.net
-pladd-laptop.usersys.redhat.com
 ocp-m1.home.pladd.net
 ocp-m2.home.pladd.net
 ocp-m3.home.pladd.net
@@ -37,6 +42,9 @@ awx
 tower
 rhel80
 rhel77
+
+[fedora_hosts]
+pladd-laptop.usersys.redhat.com
 
 [ubuntu_hosts]
 unms.home.pladd.net
@@ -66,3 +74,14 @@ beast
 beast
 
 [gluster_hosts]
+
+[istio_hosts]
+master-0.pladdocp311.lab.rdu2.cee.redhat.com 
+master-1.pladdocp311.lab.rdu2.cee.redhat.com 
+master-2.pladdocp311.lab.rdu2.cee.redhat.com 
+infra-0.pladdocp311.lab.rdu2.cee.redhat.com
+node-0.pladdocp311.lab.rdu2.cee.redhat.com
+node-1.pladdocp311.lab.rdu2.cee.redhat.com
+
+[istio_once_per_cluster_host]
+master-0.pladdocp311.lab.rdu2.cee.redhat.com 

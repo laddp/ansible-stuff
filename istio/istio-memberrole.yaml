@@ -1,0 +1,11 @@
+apiVersion: maistra.io/v1
+kind: ServiceMeshMemberRoll
+metadata:
+  name: default
+spec:
+  members:
+  - istio-system
+  - istio-operator
+  - kiali-operator
+  - observability
+  - istiotest
