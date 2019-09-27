@@ -1,5 +1,5 @@
 ---
-- hosts: rhel_hosts
+- hosts: rhel_hosts,fedora_hosts
 
   tasks:
   - name: packages for ebpf
@@ -7,17 +7,18 @@
       name:
         - bcc
         - bcc-tools
+        - kernel-devel
       state: latest
 
   - name: rhel7 package
     yum:
       name:
         - python-bcc 
-    when: ansible_distribution_major_version == 7
+    when: (ansible_facts[‘distribution’] == RedHat && ansible_facts[‘distribution_major_version’]|int == 7)
 
   - name: rhel8+ package
     yum:
       name:
         - python3-bcc
-    when: ansible_distribution_major_version|int >= 8
+    when: (ansible_facts[‘distribution’] == Fedora || (ansible_facts[‘distribution’] == RedHat && ansible_facts[‘distribution_major_version’]|int >= 8))
 ...

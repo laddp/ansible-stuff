@@ -1,5 +1,5 @@
 ---
-- name: register server, install useful packages
+- name: register server, set repositories
   hosts: rhel_hosts
   vars:
     repositories_for_rhel_version:

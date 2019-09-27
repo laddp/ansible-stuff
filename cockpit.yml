@@ -1,6 +1,5 @@
 ---
-- hosts: rhel_hosts
-
+- hosts: rhel_hosts,fedora_hosts
   tasks:
   - name: cockpit
     yum:
@@ -14,14 +13,7 @@
         - cockpit-system
         - cockpit-pcp
         - cockpit-bridge
-        - subscription-manager-cockpit
       state: latest
-
-  - name: cockpit on rhel8
-    yum:
-      name:
-        - cockpit-session-recording
-    when: ansible_distribution_major_version|int >=8
 
   - name: cockpit service socket
     service:
@@ -34,6 +26,28 @@
       name: pmlogger.service
       state: started
       enabled: true
+
+- hosts: rhel_hosts
+  tasks:
+  - name: cockpit on RHEL
+    yum:
+      name:
+        - subscription-manager-cockpit
+
+  - name: cockpit on RHEL8
+    yum:
+      name:
+        - cockpit-session-recording
+    when: ansible_distribution_major_version|int >=8
+
+- hosts: fedora_hosts
+  tasks:
+  - name: cockpit on Fedora
+    yum:
+      name:
+#        - cockpit-machines-ovirt
+        - cockpit-podman
+        - cockpit-session-recording
 
 - hosts: kvm_hosts
   tasks:
