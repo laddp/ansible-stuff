@@ -10,7 +10,7 @@
         - "rhel-7-server-ansible-2-rpms"
       "8":
         - "rhel-8-for-x86_64-baseos-rpms"
-        - "ansible-2.8-for-rhel-8-x86_64-rpms"
+        - "ansible-2-for-rhel-8-x86_64-rpms"
         - "rhel-8-for-x86_64-appstream-rpms"
   vars_files:
     - subscription-manager.vault

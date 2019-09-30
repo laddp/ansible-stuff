@@ -1,0 +1,58 @@
+---
+- name: Settings for beast server
+  hosts: beast
+
+  tasks:
+  - name: install needed network packages
+    yum:
+      state: latest
+      name:
+      - rhel-system-roles
+      - dbus
+      - NetworkManager
+      - NetworkManager-libnm
+  
+  - name: backup network connection
+    nmcli:
+      conn_name: enp65s1
+      ifname: enp65s1
+      state: present
+      type: ethernet
+      ip4: 192.168.42.201/24
+      gw4: 192.168.42.1
+      dns4:
+      - "8.8.8.8"
+      - "8.8.4.4"
+#      route:
+#            network: 0.0.0.0
+#            gateway: 192.168.42.1
+#            metric:  300
+
+  - name: network team
+    nmcli:
+      type: team
+      conn_name: beast-team
+      state: present
+
+  - name: network slaves
+    nmcli:
+      type: team-slave
+      master: beast-team
+      conn_name: "{{ item.name }}"
+      ifname:    "{{ item.interface }}"
+      state: present
+    with_items:
+      - name: beast-slave1
+        interface: enp65s2
+      - name: beast-slave2
+        interface: ens6f0
+      - name: beast-slave3
+        interface: ens6f0
+
+  - name: adjust metrics to prefer team interface
+    command: nmcli connection modify beast-team ipv4.route-metric 100
+
+  - name: adjust metrics to prefer team interface
+    command: nmcli connection modify enp65s1 ipv4.route-metric 300
+
+...

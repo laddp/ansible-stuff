@@ -24,25 +24,25 @@
       size: 500G
 
 # waiting on https://github.com/ansible/ansible/issues/54556 - fails after created
-# - name: vdo volume
-#   vdo:
-#     name: vdovirt
-#     state: present
-#     running: yes
-#     device: /dev/mapper/rootvg-vdolv
-#     logicalsize: 1T
+#  - name: vdo volume
+#    vdo:
+#      name: vdovol
+#      state: present
+#      running: yes
+#      device: /dev/mapper/rootvg-vdolv
+#      logicalsize: 1.5T
 
 # waiting on https://github.com/ansible/ansible/issues/33979 - fails after created
-# - name: xfs format
-#   filesystem:
-#     dev:  /dev/mapper/vdovirt
-#     fstype: xfs
-#     resizefs: yes
+  - name: xfs format
+    filesystem:
+      dev:  /dev/mapper/vdovol
+      fstype: xfs
+      resizefs: yes
 
   - name: vdo mount
     mount:
       path: /var/lib/libvirt
-      src:  /dev/mapper/vdovirt
+      src:  /dev/mapper/vdovol
       fstype: xfs
       opts: "x-systemd.requires=vdo.service"
       state: mounted

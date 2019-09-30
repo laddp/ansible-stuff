@@ -41,41 +41,34 @@
       append: yes
  
 - hosts: beast
-  tasks:
-
-  - name: fast pool directory
-    file:
+  vars:
+    data_dirs:
+    - name: data_fast
       path: /data/libvirt_images
+    - name: libvirt_images
+      path: /var/lib/libvirt/images
+    - name: libvirt_isos
+      path: /var/lib/libvirt/images/isos
+
+  tasks:
+  - name: directories
+    file:
+      path: "{{ item.path }}"
       state: directory
+    loop: "{{ data_dirs }}"
 
   - name: storage pool define
     virt_pool:
       command: define
-      name: libvirt_images
-      xml: '{{ lookup("template", "beast_libvirt_images.xml.j2") }}'      
-
-  - name: fast storage pool define
-    virt_pool:
-      command: define
-      name: data_fast
-      xml: '{{ lookup("template", "beast_data_fast.xml.j2") }}'      
+      name: "{{ item.name }}"
+      xml: '{{ lookup("template", "libvirt_pool_dir.j2") }}'
+    loop: "{{ data_dirs }}"
 
   - name: storage pool active
     virt_pool:
       state: active
-      name: "{{ item }}"
+      name: "{{ item.name }}"
       autostart: yes
-    with_items:
-    - libvirt_images
-    - data_fast
-
-  - name: storage pool autostart
-    virt_pool:
-      name: "{{ item }}"
-      autostart: yes
-    with_items:
-    - libvirt_images
-    - data_fast
-
+    loop: "{{ data_dirs }}"
 
 ...

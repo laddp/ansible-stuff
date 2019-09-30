@@ -6,7 +6,7 @@ ocp-m2.home.pladd.net ansible_user=root
 ocp-m3.home.pladd.net ansible_user=root
 ocp-n1.home.pladd.net ansible_user=root
 ocp-n2.home.pladd.net ansible_user=root
-beast ansible_user=root ansible_host=192.168.42.200
+beast ansible_user=root ansible_host=192.168.42.201
 tower.home.pladd.net ansible_user=root
 rhel75.home.pladd.net ansible_user=root
 rhel76.home.pladd.net ansible_user=root ansible_host=192.168.122.101
