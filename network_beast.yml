@@ -55,4 +55,8 @@
   - name: adjust metrics to prefer team interface
     command: nmcli connection modify enp65s1 ipv4.route-metric 300
 
+  - name: adjust network tuning parameters
+    sysctl:
+      name: net.core.netdev_budget
+      value: 300
 ...
