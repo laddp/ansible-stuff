@@ -1,0 +1,16 @@
+---
+- hosts: all
+
+  tasks:
+  - name: rsawhill repo
+    yum:
+      name: http://people.redhat.com/rsawhill/rpms/latest-rsawaroha-release.rpm
+      state: latest
+
+  - name: xsos and rsar RPMs
+    yum:
+      name:
+      - xsos
+      - rsar
+      state: latest
+...

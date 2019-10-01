@@ -19,7 +19,7 @@
         - tcpdump
         - traceroute
         - wireshark
-#        - bind-utils # for dig
+        - bind-utils # for dig
         - rsync
 #        - ntpdate
         - lsof

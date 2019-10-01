@@ -3,16 +3,24 @@
 
   tasks:
   - name: monitoring packages
-    yum: name={{ item }} state=latest
-    with_items:
+    yum:
+      state: latest
+      name:
       - lm_sensors
+      - smartmontools
+
+  - name: rhel7 and previous package
+    yum:
+      name:
       - hddtemp
+    when: ansible_distribution_major_version|int < 8
 
 - hosts: desktops
 
   tasks:
   - name: kde monitors
-    yum: name={{ item }} state=latest
-    with_items:
+    yum:
+      state: latest
+      name:
       - ksysguard
-
+...

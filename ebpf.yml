@@ -13,12 +13,12 @@
   - name: rhel7 package
     yum:
       name:
-        - python-bcc 
-    when: (ansible_facts[‘distribution’] == RedHat && ansible_facts[‘distribution_major_version’]|int == 7)
+        - python-bcc
+    when: ansible_distribution == 'RedHat' and ansible_distribution_major_version|int < 8
 
-  - name: rhel8+ package
+  - name: fedora and rhel8+ package
     yum:
       name:
         - python3-bcc
-    when: (ansible_facts[‘distribution’] == Fedora || (ansible_facts[‘distribution’] == RedHat && ansible_facts[‘distribution_major_version’]|int >= 8))
+    when: ansible_distribution == 'Fedora' or (ansible_distribution == 'RedHat' and ansible_distribution_major_version|int >= 8)
 ...
