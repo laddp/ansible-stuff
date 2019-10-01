@@ -1,7 +1,7 @@
 ---
 - hosts: rhel_hosts,fedora_hosts
   tasks:
-  - name: cockpit
+  - name: cockpit main packages
     yum:
       name:
         - cockpit
@@ -23,18 +23,21 @@
 
   - name: cockpit store metrics
     service:
-      name: pmlogger.service
+      name: "{{ item }}"
       state: started
       enabled: true
+    loop:
+    - pmcd
+    - pmlogger
 
 - hosts: rhel_hosts
   tasks:
-  - name: cockpit on RHEL
+  - name: cockpit on RHEL packages
     yum:
       name:
         - subscription-manager-cockpit
 
-  - name: cockpit on RHEL8
+  - name: cockpit on RHEL8 packages
     yum:
       name:
         - cockpit-session-recording
@@ -42,7 +45,7 @@
 
 - hosts: fedora_hosts
   tasks:
-  - name: cockpit on Fedora
+  - name: cockpit on Fedora packages
     yum:
       name:
 #        - cockpit-machines-ovirt
@@ -51,7 +54,7 @@
 
 - hosts: kvm_hosts
   tasks:
-  - name: cockpit VM management
+  - name: cockpit VM management packages
     yum:
       name:
         - cockpit-machines
