@@ -1,74 +1,25 @@
 ---
-- hosts: kvm_hosts
+- name: beast_libvirt_setup
+  hosts: beast
   roles:
-    - role: linux-system-roles.tuned
-      vars:
-        use_recommended_profile: false
-        profile: virtual-host
-
-  tasks:
-  - name: Virt packages
-    yum:
-      name:
-        - qemu-kvm 
-        - libvirt
-        - virt-install
-        - python3-lxml
-       #- bridge-utils
-      state: latest
-
-  - name: libvirt service start
-    service:
-      name: libvirtd
-      state: started
-      enabled: true
-
-  - name: polikit permission
-    copy:
-      dest: /etc/polkit-1/rules.d/50-libvirt.rules
-      src: kvm/50-libvirt.rules
-      backup: yes
-      mode: "u=rw,g=r,o=r"
-      owner: root
-      group: root
-
-  - name: add user to libvirt and wheel group 
-    # libvirt lets them manage virt stuff per above policy
-    # wheel is needed to sudo and change permissions on files to use chmod on virsh created qcow files
-    user:
-      name:   pladd
-      groups: libvirt,wheel
-      append: yes
- 
-- hosts: beast
-  vars:
-    data_dirs:
-    - name: data_fast
-      path: /data/libvirt_images
-    - name: libvirt_images
-      path: /var/lib/libvirt/images
-    - name: libvirt_isos
-      path: /var/lib/libvirt/images/isos
-
-  tasks:
-  - name: directories
-    file:
-      path: "{{ item.path }}"
-      state: directory
-    loop: "{{ data_dirs }}"
-
-  - name: storage pool define
-    virt_pool:
-      command: define
-      name: "{{ item.name }}"
-      xml: '{{ lookup("template", "libvirt_pool_dir.j2") }}'
-    loop: "{{ data_dirs }}"
-
-  - name: storage pool active
-    virt_pool:
-      state: active
-      name: "{{ item.name }}"
-      autostart: yes
-    loop: "{{ data_dirs }}"
-
+    - role: stackhpc.libvirt-host
+      libvirt_host_pools:
+        - name: data_fast
+          type: dir
+          path: /data/libvirt_images
+          owner: qemu
+          group: qemu
+          mode: 775
+        - name: libvirt_images
+          type: dir
+          path: /var/lib/libvirt/images
+          owner: qemu
+          group: qemu
+          mode: 775
+        - name: libvirt_isos
+          type: dir
+          path: /var/lib/libvirt/images/isos
+          owner: qemu
+          group: qemu
+          mode: 775
 ...

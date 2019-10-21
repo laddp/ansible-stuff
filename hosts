@@ -1,6 +1,6 @@
 #rhel75.pladd.net ansible_host=192.168.42.194 ansible_user=root
 pladd-laptop.usersys.redhat.com ansible_become=yes ansible_become_method=su ansible_python_interpreter=/usr/bin/python3
-unms.home.pladd.net ansible_become=yes
+ubiquiti.home.pladd.net ansible_host=192.168.42.50 ansible_become=yes
 ocp-m1.home.pladd.net ansible_user=root
 ocp-m2.home.pladd.net ansible_user=root
 ocp-m3.home.pladd.net ansible_user=root
@@ -47,7 +47,7 @@ rhel77
 pladd-laptop.usersys.redhat.com
 
 [ubuntu_hosts]
-unms.home.pladd.net
+ubiquiti.home.pladd.net
 
 [ubiquiti]
 home_switch

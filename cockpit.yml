@@ -59,4 +59,12 @@
       name:
         - cockpit-machines
       state: latest
+
+- hosts: ubuntu_hosts
+  tasks:
+  - name: cockpit package
+    apt:
+      name:
+        - cockpit
+      state: latest
 ...
