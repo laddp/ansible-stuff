@@ -18,11 +18,6 @@
     - ocp/ocp_keys.vault
 
   tasks:
-    - name: Disable all RHSM repositories
-      rhsm_repository:
-        name: '*'
-        state: disabled
-
     - name: repositories
       rhsm_repository:
         name:
@@ -33,6 +28,7 @@
           - "rhel-7-server-ansible-{{ ansible_version_for_ocp[ocp_version] }}-rpms"
           - "rhel-7-server-satellite-tools-{{ sat_tools_version }}-rpms"
         state: enabled
+        purge: yes
 
     - name: package installation
       yum:

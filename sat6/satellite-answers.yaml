@@ -1,0 +1,678 @@
+# Format:
+# <classname>: false - don't include this class
+# <classname>: true - include and use the defaults
+# <classname>:
+#   <param>: <value> - include and override the default(s)
+#
+# See params.pp in each class for what options are available
+
+---
+certs:
+  log_dir: /var/log/certs
+  node_fqdn: sat6.home.pladd.net
+  cname: []
+  generate: true
+  regenerate: false
+  regenerate_ca: false
+  deploy: true
+  ca_common_name: sat6.home.pladd.net
+  country: US
+  state: New York
+  city: Wappingers Falls
+  org: Wonder Widgets
+  org_unit: Psionic Engineering
+  expiration: '7300'
+  ca_expiration: '36500'
+  server_cert: 
+  server_key: 
+  server_cert_req: 
+  server_ca_cert: 
+  pki_dir: /etc/pki/katello
+  ssl_build_dir: /root/ssl-build
+  user: root
+  group: foreman
+  default_ca_name: katello-default-ca
+  server_ca_name: katello-server-ca
+  tar_file: 
+foreman:
+  foreman_url: https://sat6.home.pladd.net
+  puppetrun: false
+  unattended: true
+  unattended_url: 
+  authentication: 
+  passenger: true
+  passenger_ruby: /usr/bin/tfm-ruby
+  passenger_ruby_package: tfm-rubygem-passenger-native
+  plugin_prefix: tfm-rubygem-foreman_
+  servername: sat6.home.pladd.net
+  serveraliases:
+  - foreman
+  ssl: true
+  repo: 
+  configure_epel_repo: false
+  configure_scl_repo: false
+  selinux: 
+  gpgcheck: true
+  version: present
+  plugin_version: present
+  db_manage: true
+  db_type: postgresql
+  db_adapter: 
+  db_host: 
+  db_port: 
+  db_database: 
+  db_username: foreman
+  db_password: s8DGURFnrzPcWzExaz4jQgwD6FkFv7W2
+  db_sslmode: 
+  db_root_cert: 
+  db_pool: 5
+  db_manage_rake: true
+  app_root: /usr/share/foreman
+  manage_user: true
+  user: foreman
+  group: foreman
+  user_groups: []
+  rails_env: production
+  locations_enabled: 
+  organizations_enabled: 
+  passenger_interface: 
+  vhost_priority: '05'
+  server_port: 80
+  server_ssl_port: 443
+  server_ssl_ca: /etc/pki/katello/certs/katello-default-ca.crt
+  server_ssl_chain: /etc/pki/katello/certs/katello-server-ca.crt
+  server_ssl_cert: /etc/pki/katello/certs/katello-apache.crt
+  server_ssl_certs_dir: ''
+  server_ssl_key: /etc/pki/katello/private/katello-apache.key
+  server_ssl_crl: ''
+  server_ssl_protocol: 
+  client_ssl_ca: /etc/foreman/proxy_ca.pem
+  client_ssl_cert: /etc/foreman/client_cert.pem
+  client_ssl_key: /etc/foreman/client_key.pem
+  keepalive: true
+  max_keepalive_requests: 10000
+  keepalive_timeout: 5
+  oauth_active: true
+  oauth_map_users: false
+  oauth_consumer_key: N8T52Vhm7mVi7AEireLX6qm2uRTQFxpd
+  oauth_consumer_secret: kHRJTSMGhaA2iJMAowcbhdJmFy7oo9uD
+  passenger_prestart: true
+  passenger_min_instances: 1
+  passenger_start_timeout: 90
+  initial_admin_username: admin
+  initial_admin_password: 9aLkiwaNM7BEwPUd
+  initial_admin_first_name: 
+  initial_admin_last_name: 
+  initial_admin_email: 
+  initial_organization: Default Organization
+  initial_location: Default Location
+  ipa_authentication: false
+  http_keytab: /etc/httpd/conf/http.keytab
+  pam_service: foreman
+  ipa_manage_sssd: true
+  websockets_encrypt: true
+  websockets_ssl_key: /etc/pki/katello/private/katello-apache.key
+  websockets_ssl_cert: /etc/pki/katello/certs/katello-apache.crt
+  logging_level: info
+  logging_type: file
+  logging_layout: pattern
+  loggers: {}
+  email_delivery_method: 
+  email_smtp_address: 
+  email_smtp_port: 25
+  email_smtp_domain: 
+  email_smtp_authentication: none
+  email_smtp_user_name: 
+  email_smtp_password: 
+  telemetry_prefix: fm_rails
+  telemetry_prometheus_enabled: false
+  telemetry_statsd_enabled: false
+  telemetry_statsd_host: 127.0.0.1:8125
+  telemetry_statsd_protocol: statsd
+  telemetry_logger_enabled: false
+  telemetry_logger_level: DEBUG
+  dynflow_pool_size: 5
+  jobs_service: dynflowd
+  jobs_service_ensure: running
+  jobs_service_enable: true
+  hsts_enabled: true
+  cors_domains: []
+foreman::cli:
+  foreman_url: 
+  version: installed
+  manage_root_config: true
+  username: 
+  password: 
+  refresh_cache: false
+  request_timeout: 120
+  ssl_ca_file: 
+  hammer_plugin_prefix: tfm-rubygem-hammer_cli_
+foreman::cli::kubevirt: false
+foreman::compute::ec2: false
+foreman::compute::gce: false
+foreman::compute::libvirt: false
+foreman::compute::openstack: false
+foreman::compute::ovirt: false
+foreman::compute::rackspace: false
+foreman::compute::vmware: false
+foreman::plugin::ansible: {}
+foreman::plugin::bootdisk: false
+foreman::plugin::discovery: {}
+foreman::plugin::hooks: {}
+foreman::plugin::kubevirt: false
+foreman::plugin::openscap: {}
+foreman::plugin::remote_execution: {}
+foreman::plugin::tasks:
+  package: tfm-rubygem-foreman-tasks
+  automatic_cleanup: true
+  cron_line: 45 19 * * *
+foreman::plugin::templates: {}
+foreman_proxy:
+  repo: 
+  gpgcheck: true
+  version: present
+  ensure_packages_version: present
+  plugin_version: installed
+  bind_host:
+  - '::'
+  http_port: 8000
+  ssl_port: 9091
+  dir: /usr/share/foreman-proxy
+  user: foreman-proxy
+  groups: []
+  log: /var/log/foreman-proxy/proxy.log
+  log_level: INFO
+  log_buffer: 2000
+  log_buffer_errors: 1000
+  http: true
+  ssl: true
+  ssl_ca: /etc/foreman-proxy/ssl_ca.pem
+  ssl_cert: /etc/foreman-proxy/ssl_cert.pem
+  ssl_key: /etc/foreman-proxy/ssl_key.pem
+  foreman_ssl_ca: /etc/foreman-proxy/foreman_ssl_ca.pem
+  foreman_ssl_cert: /etc/foreman-proxy/foreman_ssl_cert.pem
+  foreman_ssl_key: /etc/foreman-proxy/foreman_ssl_key.pem
+  trusted_hosts:
+  - sat6.home.pladd.net
+  ssl_disabled_ciphers: []
+  tls_disabled_versions: []
+  manage_sudoersd: true
+  use_sudoersd: true
+  use_sudoers: true
+  puppetca: true
+  puppetca_split_configs: true
+  puppetca_listen_on: https
+  ssldir: /etc/puppetlabs/puppet/ssl
+  puppetdir: /etc/puppetlabs/puppet
+  puppetca_cmd: /opt/puppetlabs/bin/puppet cert
+  puppet_group: puppet
+  puppetca_provider: puppetca_hostname_whitelisting
+  autosignfile: /etc/puppetlabs/puppet/autosign.conf
+  puppetca_sign_all: false
+  puppetca_tokens_file: /var/lib/foreman-proxy/tokens.yml
+  puppetca_token_ttl: 360
+  puppetca_certificate: 
+  manage_puppet_group: false
+  puppet: true
+  puppet_listen_on: https
+  puppetrun_cmd: /opt/puppetlabs/bin/puppet kick
+  puppetrun_provider: 
+  customrun_cmd: /bin/false
+  customrun_args: -ay -f -s
+  mcollective_user: root
+  puppetssh_sudo: false
+  puppetssh_command: /opt/puppetlabs/bin/puppet agent --onetime --no-usecacheonfailure
+  puppetssh_user: root
+  puppetssh_keyfile: /etc/foreman-proxy/id_rsa
+  puppetssh_wait: false
+  salt_puppetrun_cmd: puppet.run
+  puppet_user: root
+  puppet_url: https://sat6.home.pladd.net:8140
+  puppet_ssl_ca: /etc/puppetlabs/puppet/ssl/certs/ca.pem
+  puppet_ssl_cert: /etc/puppetlabs/puppet/ssl/certs/sat6.home.pladd.net.pem
+  puppet_ssl_key: /etc/puppetlabs/puppet/ssl/private_keys/sat6.home.pladd.net.pem
+  puppet_use_environment_api: 
+  puppet_api_timeout: 30
+  templates: true
+  templates_listen_on: both
+  template_url: http://sat6.home.pladd.net:8000
+  logs: true
+  logs_listen_on: https
+  httpboot: 
+  httpboot_listen_on: both
+  tftp: true
+  tftp_listen_on: https
+  tftp_managed: true
+  tftp_manage_wget: true
+  tftp_syslinux_filenames:
+  - /usr/share/syslinux/chain.c32
+  - /usr/share/syslinux/mboot.c32
+  - /usr/share/syslinux/menu.c32
+  - /usr/share/syslinux/memdisk
+  - /usr/share/syslinux/pxelinux.0
+  tftp_root: /var/lib/tftpboot
+  tftp_dirs:
+  - /var/lib/tftpboot/pxelinux.cfg
+  - /var/lib/tftpboot/grub
+  - /var/lib/tftpboot/grub2
+  - /var/lib/tftpboot/boot
+  - /var/lib/tftpboot/ztp.cfg
+  - /var/lib/tftpboot/poap.cfg
+  tftp_servername: 
+  tftp_replace_grub2_cfg: false
+  dhcp: false
+  dhcp_listen_on: https
+  dhcp_managed: true
+  dhcp_provider: isc
+  dhcp_subnets: []
+  dhcp_option_domain:
+  - home.pladd.net
+  dhcp_search_domains: 
+  dhcp_interface: eth0
+  dhcp_additional_interfaces: []
+  dhcp_gateway: 
+  dhcp_range: 
+  dhcp_pxeserver: 
+  dhcp_pxefilename: pxelinux.0
+  dhcp_network: 
+  dhcp_netmask: 
+  dhcp_nameservers: default
+  dhcp_server: 127.0.0.1
+  dhcp_config: /etc/dhcp/dhcpd.conf
+  dhcp_leases: /var/lib/dhcpd/dhcpd.leases
+  dhcp_key_name: 
+  dhcp_key_secret: 
+  dhcp_omapi_port: 7911
+  dhcp_peer_address: 
+  dhcp_node_type: standalone
+  dhcp_failover_address: 192.168.42.178
+  dhcp_failover_port: 519
+  dhcp_max_response_delay: 30
+  dhcp_max_unacked_updates: 10
+  dhcp_mclt: 300
+  dhcp_load_split: 255
+  dhcp_load_balance: 3
+  dhcp_manage_acls: true
+  dns: false
+  dns_listen_on: https
+  dns_managed: true
+  dns_provider: nsupdate
+  dns_interface: eth0
+  dns_zone: home.pladd.net
+  dns_reverse: 
+  dns_server: 127.0.0.1
+  dns_ttl: 86400
+  dns_tsig_keytab: /etc/foreman-proxy/dns.keytab
+  dns_tsig_principal: foremanproxy/sat6.home.pladd.net@HOME.PLADD.NET
+  dns_forwarders: []
+  libvirt_network: default
+  libvirt_connection: qemu:///system
+  bmc: false
+  bmc_listen_on: https
+  bmc_default_provider: ipmitool
+  bmc_ssh_user: root
+  bmc_ssh_key: /usr/share/foreman/.ssh/id_rsa
+  bmc_ssh_powerstatus: 'true'
+  bmc_ssh_powercycle: shutdown -r +1
+  bmc_ssh_poweroff: shutdown +1
+  bmc_ssh_poweron: 'false'
+  realm: false
+  realm_listen_on: https
+  realm_provider: freeipa
+  realm_keytab: /etc/foreman-proxy/freeipa.keytab
+  realm_principal: realm-proxy@EXAMPLE.COM
+  freeipa_config: /etc/ipa/default.conf
+  freeipa_remove_dns: true
+  keyfile: /etc/rndc.key
+  register_in_foreman: true
+  foreman_base_url: https://sat6.home.pladd.net
+  registered_name: sat6.home.pladd.net
+  registered_proxy_url: 
+  oauth_effective_user: admin
+  oauth_consumer_key: N8T52Vhm7mVi7AEireLX6qm2uRTQFxpd
+  oauth_consumer_secret: kHRJTSMGhaA2iJMAowcbhdJmFy7oo9uD
+  puppet_use_cache: 
+foreman_proxy_content:
+  parent_fqdn: sat6.home.pladd.net
+  pulp_master: true
+  pulp_admin_password: DDeQsaXjFFHPfdmv8hMbrUvd9aBEK9XS
+  pulp_max_speed: 
+  pulp_num_workers: 
+  pulp_proxy_password: 
+  pulp_proxy_port: 
+  pulp_proxy_url: 
+  pulp_proxy_username: 
+  pulp_puppet_wsgi_processes: 1
+  pulp_ca_cert: 
+  pulp_worker_timeout: 60
+  puppet: true
+  reverse_proxy: false
+  reverse_proxy_port: 8443
+  ssl_protocol: 
+  rhsm_hostname: 
+  rhsm_url: /rhsm
+  qpid_router: true
+  qpid_router_hub_addr: 
+  qpid_router_hub_port: 5646
+  qpid_router_agent_addr: 
+  qpid_router_agent_port: 5647
+  qpid_router_broker_addr: localhost
+  qpid_router_broker_port: 5671
+  qpid_router_logging_level: info+
+  qpid_router_logging: syslog
+  qpid_router_logging_path: /var/log/qdrouterd
+  qpid_router_ssl_ciphers: 
+  qpid_router_ssl_protocols: 
+  qpid_router_sasl_mech: PLAIN
+  qpid_router_sasl_username: katello_agent
+  qpid_router_sasl_password: shDzkfPXB5LE4ayQ
+  enable_ostree: false
+  enable_yum: true
+  enable_file: true
+  enable_puppet: true
+  enable_docker: true
+  enable_deb: false
+  manage_broker: true
+foreman_proxy::plugin::ansible:
+  enabled: true
+  listen_on: https
+  ansible_dir: /usr/share/foreman-proxy
+  working_dir: /tmp
+  host_key_checking: false
+  stdout_callback: yaml
+  roles_path:
+  - /etc/ansible/roles
+  - /usr/share/ansible/roles
+  ssh_args: -o ProxyCommand=none
+foreman_proxy::plugin::dhcp::infoblox: false
+foreman_proxy::plugin::dhcp::remote_isc: false
+foreman_proxy::plugin::discovery:
+  install_images: false
+  tftp_root: /var/lib/tftpboot
+  source_url: http://downloads.theforeman.org/discovery/releases/latest/
+  image_name: fdi-image-latest.tar
+foreman_proxy::plugin::dns::infoblox: false
+foreman_proxy::plugin::openscap:
+  enabled: true
+  version: 
+  listen_on: https
+  openscap_send_log_file: /var/log/foreman-proxy/openscap-send.log
+  spooldir: /var/spool/foreman-proxy/openscap
+  contentdir: /var/lib/foreman-proxy/openscap/content
+  reportsdir: /var/lib/foreman-proxy/openscap/reports
+  failed_dir: /var/lib/foreman-proxy/openscap/failed
+  proxy_name: 
+  timeout: 60
+foreman_proxy::plugin::pulp:
+  enabled: true
+  listen_on: https
+  pulpnode_enabled: false
+  pulp3_enabled: false
+  pulp3_mirror: false
+  version: 
+  group: 
+  pulp_url: https://sat6.home.pladd.net/pulp
+  pulp_dir: /var/lib/pulp
+  pulp_content_dir: /var/lib/pulp/content
+  puppet_content_dir: /etc/puppetlabs/code/environments
+  mongodb_dir: /var/lib/mongodb
+foreman_proxy::plugin::remote_execution::ssh:
+  enabled: true
+  listen_on: https
+  generate_keys: true
+  install_key: false
+  ssh_identity_dir: /var/lib/foreman-proxy/ssh
+  ssh_identity_file: id_rsa_foreman_proxy
+  ssh_keygen: /usr/bin/ssh-keygen
+  local_working_dir: /var/tmp
+  remote_working_dir: /var/tmp
+  ssh_kerberos_auth: false
+  async_ssh: false
+katello:
+  user: foreman
+  group: foreman
+  user_groups:
+  - foreman
+  candlepin_oauth_key: katello
+  candlepin_oauth_secret: KDYDKtewTrJtgg3Bv3K5aAh3z3Fvb7ZS
+  post_sync_token: mkkjgDqnBhUiFjFKCfvNTfidM7QuG3JP
+  rest_client_timeout: 3600
+  qpid_wcache_page_size: 4
+  qpid_interface: lo
+  qpid_hostname: localhost
+  num_pulp_workers: 8
+  pulp_worker_timeout: 60
+  proxy_url: 
+  proxy_port: 
+  proxy_username: 
+  proxy_password: 
+  pulp_max_speed: 
+  cdn_ssl_version: 
+  package_names:
+  - katello
+  - tfm-rubygem-katello
+  enable_ostree: true
+  enable_yum: true
+  enable_file: true
+  enable_puppet: true
+  enable_docker: true
+  enable_deb: false
+  repo_export_dir: /var/lib/pulp/katello-export
+  manage_repo: false
+  repo_version: latest
+  repo_gpgcheck: false
+  repo_gpgkey: 
+  candlepin_db_host: localhost
+  candlepin_db_port: 
+  candlepin_db_name: candlepin
+  candlepin_db_user: candlepin
+  candlepin_db_password: SoD3nGTagKcTdenwwxCWZ28WAsZBsWGH
+  candlepin_db_ssl: false
+  candlepin_db_ssl_verify: true
+  candlepin_manage_db: true
+  pulp_db_name: pulp_database
+  pulp_db_seeds: localhost:27017
+  pulp_db_username: 
+  pulp_db_password: 
+  pulp_db_replica_set: 
+  pulp_db_ssl: false
+  pulp_db_ssl_keyfile: 
+  pulp_db_ssl_certfile: 
+  pulp_db_verify_ssl: true
+  pulp_db_ca_path: /etc/pki/tls/certs/ca-bundle.crt
+  pulp_db_unsafe_autoretry: false
+  pulp_db_write_concern: 
+  pulp_manage_db: true
+puppet:
+  version: present
+  user: puppet
+  group: puppet
+  dir: /etc/puppetlabs/puppet
+  codedir: /etc/puppetlabs/code
+  vardir: /opt/puppetlabs/puppet/cache
+  logdir: /var/log/puppetlabs/puppet
+  rundir: /var/run/puppetlabs
+  ssldir: /etc/puppetlabs/puppet/ssl
+  sharedir: /opt/puppetlabs/puppet
+  manage_packages: true
+  dir_owner: root
+  dir_group: 
+  package_provider: 
+  package_source: 
+  port: 8140
+  listen: false
+  listen_to: []
+  pluginsync: true
+  splay: false
+  splaylimit: 1800
+  autosign: /etc/puppetlabs/puppet/autosign.conf
+  autosign_entries: []
+  autosign_mode: '0664'
+  autosign_content: 
+  autosign_source: 
+  runinterval: 1800
+  usecacheonfailure: true
+  runmode: service
+  run_hour: 
+  run_minute: 
+  unavailable_runmodes: []
+  cron_cmd: 
+  systemd_cmd: 
+  systemd_randomizeddelaysec: 0
+  agent_noop: false
+  show_diff: false
+  module_repository: 
+  http_connect_timeout: 
+  http_read_timeout: 
+  ca_server: 
+  ca_port: 
+  ca_crl_filepath: 
+  prerun_command: 
+  postrun_command: 
+  dns_alt_names: []
+  use_srv_records: false
+  srv_domain: home.pladd.net
+  pluginsource: puppet:///plugins
+  pluginfactsource: puppet:///pluginfacts
+  additional_settings: {}
+  agent_additional_settings: {}
+  agent_restart_command: /usr/bin/systemctl reload-or-restart puppet
+  classfile: $statedir/classes.txt
+  hiera_config: $confdir/hiera.yaml
+  auth_template: puppet/auth.conf.erb
+  allow_any_crl_auth: false
+  auth_allowed:
+  - $1
+  client_package:
+  - puppet-agent
+  agent: true
+  remove_lock: true
+  report: true
+  client_certname: sat6.home.pladd.net
+  puppetmaster: 
+  systemd_unit_name: puppet-run
+  service_name: puppet
+  syslogfacility: 
+  environment: production
+  server: true
+  server_admin_api_whitelist:
+  - localhost
+  - sat6.home.pladd.net
+  server_manage_user: true
+  server_user: puppet
+  server_group: puppet
+  server_dir: /etc/puppetlabs/puppet
+  server_ip: 0.0.0.0
+  server_port: 8140
+  server_ca: true
+  server_ca_crl_sync: false
+  server_crl_enable: 
+  server_ca_auth_required: true
+  server_ca_client_whitelist:
+  - localhost
+  - sat6.home.pladd.net
+  server_custom_trusted_oid_mapping: 
+  server_http: false
+  server_http_port: 8139
+  server_reports: foreman
+  server_puppetserver_dir: /etc/puppetlabs/puppetserver
+  server_puppetserver_vardir: /opt/puppetlabs/server/data/puppetserver
+  server_puppetserver_rundir: /var/run/puppetlabs/puppetserver
+  server_puppetserver_logdir: /var/log/puppetlabs/puppetserver
+  server_puppetserver_version: 
+  server_external_nodes: /etc/puppetlabs/puppet/node.rb
+  server_cipher_suites:
+  - TLS_RSA_WITH_AES_256_CBC_SHA256
+  - TLS_RSA_WITH_AES_256_CBC_SHA
+  - TLS_RSA_WITH_AES_128_CBC_SHA256
+  - TLS_RSA_WITH_AES_128_CBC_SHA
+  server_config_version: 
+  server_connect_timeout: 120000
+  server_git_repo: false
+  server_default_manifest: false
+  server_default_manifest_path: /etc/puppet/manifests/default_manifest.pp
+  server_default_manifest_content: ''
+  server_environments_owner: apache
+  server_environments_group: 
+  server_environments_mode: '0755'
+  server_envs_dir: /etc/puppetlabs/code/environments
+  server_envs_target: 
+  server_common_modules_path:
+  - /etc/puppetlabs/code/environments/common
+  - /etc/puppetlabs/code/modules
+  - /opt/puppetlabs/puppet/modules
+  - /usr/share/puppet/modules
+  server_git_repo_mode: '0755'
+  server_git_repo_path: /opt/puppetlabs/puppet/cache/puppet.git
+  server_git_repo_group: puppet
+  server_git_repo_user: puppet
+  server_git_branch_map: {}
+  server_idle_timeout: 1200000
+  server_post_hook_content: puppet/server/post-receive.erb
+  server_post_hook_name: post-receive
+  server_storeconfigs_backend: 
+  server_ruby_load_paths:
+  - /opt/puppetlabs/puppet/lib/ruby/vendor_ruby
+  server_ssl_dir: /etc/puppetlabs/puppet/ssl
+  server_ssl_dir_manage: true
+  server_ssl_key_manage: true
+  server_ssl_protocols:
+  - TLSv1.2
+  server_ssl_chain_filepath: /etc/puppetlabs/puppet/ssl/ca/ca_crt.pem
+  server_package: 
+  server_version: 
+  server_certname: sat6.home.pladd.net
+  server_enc_api: v2
+  server_report_api: v2
+  server_request_timeout: 60
+  server_strict_variables: false
+  server_additional_settings: {}
+  server_foreman: true
+  server_foreman_url: https://sat6.home.pladd.net
+  server_foreman_ssl_ca: /etc/pki/katello/puppet/puppet_client_ca.crt
+  server_foreman_ssl_cert: /etc/pki/katello/puppet/puppet_client.crt
+  server_foreman_ssl_key: /etc/pki/katello/puppet/puppet_client.key
+  server_foreman_facts: true
+  server_puppet_basedir: /opt/puppetlabs/puppet/lib/ruby/vendor_ruby/puppet
+  server_puppetdb_host: 
+  server_puppetdb_port: 8081
+  server_puppetdb_swf: false
+  server_parser: current
+  server_environment_timeout: 
+  server_jvm_java_bin: /usr/bin/java
+  server_jvm_config: /etc/sysconfig/puppetserver
+  server_jvm_min_heap_size: 2G
+  server_jvm_max_heap_size: 2G
+  server_jvm_extra_args: 
+  server_jvm_cli_args: 
+  server_jruby_gem_home: /opt/puppetlabs/server/data/puppetserver/jruby-gems
+  server_max_active_instances: 4
+  server_max_requests_per_instance: 0
+  server_max_queued_requests: 0
+  server_max_retry_delay: 1800
+  server_use_legacy_auth_conf: false
+  server_check_for_updates: true
+  server_environment_class_cache_enabled: false
+  server_allow_header_cert_info: false
+  server_web_idle_timeout: 30000
+  server_puppetserver_jruby9k: false
+  server_puppetserver_metrics: 
+  server_metrics_jmx_enable: true
+  server_metrics_graphite_enable: false
+  server_metrics_graphite_host: 127.0.0.1
+  server_metrics_graphite_port: 2003
+  server_metrics_server_id: sat6.home.pladd.net
+  server_metrics_graphite_interval: 5
+  server_metrics_allowed: 
+  server_puppetserver_experimental: true
+  server_puppetserver_trusted_agents: []
+  server_compile_mode: 
+  server_acceptor_threads: 
+  server_selector_threads: 
+  server_ssl_acceptor_threads: 
+  server_ssl_selector_threads: 
+  server_max_threads: 
+  server_ca_allow_sans: false
+  server_ca_allow_auth_extensions: false
+  server_ca_enable_infra_crl: false
+  server_max_open_files: 

@@ -67,4 +67,43 @@
       name:
         - cockpit
       state: latest
+
+- hosts: sat6
+  name: cockpit_on_different_port
+  tasks:
+  - name: cockpit_config
+    copy:
+      src: sat6/cockpit.listen.conf
+      dest: /etc/systemd/system/cockpit.socket.d/
+    notify:
+    - restart_cockpit
+    - reload_systemd
+
+  - name: selinux_mgmt_packages
+    yum:
+      name:
+        - libsemanage-python
+        - policycoreutils-python
+
+  - name: SElinux_port_change
+    seport:
+      ports: 9091
+      proto: tcp
+      setype: websm_port_t
+
+  - name: firewalld_port
+    firewalld:
+      port: 9091/tcp
+      state: enabled
+      permanent: yes
+      immediate: yes
+
+  handlers:
+    - name: reload_systemd
+      systemd:
+        daemon_reload: yes
+    - name: restart_cockpit
+      service:
+        name: cockpit.socket
+        state: restarted
 ...
