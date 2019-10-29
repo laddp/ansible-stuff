@@ -1,0 +1,56 @@
+---
+- name: kvm guests for beast
+  hosts: beast
+  roles:
+    - role: stackhpc.libvirt-vm
+      libvirt_vms:
+        - state: present
+          name: sat6
+          memory_mb: 24000
+          vcpus: 8
+          # clock_offset: localtime
+          volumes:
+            - name: sat6.qcow2
+              device: disk
+              format: qcow2
+              capacity: "250G"
+              pool: data_fast
+            - name: sat6-varlib.qcow2
+              device: disk
+              format: qcow2
+              capacity: "1T"
+              pool: libvirt_images
+            - name: /var/lib/libvirt/images/isos/rhel-server-7.7-x86_64-dvd.iso
+              type: file
+              device: cdrom
+              format: raw
+          interfaces:
+            - type: direct
+              source:
+                dev: beast-team
+                mode: bridge
+
+- name: static_ip_for_sat6
+  hosts: pihole
+  tasks:
+    - name: sudo_without_password
+      lineinfile:
+        path: /etc/sudoers
+        state: present
+        regexp: '^%sudo'
+        line: '%sudo ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
+
+    - name: sat6_static_dns
+      lineinfile:
+        path: /etc/hosts
+        line: '192.168.42.99 sat6.home.pladd.net'
+      notify:
+        restart_dnsmasq
+  
+  handlers:
+    - name: restart_dnsmasq
+      service:
+        name: dnsmasq
+        state: restarted
+...

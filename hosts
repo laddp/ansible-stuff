@@ -24,7 +24,8 @@ master-2.pladdocp311.lab.rdu2.cee.redhat.com ansible_user=quicklab ansible_becom
 infra-0.pladdocp311.lab.rdu2.cee.redhat.com ansible_user=quicklab ansible_become=yes
 node-0.pladdocp311.lab.rdu2.cee.redhat.com ansible_user=quicklab ansible_become=yes
 node-1.pladdocp311.lab.rdu2.cee.redhat.com ansible_user=quicklab ansible_become=yes
-
+sat6 ansible_host=sat6.home.pladd.net ansible_user=root
+pihole ansible_user=pladd ansible_become=yes
 
 [rhel_hosts]
 rhel75.home.pladd.net
@@ -42,12 +43,14 @@ awx
 tower
 rhel80
 rhel77
+sat6
 
 [fedora_hosts]
 pladd-laptop.usersys.redhat.com
 
 [ubuntu_hosts]
 ubiquiti.home.pladd.net
+pihole
 
 [ubiquiti]
 home_switch

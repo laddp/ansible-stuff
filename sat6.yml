@@ -1,0 +1,30 @@
+---
+- name: sat6 deployment
+  hosts: sat6
+
+  tasks:
+
+  - name: repositories
+    rhsm_repository:
+      name:
+      - rhel-7-server-rpms
+      - rhel-server-rhscl-7-rpms
+      - rhel-7-server-satellite-6.6-rpms
+      - rhel-7-server-satellite-maintenance-6-rpms
+      - rhel-7-server-ansible-2.8-rpms
+      state: enabled
+      purge: yes
+
+  - name: install_sat6
+    yum:
+      name: satellite
+
+  - name: configure_satellite
+    command: 'satellite-installer --scenario satellite'
+    register: sat_config
+
+  - name: config_output
+    debug:
+      var: sat_config
+
+...
