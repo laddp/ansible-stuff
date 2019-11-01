@@ -176,7 +176,7 @@ foreman_proxy:
   bind_host:
   - '::'
   http_port: 8000
-  ssl_port: 9091
+  ssl_port: 9090
   dir: /usr/share/foreman-proxy
   user: foreman-proxy
   groups: []
