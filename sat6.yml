@@ -19,6 +19,13 @@
     yum:
       name: satellite
 
+  - name: copy_config
+    copy:
+      src: sat6/satellite-answers.yaml
+      dest: /etc/foreman-installer/scenarios.d/satellite-answers.yaml
+
+  # had to follow this to make it work... https://access.redhat.com/solutions/3497301
+
   - name: configure_satellite
     command: 'satellite-installer --scenario satellite'
     register: sat_config

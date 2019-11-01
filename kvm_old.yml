@@ -13,6 +13,7 @@
         - qemu-kvm 
         - libvirt
         - virt-install
+        - libguestfs-tools
         - python3-lxml
        #- bridge-utils
       state: latest
@@ -49,6 +50,8 @@
       path: /var/lib/libvirt/images
     - name: libvirt_isos
       path: /var/lib/libvirt/images/isos
+  vars_files:
+    - kvm_guests.yml
 
   tasks:
   - name: directories
@@ -71,4 +74,48 @@
       autostart: yes
     loop: "{{ data_dirs }}"
 
+  - name: refresh VM pools
+    command: "virsh pool-refresh {{ item.name }}"
+    register: refresh
+    changed_when: "refresh.rc != 0"
+    loop: "{{ data_dirs }}"
+
+  - name: get VM disks
+    command: "virsh vol-list {{ item.name }}"
+    register: disks
+    changed_when: "disks.rc != 0"
+    loop: "{{ data_dirs }}"
+
+  - name: debug
+    debug:
+      var: disks
+
+  - name: create disk
+    command: >
+      echo virsh vol-create-as
+        {{ item.disk_pool }}
+        {{ item.key }}
+        --format {{ item.disk_format }}
+    when: "item[key]\\.item[disk_format] not in disks.stdout"
+    with_dict: "{{ guests }}"
+
+  - name: get list of VMs
+    virt:
+      command: "list_vms"
+    register: vms
+
+  - name: create vm
+    command: >
+      virt-install --import --name {{ item.key }}
+      --memory {{ item.value.mem }} --vcpus {{ item.value.cpus }}
+      --disk {{ vm_location }}/{{ item.key }}.{{ item.value.file_type }}
+      --noautoconsole --os-variant {{ item.value.os_type }}
+    when: item.key not in vms.list_vms
+    with_dict: "{{ guests }}"
+
+  - name: start vm
+    virt:
+      name: "{{ item.key }}"
+      state: running
+    with_dict: "{{ guests }}"
 ...
