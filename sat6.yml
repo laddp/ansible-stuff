@@ -15,6 +15,25 @@
       state: enabled
       purge: yes
 
+  - name: firewall_setup
+    firewalld:
+      state: enabled
+      permanent: true
+      immediate: true
+      port: "{{ item }}"
+    loop:
+    - 80/tcp
+    - 443/tcp
+    - 5647/tcp
+    - 8000/tcp
+    - 8140/tcp
+    - 9090/tcp
+    - 53/udp
+    - 53/tcp
+    - 67/udp
+    - 69/udp
+    - 5000/tcp
+
   - name: install_sat6
     yum:
       name: satellite
