@@ -1,0 +1,99 @@
+---
+- name: wireguard VPN setup
+  hosts: wireguard_hosts
+
+  tasks:
+  - name: dnf copr repository
+    command:
+      cmd: "dnf copr enable -y jdoss/wireguard"
+      creates: "/etc/yum.repos.d/_copr:copr.fedorainfracloud.org:jdoss:wireguard.repo"
+
+  - name: wireguard RPMs
+    yum:
+      name:
+      - wireguard-dkms
+      - wireguard-tools
+      state: latest
+
+  - name: wireguard config directory
+    file:
+      path: /etc/wireguard
+      state: directory
+      mode: "u=rwx,go-rwx"
+      owner: root
+      group: root
+
+  - name: generate private key
+    shell:
+      cmd: "umask u=rwx,go-rwx; wg genkey > /etc/wireguard/privkey"
+      creates: /etc/wireguard/privkey
+
+  - name: var for private key
+    shell: cat /etc/wireguard/privkey
+    register: private_key
+
+  - name: derive public key
+    shell:
+      cmd: "umask u=rwx,go-rwx; wg pubkey < /etc/wireguard/privkey > /etc/wireguard/pubkey"
+      creates: /etc/wireguard/pubkey
+
+  - name: var for public key
+    shell: cat /etc/wireguard/pubkey
+    register: public_key
+
+  - name: ensure root read only permissions
+    file:
+      path: /etc/wireguard/
+      owner: root
+      group: root
+      mode: u=rwX,go-rwX
+      recurse: true
+      state: directory
+
+- name: wireguard VPN server setup
+  hosts: wireguard_servers
+  vars:
+    clients:
+      beast:
+      - pladd-laptop.usersys.redhat.com
+
+  tasks:
+  - name: create pre-shared key
+    shell:
+      cmd: "umask u=rwx,go-rwx; wg genpsk > /etc/wireguard/psk"
+      creates: /etc/wireguard/psk
+
+  - name: var for preshared key
+    shell: cat /etc/wireguard/pubkey
+    register: preshared_key
+
+  - name: ensure root read only permissions
+    file:
+      path: /etc/wireguard/
+      owner: root
+      group: root
+      mode: u=rwX,go-rwX
+      recurse: true
+      state: directory
+
+  - name: enable forwarding sysctls
+    sysctl:
+      name: "{{ item }}"
+      value: '1'
+      state: present
+      sysctl_set: true
+      reload: yes
+      sysctl_file: /etc/sysctl.d/wireguard.conf
+    loop:
+    - net.ipv4.ip_forward
+    - net.ipv6.conf.all.forwarding
+
+  - name: wg0 config
+    template:
+      src: wireguard/server.yml.j2
+      dest: /etc/wireguard/wg0.conf
+      mode: u=rwX,go-rwX
+      owner: root
+      group: root
+
+...

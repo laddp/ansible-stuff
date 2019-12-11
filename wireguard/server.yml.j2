@@ -1,0 +1,14 @@
+# {{ ansible_managed }}
+[Interface]
+Address    = 192.168.42.200/24
+PrivateKey = {{ private_key }}
+PostUp     = firewall-cmd --zone=public --add-port 51820/udp && firewall-cmd --zone=public --add-masquerade
+PostDown   = firewall-cmd --zone=public --remove-port 51820/udp && firewall-cmd --zone=public --remove-masquerade
+ListenPort = 51820
+
+{% for item in clients.ansible_host %}
+[Peer]
+PublicKey    = {{ public_key[item] }}
+PresharedKey = {{ preshared_key }}
+AllowedIPs   = 192.168.2.2/32
+{% endfor %}

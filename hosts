@@ -88,3 +88,12 @@ node-1.pladdocp311.lab.rdu2.cee.redhat.com
 
 [istio_once_per_cluster_host]
 master-0.pladdocp311.lab.rdu2.cee.redhat.com 
+
+[wireguard_servers]
+beast
+
+[wireguard_hosts]
+pladd-laptop.usersys.redhat.com
+
+[wireguard_hosts:children]
+wireguard_servers
