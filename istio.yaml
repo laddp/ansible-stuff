@@ -21,20 +21,10 @@
       - name: operator.yaml
   
   tasks:
-  - name: python-openshift package
-    yum:
-      name: python2-openshift
-      state: latest
-
-  - name: kiali_projects
-    k8s:
-      name: "{{ item }}"
-      kind: Namespace
-      state: present
-    loop:
-      - observability
-      - istio-operator
-      - istio-system
+  # - name: python-openshift package
+  #   yum:
+  #     name: python2-openshift
+  #     state: latest
 
   - name: istio_working_dirs
     file:
@@ -42,65 +32,85 @@
       state: directory
     loop:
     - "{{ istio_work_dir }}"
-    - "{{ jageger_work_dir }}"
+    # - "{{ jageger_work_dir }}"
 
-  - name: download_jaeger_files
+  - name: download_istio_setup
     get_url:
-      url: "https://raw.githubusercontent.com/jaegertracing/jaeger-operator/v1.13.1/deploy/{{ item.url | default(item.name) }}"
-      dest: "{{ jageger_work_dir }}"
-    loop: "{{ jaeger_objects }}"
-  
-  - name: jaeger_objects
-    k8s:
-      src: "{{ jageger_work_dir }}/{{ item.name }}"
-      namespace: observability
-    loop: "{{ jaeger_objects }}"
-
-  - name: download_kiali_command_file
-    get_url:
-      url: https://git.io/getLatestKialiOperator
-      dest: "{{ istio_work_dir }}"
-      mode: '+x'
-    register: kiali_command_result
-
-  - name: check_for_kiali_installed
-    command: oc get deployment -n kiali-operator
-    register: kiali_installed
-
-  - name: run_kiali_install
-    command: "{{ kiali_command_result.dest }} --operator-image-version v1.0.0 --operator-watch-namespace '**' --accessible-namespaces '**' --operator-install-kiali false"
-    when: "kiali_installed.stdout == 'No resources found.'"
-
-  - name: download_istio_yaml
-    get_url:
-      url: https://raw.githubusercontent.com/Maistra/istio-operator/maistra-0.12/deploy/servicemesh-operator.yaml
+      url: https://git.io/getLatestIstio
       dest: "{{ istio_work_dir }}"
       mode: '+x'
     register: istio_command_result
 
-  - name: install_istio_operator
-    k8s:
-      src: "{{ istio_command_result.dest }}"
-      namespace: istio-operator
+  - name: extract_istio
+    command: "{{ istio_command_result.dest }}"
 
-  - name: copy_control_plane_file
-    copy:
-      src: istio/istio-installation.yaml
-      dest: "{{ istio_work_dir }}"
+  # - name: istio_projects
+  #   k8s:
+  #     name: "{{ item }}"
+  #     kind: Namespace
+  #     state: present
+  #   loop:
+  #     - observability
+  #     - istio-operator
+  #     - istio-system
 
-  - name: deploy_control_plane_file
-    k8s:
-      src: "{{ istio_work_dir }}istio-installation.yaml"
-      namespace: istio-system
+  # - name: download_jaeger_files
+  #   get_url:
+  #     url: "https://raw.githubusercontent.com/jaegertracing/jaeger-operator/v1.13.1/deploy/{{ item.url | default(item.name) }}"
+  #     dest: "{{ jageger_work_dir }}"
+  #   loop: "{{ jaeger_objects }}"
+  
+  # - name: jaeger_objects
+  #   k8s:
+  #     src: "{{ jageger_work_dir }}/{{ item.name }}"
+  #     namespace: observability
+  #   loop: "{{ jaeger_objects }}"
 
-  - name: copy_memberroles
-    copy:
-      src: istio/istio-memberrole.yaml
-      dest: "{{ istio_work_dir }}"
+  # - name: download_kiali_command_file
+  #   get_url:
+  #     url: https://git.io/getLatestKialiOperator
+  #     dest: "{{ istio_work_dir }}"
+  #     mode: '+x'
+  #   register: kiali_command_result
 
-  - name: deploy_memberroles
-    k8s:
-      src: "{{ istio_work_dir }}istio-memberrole.yaml"
-      namespace: istio-system
+  # - name: check_for_kiali_installed
+  #   command: "oc get deployment -n kiali-operator"
+  #   register: kiali_installed
+  
+  # - name: run_kiali_install
+  #   command: "{{ kiali_command_result.dest }} --operator-image-version v1.0.0 --operator-watch-namespace '**' --accessible-namespaces '**' --operator-install-kiali false"
+  #   when: "kiali_installed.stderr == 'No resources found.'"
+
+  # - name: download_istio_yaml
+  #   get_url:
+  #     url: https://raw.githubusercontent.com/Maistra/istio-operator/maistra-0.12/deploy/servicemesh-operator.yaml
+  #     dest: "{{ istio_work_dir }}"
+  #     mode: '+x'
+  #   register: istio_command_result
+
+  # - name: install_istio_operator
+  #   k8s:
+  #     src: "{{ istio_command_result.dest }}"
+  #     namespace: istio-operator
+
+  # - name: copy_control_plane_file
+  #   copy:
+  #     src: istio/istio-installation.yaml
+  #     dest: "{{ istio_work_dir }}"
+
+  # - name: deploy_control_plane_file
+  #   k8s:
+  #     src: "{{ istio_work_dir }}istio-installation.yaml"
+  #     namespace: istio-system
+
+  # - name: copy_memberroles
+  #   copy:
+  #     src: istio/istio-memberrole.yaml
+  #     dest: "{{ istio_work_dir }}"
+
+  # - name: deploy_memberroles
+  #   k8s:
+  #     src: "{{ istio_work_dir }}istio-memberrole.yaml"
+  #     namespace: istio-system
 
 ...

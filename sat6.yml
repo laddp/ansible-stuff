@@ -38,6 +38,10 @@
     yum:
       name: satellite
 
+  - name: sat6_maint_package
+    yum:
+      name: rubygem-foreman_maintain
+
   - name: copy_config
     copy:
       src: sat6/satellite-answers.yaml

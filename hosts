@@ -6,7 +6,8 @@ ocp-m2.home.pladd.net ansible_user=root
 ocp-m3.home.pladd.net ansible_user=root
 ocp-n1.home.pladd.net ansible_user=root
 ocp-n2.home.pladd.net ansible_user=root
-beast ansible_user=root ansible_host=192.168.42.201
+#beast ansible_user=root ansible_host=192.168.42.201
+beast ansible_user=root ansible_host=pladd.net ansible_port=4242
 tower.home.pladd.net ansible_user=root
 rhel75.home.pladd.net ansible_user=root
 rhel76.home.pladd.net ansible_user=root ansible_host=192.168.122.101
@@ -26,6 +27,9 @@ node-0.pladdocp311.lab.rdu2.cee.redhat.com ansible_user=quicklab ansible_become=
 node-1.pladdocp311.lab.rdu2.cee.redhat.com ansible_user=quicklab ansible_become=yes
 sat6 ansible_host=sat6.home.pladd.net ansible_user=root
 pihole ansible_user=pladd ansible_become=yes
+tang ansible_user=root ansible_host=tang.pladd.usersys.redhat.com
+nbde ansible_user=root ansible_host=nbde.pladd.usersys.redhat.com
+nbde7 ansible_user=root ansible_host=nbde7.pladd.usersys.redhat.com
 
 [rhel_hosts]
 rhel75.home.pladd.net
@@ -44,6 +48,9 @@ tower
 rhel80
 rhel77
 sat6
+tang
+nbde
+nbde7
 
 [fedora_hosts]
 pladd-laptop.usersys.redhat.com
@@ -97,3 +104,10 @@ pladd-laptop.usersys.redhat.com
 
 [wireguard_hosts:children]
 wireguard_servers
+
+[tang_servers]
+tang
+
+[nbde_clients]
+nbde
+nbde7

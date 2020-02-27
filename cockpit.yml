@@ -51,6 +51,7 @@
 #        - cockpit-machines-ovirt
         - cockpit-podman
         - cockpit-session-recording
+        - tlog
 
 - hosts: kvm_hosts
   tasks:

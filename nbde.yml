@@ -1,0 +1,39 @@
+---
+- hosts: tang_servers
+
+  tasks:
+  - name:  NBDE server package
+    yum:
+      name:
+        - tang
+      state: latest
+
+  - name: 
+    service:
+      name: "{{ item }}"
+      state: started
+      enabled: true
+    loop:
+      - tangd-update.path
+      - tangd.socket
+
+  - name: firewalld_port
+    firewalld:
+      port: 80/tcp
+      state: enabled
+      permanent: yes
+      immediate: yes
+
+
+- hosts: nbde_clients
+
+  tasks:
+  - name: NBDE client package
+    package:
+      name:
+        - clevis
+        - clevis-luks
+        - clevis-dracut
+      state: latest
+
+...

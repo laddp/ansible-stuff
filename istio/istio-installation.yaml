@@ -9,6 +9,7 @@ spec:
 
   istio:
     global:
+      tag: 'latest'
       proxy:
         resources:
           requests:
@@ -47,8 +48,11 @@ spec:
       traceSampling: 100.0
 
     kiali:
-     dashboard:
+      tag: v1.0.0
+      dashboard:
         user: admin
         passphrase: admin
     tracing:
       enabled: true
+      jaeger:
+        tag: 'latest'
