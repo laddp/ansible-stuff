@@ -15,6 +15,13 @@
         - cockpit-bridge
       state: latest
 
+  - name: firewalld
+    firewalld:
+      service: cockpit
+      state: enabled
+      permanent: yes
+      immediate: yes
+
   - name: cockpit service socket
     service:
       name: cockpit.socket

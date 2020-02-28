@@ -1,0 +1,15 @@
+# Red Hat Virtualization
+---
+- hosts: rhv_hosts
+
+  tasks:
+  - name: RHV repository
+    rhsm_repository:
+      name: rhel-7-server-rhvh-4-rpms
+      state: enabled
+
+    - name: rhv packages
+      yum:
+        name: rhvm
+
+...
