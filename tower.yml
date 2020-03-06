@@ -20,4 +20,9 @@
       src: tower_inventory
       dest: "{{installer_dir}}/inventory"
 
+  - name: run_installer
+    command:
+      chdir: "{{installer_dir}}"
+      cmd: "./setup.sh"
+
 ...
