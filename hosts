@@ -116,5 +116,8 @@ tang
 nbde
 nbde7
 
+[rhv_manager_hosts]
+rhv
+
 [rhv_hosts]
 rhv

@@ -1,9 +1,9 @@
 # Red Hat Virtualization
 ---
-- hosts: rhv_hosts
+- hosts: rhv_manager_hosts
 
   tasks:
-  - name: RHV_repositories
+  - name: RHV_manager_repositories
     rhsm_repository:
       name:
         - rhel-7-server-rhv-4.3-manager-rpms
@@ -12,8 +12,18 @@
         - jb-eap-7.2-for-rhel-7-server-rpms
       state: enabled
 
-  - name: rhv packages
+  - name: rhv_manager_packages
     yum:
       name: rhvm
+
+- hosts: rhv_hosts
+
+  tasks:
+  - name: RHV_host_repositories
+    rhsm_repository:
+      name:
+        - rhel-7-server-ansible-2-rpms
+        - rhel-7-server-rhv-4-mgmt-agent-rpms
+      state: enabled
 
 ...

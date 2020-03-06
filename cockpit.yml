@@ -13,6 +13,7 @@
         - cockpit-system
         - cockpit-pcp
         - cockpit-bridge
+        - cockpit-shell
       state: latest
 
   - name: firewalld
@@ -66,6 +67,15 @@
     yum:
       name:
         - cockpit-machines
+      state: latest
+
+- hosts: rhv_hosts
+  tasks:
+  - name: cockpit RHV management packages
+    yum:
+      name:
+        - cockpit-ovirt-dashboard
+        - cockpit-machines-ovirt
       state: latest
 
 - hosts: ubuntu_hosts
