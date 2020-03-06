@@ -1,0 +1,23 @@
+#!/usr/bin/env ansible-playbook
+---
+- hosts: tower_hosts
+  vars:
+    - tower_version: 3.6.3-1
+    - installer_path: /root/
+    - installer_dir: "{{installer_path}}/ansible-tower-setup-bundle-{{tower_version}}/"
+
+  tasks:
+  - name: installer_package
+    unarchive:
+#      src: /home/pladd/isos/ansible-tower-setup-bundle-{{tower_version}}.{{ansible_distribution_major_version}}.tar.gz
+      remote_src: yes
+      src: https://releases.ansible.com/ansible-tower/setup-bundle/ansible-tower-setup-bundle-{{tower_version}}.el{{ansible_distribution_major_version}}.tar.gz
+      dest: "{{installer_path}}"
+      creates: "{{installer_dir}}"
+
+  - name: inventory_file
+    copy:
+      src: tower_inventory
+      dest: "{{installer_dir}}/inventory"
+
+...
