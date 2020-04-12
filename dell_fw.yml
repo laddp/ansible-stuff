@@ -80,6 +80,6 @@
 
   - name: iDRAC_cli_rpms
     command:
-      cmd: "yum install -y {{ IPMI_rpm }} {{ racadm_rpms|join(' ') }}"
+      cmd: "yum update -y {{ IPMI_rpm }} {{ racadm_rpms|join(' ') }}"
       warn: false
 ...
