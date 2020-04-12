@@ -1,3 +1,4 @@
+#!/usr/bin/env ansible-playbook
 ---
 - hosts: rhel_hosts
 
@@ -29,6 +30,21 @@
         - dstat
       state: latest
 
+  - name: get_repos
+    command:
+      cmd: yum repolist
+      warn: false
+    register: repolist
+    changed_when: false
+
+  - name: packages_if_epel
+    yum:
+      name:
+        - tracer
+    when:
+      - repolist.stdout.find("epel/x86_64") != -1
+      - ansible_distribution == 'RedHat'
+
   - name: copy_top_config
     copy:
       src: toprc
@@ -43,3 +59,4 @@
       - network-manager-applet
       - baobab
 
+...

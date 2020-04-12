@@ -1,0 +1,85 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: Dell firmware & drivers
+  hosts: ogre
+  vars:
+    - source_dir: /home/pladd/Downloads/PE-R620
+    - fw_dir: /root/dell_fw_driver/
+    # handy website: http://www.poweredgec.com/latest_poweredge-12g.html#R620%20BIOS
+    - fw_bins:
+      - R620_Drivers-for-OS-Deployment_Application_W7W06_LN_15.07.07_A00.BIN
+      - Diagnostics_Application_D5TM2_LN_4247A1_4247.2.BIN
+#      - Power_Firmware_JX7PR_LN_09.2B.80_A00.BIN  #### claims it doesn't apply... when it does
+      - ESM_Firmware_KGR3M_LN32_1.03_A00-00.BIN # doesn't run
+      - Firmware_681JN_LN32_1.00_A00.BIN # backplane - didn't need it
+      - SupportAssistEnterprise_2.0.50.32.bin
+
+    - ISM_ver: OM-iSM-Dell-Web-LX-351-1949_A00
+    - iDRAC_tools_ver: DellEMC-iDRACTools-Web-LX-9.4.0-3732_A00
+    - IPMI_rpm: "{{ fw_dir }}/{{ iDRAC_tools_ver }}/iDRACTools/ipmitool/RHEL7_x86_64/ipmitool-1.8.18-99.dell.3732.15734.el7.x86_64.rpm"
+    - racadm_rpms:
+      - "{{ fw_dir }}/{{iDRAC_tools_ver}}/iDRACTools/racadm/RHEL7/x86_64/srvadmin-argtable2-9.4.0-3732.15734.el7.x86_64.rpm"
+      - "{{ fw_dir }}/{{iDRAC_tools_ver}}/iDRACTools/racadm/RHEL7/x86_64/srvadmin-hapi-9.4.0-3732.15734.el7.x86_64.rpm"
+      - "{{ fw_dir }}/{{iDRAC_tools_ver}}/iDRACTools/racadm/RHEL7/x86_64/srvadmin-idracadm7-9.4.0-3732.15734.el7.x86_64.rpm"
+    - fw_files:
+      - "{{ ISM_ver }}.tar.gz"
+      - "{{ iDRAC_tools_ver }}.tar.gz"
+ 
+  tasks:
+  - name: dell_fw_dirs
+    file:
+      dest: "{{ item }}"
+      state: directory
+    loop:
+      - "{{ fw_dir }}"
+      - "{{ fw_dir }}/{{ ISM_ver }}"
+      - "{{ fw_dir }}/{{ iDRAC_tools_ver }}"
+
+  - name: copy_firmware_bins
+    copy:
+      src: "{{ source_dir}}/{{ item }}"
+      dest: "{{ fw_dir }}"
+      mode: ugo+rx
+      owner: root
+      group: root
+    loop: "{{ fw_bins }}"
+
+  - name: copy_firmware_files
+    copy:
+      src: "{{ source_dir}}/{{ item }}"
+      dest: "{{ fw_dir }}"
+      mode: ugo+r
+      owner: root
+      group: root
+    loop: "{{ fw_files }}"
+
+  # - name: update_firmware
+  #   command: "{{ fw_dir}}/{{ item }} -q"
+  #   loop: "{{ fw_bins }}"
+
+  - name: rpm_prereqs
+    yum:
+      name:
+        - usbutils # needed by iDRAC dcism
+        - net-snmp # needed by Support Assistant
+
+  - name: iDRAC_agent_extract
+    unarchive:
+      remote_src: yes
+      src:  "{{ fw_dir }}/{{ ISM_ver }}.tar.gz"
+      dest: "{{ fw_dir }}/{{ ISM_ver }}"
+
+  # - name: iDRAC_agent
+  #   command: "{{ fw_dir }}/{{ ISM_ver }}/setup.sh --watchdog --lclog --osinfo --Os2idrac --port=1266 --idraclauncherreadonly --smart"
+
+  - name: iDRAC_cli_extract
+    unarchive:
+      remote_src: yes
+      src:  "{{ fw_dir }}/{{ iDRAC_tools_ver }}.tar.gz"
+      dest: "{{ fw_dir }}/{{ iDRAC_tools_ver }}"
+
+  - name: iDRAC_cli_rpms
+    command:
+      cmd: "yum install -y {{ IPMI_rpm }} {{ racadm_rpms|join(' ') }}"
+      warn: false
+...

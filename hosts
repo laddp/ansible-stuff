@@ -8,6 +8,7 @@ ocp-n1.home.pladd.net ansible_user=root
 ocp-n2.home.pladd.net ansible_user=root
 #beast ansible_user=root ansible_host=192.168.42.201
 beast ansible_user=root ansible_host=pladd.net ansible_port=4242
+ogre ansible_user=root ansible_host=192.168.42.210
 tower.home.pladd.net ansible_user=root
 rhel75.home.pladd.net ansible_user=root
 rhel76.home.pladd.net ansible_user=root ansible_host=192.168.122.101
@@ -33,6 +34,7 @@ nbde7 ansible_user=root ansible_host=nbde7.pladd.usersys.redhat.com
 ocp42_bootstrap ansible_host=192.168.42.131 ansible_user=root
 rhv ansible_host=192.168.42.199 ansible_user=root
 tower ansible_user=root ansible_host=192.168.122.13
+kab-devel ansible_user=root ansible_host=192.168.122.69
 
 [rhel_hosts]
 rhel75.home.pladd.net
@@ -44,6 +46,7 @@ ocp-m3.home.pladd.net
 ocp-n1.home.pladd.net
 ocp-n2.home.pladd.net
 beast
+ogre
 tower.home.pladd.net
 gluster34.home.pladd.net
 awx
@@ -57,6 +60,7 @@ nbde7
 ocp42_bootstrap
 rhv
 tower
+kab-devel
 
 [fedora_hosts]
 pladd-laptop.usersys.redhat.com
@@ -85,6 +89,7 @@ ocp_nodes
 [kvm_hosts]
 pladd-laptop.usersys.redhat.com
 beast
+ogre
 
 [vdo_hosts]
 beast

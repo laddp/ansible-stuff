@@ -1,6 +1,17 @@
+#!/usr/bin/env ansible-playbook
 ---
 - hosts: all
 
   tasks:
-  - name: add Patrick
-    user: name=laddp comment="Patrick Ladd"
+  - name: add_Patrick
+    user:
+      name: pladd
+      comment: "Patrick Ladd"
+
+  - name: ssh_key
+    authorized_key:
+      user: pladd
+      key: "{{ item }}"
+    with_file:
+      - /home/pladd/.ssh/id_rsa.pub
+...

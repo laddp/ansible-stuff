@@ -1,3 +1,4 @@
+#!/usr/bin/env ansible-playbook
 ---
 - name: Update all existing packages
   hosts: rhel_hosts

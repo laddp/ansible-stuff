@@ -1,3 +1,4 @@
+#!/usr/bin/env ansible-playbook
 ---
 - name: register server, set repositories
   hosts: rhel_hosts
