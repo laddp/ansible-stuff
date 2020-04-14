@@ -1,6 +1,9 @@
-# Red Hat Virtualization
+#!/usr/bin/env ansible-playbook
 ---
-- hosts: rhv_manager_hosts
+- name: Red Hat Virtualization Manager
+  hosts: rhv_manager_hosts
+  vars_files:
+    - passwords.vault
 
   tasks:
   - name: RHV_manager_repositories
@@ -16,7 +19,31 @@
     yum:
       name: rhvm
 
-- hosts: rhv_hosts
+  - name: fail if vault not decrypted
+    fail: msg="Vault not decrypted"
+    when: subscription_manager_id is undefined or subscription_manager_pw is undefined
+
+  - name: answer_file
+    template:
+      src: rhv/rhv_answerfile.j2
+      dest: /root/rhv_answerfile.conf
+      backup: true
+      mode: u=rw,go-rwx
+      owner: root
+      group: root
+
+  # *** Didn't fully work, had to run manually ***
+  # - name: engine_setup
+  #   command:
+  #     argv:
+  #       - engine-setup
+  #       - "--config=/root/rhv_answerfile.conf"
+  #       - "--log=/root/rhv_engine-setup.log"
+  #       - "--accept-defaults"
+  #     stdin: /dev/null
+
+- name: Red Hat Virtualization Hosts
+  hosts: rhv_hosts
 
   tasks:
   - name: RHV_host_repositories

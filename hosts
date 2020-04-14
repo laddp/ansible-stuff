@@ -32,7 +32,6 @@ tang ansible_user=root ansible_host=tang.pladd.usersys.redhat.com
 nbde ansible_user=root ansible_host=nbde.pladd.usersys.redhat.com
 nbde7 ansible_user=root ansible_host=nbde7.pladd.usersys.redhat.com
 ocp42_bootstrap ansible_host=192.168.42.131 ansible_user=root
-rhv ansible_host=192.168.42.199 ansible_user=root
 tower ansible_user=root ansible_host=192.168.122.13
 kab-devel ansible_user=root ansible_host=192.168.122.69
 
@@ -124,10 +123,10 @@ nbde
 nbde7
 
 [rhv_manager_hosts]
-rhv
+ogre
 
 [rhv_hosts]
-rhv
+ogre
 
 [tower_hosts]
 tower
