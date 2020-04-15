@@ -53,4 +53,16 @@
         - rhel-7-server-rhv-4-mgmt-agent-rpms
       state: enabled
 
+# use?: ansible-galaxy install oVirt.ovirt-ansible-roles
+
+# get this key from "Compute->Hosts->New authentication section - haven't found the API for this yet..."
+  - name: host_key
+    authorized_key:
+      user: root
+      key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDkWTTz7pn6fjvNYx9TSWtEw++qIYKP6Jhq4f5nehOxMSCl9BYdP8qLug/Y1yMcPPDebEyeXGeT+pyf4R5b1+kRCh/fMHCBZMcxD4BRZtbv8KT8VSrkYiZcsOJH9SOTL5gScbGV1lZVYZAFbZjfmgpvtm4VJXikPY4lv/Xtl2xbIv48AdwvYBWPIao5Kbm6+S032jhKYElJeUUTumSqDD0Nxf+Zx50jnocEgDOGpj00FdmtQD9AZ+x/yETaaxbjIBd0K8k5yMNosxnrr6aCpsvXV9qFT/bcqZ+8VQkBgAsigIo48TPqDlMDivNKQ1C71necxflfZ0uDlKIn40g85GNh ovirt-engine"
+
+# add host via the host dashboard...
+# new storage domain: local on host
+
+
 ...

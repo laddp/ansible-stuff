@@ -1,0 +1,80 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: Settings for ogre server
+  hosts: ogre
+  vars:
+    network_connections:
+      - name: em4
+        type: ethernet
+        interface_name: em4
+        ip:
+          address:
+            - 192.168.42.211/24
+          dns:
+            - "192.168.42.59"
+            - "192.168.42.1"
+            - "8.8.8.8"
+          dns_search:
+            - home.pladd.net
+          route_metric4: 300
+          gateway4: 192.168.42.1
+
+      - name: p1p2
+        type: ethernet
+        interface_name: p1p2
+        ip:
+          address:
+            - 192.168.42.212/24
+          dns:
+            - "192.168.42.59"
+            - "192.168.42.1"
+            - "8.8.8.8"
+          dns_search:
+            - home.pladd.net
+          route_metric4: 300
+          gateway4: 192.168.42.1
+
+      - name: ogre_team
+        type: team
+        ip:
+          address:
+            - 192.168.42.210/24
+          dns:
+            - "192.168.42.59"
+            - "192.168.42.1"
+            - "8.8.8.8"
+          dns_search:
+            - home.pladd.net
+          route_metric4: 0
+          gateway4: 192.168.42.1
+
+      - name: ogre_slave1
+        type: ethernet
+        interface_name: em1
+        master: ogre_team
+        slave_type: team
+      - name: ogre_slave2
+        type: ethernet
+        interface_name: em2
+        master: ogre_team
+        slave_type: team
+      - name: ogre_slave3
+        type: ethernet
+        interface_name: em3
+        master: ogre_team
+        slave_type: team
+      - name: ogre_slave4
+        type: ethernet
+        interface_name: p1p1
+        master: ogre_team
+        slave_type: team
+  
+  roles:
+    - linux-system-roles.network
+
+  tasks:
+  - name: network_tuning
+    sysctl:
+      name: net.core.netdev_budget
+      value: "300"
+...
