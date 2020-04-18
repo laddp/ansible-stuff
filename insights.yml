@@ -1,0 +1,9 @@
+#!/usr/bin/env ansible-playbook
+---
+- hosts: rhel_hosts
+
+  # ansible-galaxy role install RedHatInsights.insights-client
+  roles:
+    - { role: RedHatInsights.insights-client, when: ansible_os_family == 'RedHat' }
+
+...
