@@ -57,4 +57,10 @@
     debug:
       var: sat_config
 
+
+  # upgrading:
+  # satellite-maintain upgrade list-versions
+  # satellite-maintain upgrade check --target-version 6.6.z
+  # satellite-maintain upgrade run --target-version 6.6.z 
+
 ...
