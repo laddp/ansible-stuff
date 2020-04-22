@@ -92,6 +92,7 @@ ogre
 
 [vdo_hosts]
 beast
+ogre
 
 [gluster_hosts]
 

@@ -36,8 +36,10 @@
 
       - name: ogre_team
         persistent_state: absent
-
       - name: ogre_bond
+        persistent_state: absent
+
+      - name: bond0
         type: bond
         ip:
           address:
@@ -54,22 +56,22 @@
       - name: ogre_slave1
         type: ethernet
         interface_name: em1
-        master: ogre_bond
+        master: bond0
         slave_type: bond
       - name: ogre_slave2
         type: ethernet
         interface_name: em2
-        master: ogre_bond
+        master: bond0
         slave_type: bond
       - name: ogre_slave3
         type: ethernet
         interface_name: em3
-        master: ogre_bond
+        master: bond0
         slave_type: bond
       - name: ogre_slave4
         type: ethernet
         interface_name: p1p1
-        master: ogre_bond
+        master: bond0
         slave_type: bond
   
   roles:
