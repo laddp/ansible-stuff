@@ -1,3 +1,4 @@
+#!/usr/bin/env ansible-playbook
 ---
 - hosts: vdo_hosts
 
@@ -15,9 +16,53 @@
       state: started
       enabled: true
 
+- hosts: ogre
+  tasks:
+  # - name: rhv_partition
+  #   parted:
+  #     device: /dev/sda
+  #     number: 4
+  #     name: r
+  #     state: present
+  #     flags: [ lvm ]
+  #     part_start: 2378498572288B
+  #     part_end: 40%
+  - name: vg_for_RHV
+    lvg:
+      vg: rhv_vg
+      pvs: /dev/sda4
+
+  - name: lv_for_vdo
+    lvol:
+      vg: rhv_vg
+      lv: vdo_lv
+      size: 100%VG
+
+  - name: vdo_volume
+    vdo:
+      name: rhv_data
+      state: present
+      running: yes
+      device: /dev/mapper/rhv_vg-vdo_lv
+      logicalsize: 3T
+
+  - name: xfs format
+    filesystem:
+      dev:  /dev/mapper/rhv_data
+      fstype: xfs
+      resizefs: yes
+
+  - name: vdo mount
+    mount:
+      path: /rhv_data
+      src:  /dev/mapper/rhv_data
+      fstype: xfs
+      opts: "x-systemd.requires=vdo.service"
+      state: mounted
+
 - hosts: beast
   tasks:
-  - name: LV for VDO
+  - name: vdolv
     lvol:
       vg: rootvg
       lv: vdolv
