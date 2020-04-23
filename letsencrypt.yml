@@ -1,0 +1,24 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: letsencrypt_certs
+  hosts: localhost
+  vars_files:
+    - passwords.vault
+
+  tasks:
+  - name: fail if vault not decrypted
+    fail: msg="Vault not decrypted"
+    when: freedns_user is undefined or freedns_password is undefined
+
+  - name: acme.sh
+    command: /home/pladd/git/acme.sh/acme.sh --issue --dns dns_freedns -d *.pladd.net -d *.home.pladd.net
+    environment:
+      FREEDNS_User: "{{ freedns_user }}"
+      FREEDNS_Password: "{{ freedns_password }}"
+    register: output
+
+  - name: config_output
+    debug:
+      var: output
+
+...

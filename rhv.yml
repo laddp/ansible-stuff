@@ -21,7 +21,7 @@
 
   - name: fail if vault not decrypted
     fail: msg="Vault not decrypted"
-    when: subscription_manager_id is undefined or subscription_manager_pw is undefined
+    when: rhv_admin_pw is undefined
 
   - name: answer_file
     template:
