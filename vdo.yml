@@ -53,13 +53,13 @@
       resizefs: yes
 
   - name: vdo mount
-    mount:
-      path: /rhv_data
-      src:  /dev/mapper/rhv_data
+    template:
+      src:  vdo/vdo.j2
+      dest: /etc/systemd/system/mount-rhv_data.mount
+    vars:
+      mount_point: /rhv_data
+      vdo_devname: rhv_data
       fstype: xfs
-      opts: "x-systemd.requires=vdo.service"
-      state: mounted
-      passno: "2"
 
 - hosts: beast
   tasks:
@@ -86,12 +86,12 @@
       resizefs: yes
 
   - name: vdo mount
-    mount:
-      path: /var/lib/libvirt
-      src:  /dev/mapper/vdovol
+    template:
+      src:  vdo/vdo.j2
+      dest: /etc/systemd/system/mount-rhv_data.mount
+    vars:
+      mount_point: /var/lib/libvirt
+      vdo_devname: vdovol
       fstype: xfs
-      opts: "x-systemd.requires=vdo.service"
-      state: mounted
-      passno: "2"
 
 ...
