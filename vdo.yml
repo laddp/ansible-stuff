@@ -59,6 +59,7 @@
       fstype: xfs
       opts: "x-systemd.requires=vdo.service"
       state: mounted
+      passno: "2"
 
 - hosts: beast
   tasks:
@@ -91,4 +92,6 @@
       fstype: xfs
       opts: "x-systemd.requires=vdo.service"
       state: mounted
+      passno: "2"
+
 ...

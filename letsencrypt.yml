@@ -211,5 +211,6 @@
       - ovirt-websocket-proxy
       - ovirt-provider-ovn
       - ovirt-engine
+      - ovirt-imageio-proxy
       - httpd
 ...
