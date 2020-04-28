@@ -1,24 +1,206 @@
 #!/usr/bin/env ansible-playbook
 ---
+#############################
+##
+## Generate / renew certs
+##
+#############################
+
 - name: letsencrypt_certs
   hosts: localhost
   vars_files:
     - passwords.vault
+    - letsencrypt_vars.yml
 
   tasks:
   - name: fail if vault not decrypted
     fail: msg="Vault not decrypted"
     when: freedns_user is undefined or freedns_password is undefined
 
-  - name: acme.sh
-    command: /home/pladd/git/acme.sh/acme.sh --issue --dns dns_freedns -d *.pladd.net -d *.home.pladd.net
+  # uses https://github.com/acmesh-official/acme.sh
+  - name: wildcard_cert
+    command: /home/pladd/git/acme.sh/acme.sh --issue --dns dns_freedns -d {{ domain }} -d {{ wildcard_domain }} -d {{ wildcard_home_domain }}
     environment:
       FREEDNS_User: "{{ freedns_user }}"
       FREEDNS_Password: "{{ freedns_password }}"
-    register: output
+    register: wc_output
+    failed_when: wc_output.rc != 0 and wc_output.rc != 2
+    changed_when: wc_output.rc == 0
+    notify:
+    - build_pkcs12
+    - build_combined_cert
 
   - name: config_output
     debug:
-      var: output
+      var: wc_output
 
+  # - name: ilo_cert
+  #   command: /home/pladd/git/acme.sh/acme.sh --signcsr --csr {{ acme_dir }}/beast-ilo.home.pladd.net/ilo_csr.txt
+  #   environment:
+  #     FREEDNS_User: "{{ freedns_user }}"
+  #     FREEDNS_Password: "{{ freedns_password }}"
+  #   register: ilo_output
+  #   failed_when: ilo_output.rc != 0 and ilo_output.rc != 2
+  #   changed_when: ilo_output.rc == 0
+
+  - name: config_output
+    debug:
+      var: ilo_output
+
+  handlers:
+  - name: build_pkcs12
+    openssl_pkcs12:
+      path: "{{ cert_file_prefix }}.p12"
+      privatekey_path: "{{ cert_file_prefix }}.key"
+      certificate_path: "{{ certs_dir }}/fullchain.cer"
+      name: pladd.net wildcard
+  - name: build_combined_cert
+    template:
+      src: certs/combined_wildcard_cert_key_template.j2
+      dest: "{{ certs_dir }}/{{ domain }}_with_key.cer"
+    vars:
+      cer: "{{ lookup('file', cert_file_prefix+'.cer') }}"
+      key: "{{ lookup('file', cert_file_prefix+'.key') }}"
+
+
+#############################
+##
+## Deploy certs to cockpit
+##
+## https://access.redhat.com/solutions/3946491
+#############################
+- name: deploy_to_cockpit
+  hosts: rhel_hosts,fedora_hosts
+  vars_files:
+    - letsencrypt_vars.yml
+  tasks:
+  - name: install_cockpit_cert
+    copy:
+      src: "{{ certs_dir }}/{{ domain }}_with_key.cer"
+      dest: "/etc/cockpit/ws-certs.d/{{ domain }}.cert"
+      owner: root
+      group: root
+      mode: 0640
+  - name: restart_cockpit
+    service:
+      name: cockpit
+      state: restarted
+
+#############################
+##
+## Deploy certs to RHV
+##
+## from:
+## * https://access.redhat.com/articles/216903
+## * https://access.redhat.com/documentation/en-us/red_hat_virtualization/4.3/html/administration_guide/appe-Red_Hat_Enterprise_Virtualization_and_SSL#Replace
+## * https://access.redhat.com/solutions/2610251
+#############################
+- name: deploy_to_RHV
+  hosts: rhv_hosts
+  vars_files:
+    - letsencrypt_vars.yml
+
+  tasks:
+  - name: backup_rhv_cert
+    copy:
+      remote_src: yes
+      src: /etc/pki/ovirt-engine/keys/apache.p12
+      dest: /etc/pki/ovirt-engine/keys/apache.p12.bak
+      owner: root
+      group: root
+      mode: u=rw,go-rwx
+
+  - name: replace_rhv_cert
+    copy:
+      src: "{{ cert_file_prefix }}.p12"
+      dest: /etc/pki/ovirt-engine/keys/apache.p12
+      owner: root
+      group: root
+      mode: u=rw,go-rwx
+    notify: restart_rhv_cert_services
+
+  # - name: start_maint_mode
+  #   command: hosted-engine --set-maintenance --mode=global
+
+  # - name: 
+  #   file:
+  #     src: 
+  #     dest: /etc/pki/ca-trust/source/anchors
+
+  # - name: remove_manager_symlink
+  #   file:
+  #     dest: /etc/pki/ovirt-engine/apache-ca.pem
+  #     state: absent
+
+  - name: backup_apache_cert_key
+    copy:
+      remote_src: yes
+      src: /etc/pki/ovirt-engine/certs/apache.{{ item }}
+      dest: /etc/pki/ovirt-engine/certs/apache.{{ item }}.bak
+      owner: root
+      group: root
+      mode: u=rw,go-rwx
+    loop:
+    - cer
+    # - key - not there
+
+  - name: install_new_key
+    copy:
+      src: "{{ cert_file_prefix }}.key"
+      dest: /etc/pki/ovirt-engine/keys/apache.key.nopass
+      owner: root
+      group: root
+      mode: 0640
+    notify: restart_rhv_cert_services
+
+  - name: install_new_cert
+    copy:
+      src: "{{ certs_dir }}/fullchain.cer"
+      dest: /etc/pki/ovirt-engine/certs/apache.cer
+      owner: root
+      group: root
+      mode: 0640
+    notify: restart_rhv_cert_services
+
+  - name: trust_store_file
+    copy:
+      src: certs/99-custom-truststore.conf
+      dest: /etc/ovirt-engine/engine.conf.d/99-custom-truststore.conf
+    notify:
+    - restart_rhv_cert_services
+    - trust_anchor
+
+  - name: copy_websocket_proxy_conf
+    copy:
+      remote_src: yes
+      src: /etc/ovirt-engine/ovirt-websocket-proxy.conf.d/10-setup.conf
+      dest: /etc/ovirt-engine/ovirt-websocket-proxy.conf.d/99-setup.conf
+
+  - name: websocket_proxy_conf_addons
+    lineinfile:
+      path: /etc/ovirt-engine/ovirt-websocket-proxy.conf.d/99-setup.conf
+      line: "{{ item }}"
+    loop:
+    - SSLs_CERTIFICATE=/etc/pki/ovirt-engine/certs/apache.cer
+    - SSL_KEY=/etc/pki/ovirt-engine/keys/apache.key.nopass
+    - ENGINE_HTTPS_PKI_TRUST_STORE="/etc/pki/java/cacerts"
+    - ENGINE_HTTPS_PKI_TRUST_STORE_PASSWORD=""
+    notify: restart_rhv_cert_services
+
+  # - name: end_maint_mode
+  #   command: hosted-engine --set-maintenance --mode=none
+
+  handlers:
+    - name: trust_anchor
+      # command: trust anchor /foo/ca.pem && update-ca-trust
+      command: update-ca-trust
+    - name: restart_rhv_cert_services
+      service:
+        name: "{{ item }}"
+        state: restarted
+      loop:
+      - ovirt-websocket-proxy
+      - ovirt-provider-ovn
+      - ovirt-engine
+      - httpd
 ...

@@ -1,0 +1,6 @@
+acme_dir: /home/pladd/.acme.sh
+domain: pladd.net
+wildcard_domain: "*.{{ domain }}"
+wildcard_home_domain: "*.home.{{ domain }}"
+certs_dir: "{{ acme_dir }}/{{ domain }}"
+cert_file_prefix: "{{ certs_dir }}/{{ domain }}"
