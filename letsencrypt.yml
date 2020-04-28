@@ -122,15 +122,23 @@
   # - name: start_maint_mode
   #   command: hosted-engine --set-maintenance --mode=global
 
-  # - name: 
-  #   file:
-  #     src: 
-  #     dest: /etc/pki/ca-trust/source/anchors
+  - name: new_trust_anchor
+    copy:
+      src: "{{ certs_dir }}/ca.cer"
+      dest: /etc/pki/ca-trust/source/anchors
+      owner: root
+      group: root
+      mode: u=rw,go-rwx
+    notify: trust_anchor
 
-  # - name: remove_manager_symlink
-  #   file:
-  #     dest: /etc/pki/ovirt-engine/apache-ca.pem
-  #     state: absent
+  - name: replace_apache_ca
+    copy:
+      src: "{{ certs_dir }}/ca.cer"
+      dest: /etc/pki/ovirt-engine/apache-ca.pem
+      owner: root
+      group: root
+      mode: u=rw,go-rwx
+    notify: restart_rhv_cert_services
 
   - name: backup_apache_cert_key
     copy:
@@ -166,9 +174,7 @@
     copy:
       src: certs/99-custom-truststore.conf
       dest: /etc/ovirt-engine/engine.conf.d/99-custom-truststore.conf
-    notify:
-    - restart_rhv_cert_services
-    - trust_anchor
+    notify: trust_anchor
 
   - name: copy_websocket_proxy_conf
     copy:
@@ -192,8 +198,11 @@
 
   handlers:
     - name: trust_anchor
-      # command: trust anchor /foo/ca.pem && update-ca-trust
+      command: trust anchor /etc/pki/ovirt-engine/ca.pem
+      notify: update_ca_trust
+    - name: update_ca_trust
       command: update-ca-trust
+      notify: restart_rhv_cert_services
     - name: restart_rhv_cert_services
       service:
         name: "{{ item }}"
