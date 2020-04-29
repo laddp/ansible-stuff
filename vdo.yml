@@ -17,6 +17,10 @@
       enabled: true
 
 - hosts: ogre
+  vars:
+    mount_point: /rhv_data
+    vdo_devname: rhv_data
+
   tasks:
   # - name: rhv_partition
   #   parted:
@@ -38,9 +42,10 @@
       lv: vdo_lv
       size: 100%VG
 
+  # needs https://github.com/ansible/ansible/issues/54556 - fails after created
   - name: vdo_volume
     vdo:
-      name: rhv_data
+      name: "{{ vdo_devname }}"
       state: present
       running: yes
       device: /dev/mapper/rhv_vg-vdo_lv
@@ -48,20 +53,38 @@
 
   - name: xfs format
     filesystem:
-      dev:  /dev/mapper/rhv_data
+      dev: "/dev/mapper/{{ vdo_devname }}"
       fstype: xfs
       resizefs: yes
+
+  - name: determine_mount_name
+    command: systemd-escape -p --suffix=mount {{ mount_point }}
+    register: mount_filename
+    changed_when: false
+
+  - name: show_mount_name
+    debug:
+      var: mount_filename.stdout
 
   - name: vdo mount
     template:
       src:  vdo/vdo.j2
-      dest: /etc/systemd/system/mount-rhv_data.mount
+      dest: /etc/systemd/system/{{ mount_filename.stdout }}
     vars:
-      mount_point: /rhv_data
       vdo_devname: rhv_data
       fstype: xfs
 
+  - name: vdo mounted
+    service:
+      name: "{{ mount_filename.stdout }}"
+      state: started
+      enabled: true
+
 - hosts: beast
+  vars:
+    mount_point: /var/lib/libvirt/images
+    vdo_devname: vdovol
+
   tasks:
   - name: vdolv
     lvol:
@@ -69,29 +92,41 @@
       lv: vdolv
       size: 500G
 
-# waiting on https://github.com/ansible/ansible/issues/54556 - fails after created
-#  - name: vdo volume
-#    vdo:
-#      name: vdovol
-#      state: present
-#      running: yes
-#      device: /dev/mapper/rootvg-vdolv
-#      logicalsize: 1.5T
+  # needs https://github.com/ansible/ansible/issues/54556 - fails after created
+  - name: vdo volume
+    vdo:
+      name: "{{ vdo_devname }}"
+      state: present
+      running: yes
+      device: /dev/mapper/rootvg-vdolv
+      logicalsize: 1.5T
 
-# waiting on https://github.com/ansible/ansible/issues/33979 - fails after created
   - name: xfs format
     filesystem:
-      dev:  /dev/mapper/vdovol
+      dev: "/dev/mapper/{{ vdo_devname }}"
       fstype: xfs
       resizefs: yes
+
+  - name: determine_mount_name
+    command: systemd-escape -p --suffix=mount {{ mount_point }}
+    register: mount_filename
+    changed_when: false
+
+  - name: show_mount_name
+    debug:
+      var: mount_filename.stdout
 
   - name: vdo mount
     template:
       src:  vdo/vdo.j2
-      dest: /etc/systemd/system/mount-rhv_data.mount
+      dest: /etc/systemd/system/{{ mount_filename.stdout }}
     vars:
-      mount_point: /var/lib/libvirt
-      vdo_devname: vdovol
       fstype: xfs
+
+  - name: vdo mounted
+    service:
+      name: "{{ mount_filename.stdout }}"
+      state: started
+      enabled: true
 
 ...

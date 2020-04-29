@@ -18,6 +18,8 @@
       notify:
         - reload NetworkManager
 
+  # Might need https://fedoramagazine.org/using-the-networkmanagers-dnsmasq-plugin/ in the future
+
   handlers:
     - name: reload NetworkManager
       service:

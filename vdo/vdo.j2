@@ -1,13 +1,13 @@
 [Unit]
-Description = VDO unit file to mount {{ vdo_devname }} file system
-name = {{ vdo_devname }}.mount
+Description = VDO unit file to mount {{ mount_point }} file system
+Name = {{ mount_filename }}
 Requires = vdo.service
 After = multi-user.target
 Conflicts = umount.target
 
 [Mount]
 What = /dev/mapper/{{ vdo_devname }}
-Where = /{{ mount_point }}
+Where = {{ mount_point }}
 Type = {{ fstype }}
 
 [Install]
