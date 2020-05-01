@@ -2,27 +2,62 @@
 ---
 - name: caching DNS setup
   hosts: pladd-laptop.usersys.redhat.com
+  vars_files:
+    - passwords.vault
 
   tasks:
-    - name: dnsmasq package
-      package: name={{ item }} state=latest
-      with_items:
-      - dnsmasq
+  - name: fail if vault not decrypted
+    fail: msg="Vault not decrypted"
+    when: ansible_become_password is undefined
 
-    - name: NetworkManager config
-      lineinfile:
-        path: /etc/NetworkManager/NetworkManager.conf
-        insertafter: '^\[main\]'
-        regex: '^dns='
-        line: 'dns=dnsmasq'
-      notify:
-        - reload NetworkManager
+  - name: dnsmasq package
+    package: name={{ item }} state=latest
+    with_items:
+    - dnsmasq
 
-  # Might need https://fedoramagazine.org/using-the-networkmanagers-dnsmasq-plugin/ in the future
+  - name: NetworkManager config
+    blockinfile:
+      path: /etc/NetworkManager/conf.d/use-dnsmasq.conf
+      create: yes
+      block: |
+        [main]
+        dns=dnsmasq
+    notify:
+      - reload NetworkManager
+
+  - name: dnsmasq_settings
+    lineinfile:
+      path: /etc/NetworkManager/dnsmasq.d/settings.conf
+      create: yes
+      line: |
+        log-facility=/var/log/dnsmasq.log
+        domain-needed
+        expand-hosts
+    notify:
+      - reload NetworkManager
+
+  - name: debug_logging
+    lineinfile:
+      path: /etc/NetworkManager/dnsmasq.d/debug-logging.conf
+      create: yes
+      line: log-queries
+    notify:
+      - reload NetworkManager
+
+  - name: force_local_dns_for_home.pladd.net
+    blockinfile:
+      path: /etc/NetworkManager/dnsmasq.d/home.pladd.net.conf
+      create: yes
+      block: |
+        server=/home.pladd.net/192.168.42.59
+    notify:
+      - reload NetworkManager
+
+  # Used https://fedoramagazine.org/using-the-networkmanagers-dnsmasq-plugin/ for some parts
 
   handlers:
-    - name: reload NetworkManager
-      service:
-        name: NetworkManager
-        state: reloaded
+  - name: reload NetworkManager
+    service:
+      name: NetworkManager
+      state: reloaded
 ...
