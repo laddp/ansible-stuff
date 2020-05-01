@@ -26,10 +26,10 @@
       - reload NetworkManager
 
   - name: dnsmasq_settings
-    lineinfile:
+    blockinfile:
       path: /etc/NetworkManager/dnsmasq.d/settings.conf
       create: yes
-      line: |
+      block: |
         log-facility=/var/log/dnsmasq.log
         domain-needed
         expand-hosts
