@@ -72,4 +72,21 @@
 
 # new storage domain: local on host
 
+# turn off session timeouts
+  - name: check_session_timeout
+    command: engine-config -g UserSessionTimeOutInterval
+    register: session_timeout
+    changed_when: false
+
+  - name: disable_session_timeout
+    command: engine-config -s UserSessionTimeOutInterval=-1
+    notify: restart_ovirt_engine
+    when: "'-1' not in session_timeout.stdout"
+
+  handlers:
+  - name: restart_ovirt_engine
+    service:
+      name: ovirt-engine
+      state: restarted
+
 ...
