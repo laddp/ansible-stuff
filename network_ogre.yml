@@ -4,9 +4,9 @@
   hosts: ogre
   vars:
     network_connections:
-      - name: em4
+      - name: eno4
         type: ethernet
-        interface_name: em4
+        interface_name: eno4
         ip:
           address:
             - 192.168.42.211/24
@@ -19,9 +19,9 @@
           route_metric4: 300
           gateway4: 192.168.42.1
 
-      - name: p1p2
+      - name: enp65s0f1
         type: ethernet
-        interface_name: p1p2
+        interface_name: enp65s0f1
         ip:
           address:
             - 192.168.42.212/24
@@ -34,13 +34,10 @@
           route_metric4: 300
           gateway4: 192.168.42.1
 
-      - name: ogre_team
-        persistent_state: absent
-      - name: ogre_bond
-        persistent_state: absent
-
       - name: bond0
         type: bond
+        bond:
+          mode: 802.3ad
         ip:
           address:
             - 192.168.42.210/24
@@ -50,27 +47,27 @@
             - "8.8.8.8"
           dns_search:
             - home.pladd.net
-          route_metric4: 0
+          route_metric4: 1
           gateway4: 192.168.42.1
 
       - name: ogre_slave1
         type: ethernet
-        interface_name: em1
+        interface_name: eno1
         master: bond0
         slave_type: bond
       - name: ogre_slave2
         type: ethernet
-        interface_name: em2
+        interface_name: eno2
         master: bond0
         slave_type: bond
       - name: ogre_slave3
         type: ethernet
-        interface_name: em3
+        interface_name: eno3
         master: bond0
         slave_type: bond
       - name: ogre_slave4
         type: ethernet
-        interface_name: p1p1
+        interface_name: enp65s0f0
         master: bond0
         slave_type: bond
   
