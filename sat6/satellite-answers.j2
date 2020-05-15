@@ -62,7 +62,7 @@ foreman:
   db_port: 
   db_database: 
   db_username: foreman
-  db_password: s8DGURFnrzPcWzExaz4jQgwD6FkFv7W2
+  db_password: {{ db_password }}
   db_sslmode: 
   db_root_cert: 
   db_pool: 5
@@ -98,9 +98,9 @@ foreman:
   oauth_consumer_secret: kHRJTSMGhaA2iJMAowcbhdJmFy7oo9uD
   passenger_prestart: true
   passenger_min_instances: 1
-  passenger_start_timeout: 90
+  passenger_start_timeout: 600
   initial_admin_username: admin
-  initial_admin_password: 9aLkiwaNM7BEwPUd
+  initial_admin_password: {{ admin_password }}
   initial_admin_first_name: 
   initial_admin_last_name: 
   initial_admin_email: 
@@ -335,7 +335,7 @@ foreman_proxy:
 foreman_proxy_content:
   parent_fqdn: sat6.home.pladd.net
   pulp_master: true
-  pulp_admin_password: DDeQsaXjFFHPfdmv8hMbrUvd9aBEK9XS
+  pulp_admin_password: {{ pulp_admin_password }}
   pulp_max_speed: 
   pulp_num_workers: 
   pulp_proxy_password: 
@@ -365,7 +365,7 @@ foreman_proxy_content:
   qpid_router_ssl_protocols: 
   qpid_router_sasl_mech: PLAIN
   qpid_router_sasl_username: katello_agent
-  qpid_router_sasl_password: shDzkfPXB5LE4ayQ
+  qpid_router_sasl_password: {{ qpid_router_sasl_password }}
   enable_ostree: false
   enable_yum: true
   enable_file: true
@@ -466,7 +466,7 @@ katello:
   candlepin_db_port: 
   candlepin_db_name: candlepin
   candlepin_db_user: candlepin
-  candlepin_db_password: SoD3nGTagKcTdenwwxCWZ28WAsZBsWGH
+  candlepin_db_password: {{ candlepin_db_password }}
   candlepin_db_ssl: false
   candlepin_db_ssl_verify: true
   candlepin_manage_db: true

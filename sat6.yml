@@ -1,8 +1,14 @@
+#!/usr/bin/env ansible-playbook
 ---
 - name: sat6 deployment
   hosts: sat6
+  vars_files:
+    - sat6/sat6.vault
 
   tasks:
+  - name: fail if vault not decrypted
+    fail: msg="Vault not decrypted"
+    when: pulp_admin_password is undefined
 
   - name: repositories
     rhsm_repository:
@@ -43,8 +49,8 @@
       name: rubygem-foreman_maintain
 
   - name: copy_config
-    copy:
-      src: sat6/satellite-answers.yaml
+    template:
+      src: sat6/satellite-answers.j2
       dest: /etc/foreman-installer/scenarios.d/satellite-answers.yaml
 
   - name: configure_satellite
@@ -55,6 +61,15 @@
     debug:
       var: sat_config
 
+  - name: hammer_cli_password
+    template:
+      src: sat6/foreman_home.j2
+      dest: /root/.hammer/cli.modules.d/foreman.yml
+
+  - name: foreman_maintain_password
+    template:
+      src: sat6/foreman-maintain-hammer.j2
+      dest: /etc/foreman-maintain/foreman-maintain-hammer.yml
 
   # upgrading:
   # satellite-maintain upgrade list-versions

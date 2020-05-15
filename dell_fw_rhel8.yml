@@ -1,0 +1,44 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: Dell firmware & drivers
+  hosts: ogre
+  vars:
+    - source_dir: /home/pladd/Downloads/PE-R620
+    - fw_dir: /root/dell_fw_driver/
+    # handy website (RHEL7): http://www.poweredgec.com/latest_poweredge-12g.html#R620%20BIOS
+    # Stuff for RHEL8: https://www.dell.com/support/home/en-us/drivers/driversdetails?driverid=75wmx
+    - OM_VER: OM-SrvAdmin-Dell-Web-LX-9.3.1-3654.RHEL8.x86_64_A00
+    - fw_bin: "{{ OM_VER }}.tar.gz"
+ 
+  tasks:
+  - name: dell_fw_dirs
+    file:
+      dest: "{{ item }}"
+      state: directory
+    loop:
+      - "{{ fw_dir }}"
+      - "{{ fw_dir }}{{ OM_VER }}"
+
+  - name: copy_firmware_bins
+    unarchive:
+      src: "{{ source_dir}}/{{ fw_bin }}"
+      dest: "{{ fw_dir }}{{ OM_VER }}"
+      mode: ugo+rx
+      owner: root
+      group: root
+
+  - name: install_and_start
+    command: "{{ fw_dir }}{{ OM_VER }}/setup.sh -x -w -S -a"
+
+  # - name: dsm_services
+  #   service:
+  #     name: "{{ item }}"
+  #     state: started
+  #     enabled: true
+  #   loop:
+  #   - dsm_om_connsvc
+  #   - dsm_om_shrsvc
+  #   - dsm_sa_datamgrd
+  #   - dsm_sa_eventmgrd
+  #   - dsm_sa_snmpd.service
+...
