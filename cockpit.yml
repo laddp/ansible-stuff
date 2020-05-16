@@ -39,6 +39,19 @@
     - pmcd
     - pmlogger
 
+  - name: session_block
+    lineinfile:
+      path: /etc/cockpit/cockpit.conf
+      create: yes
+      line: "[Session]"
+
+  - name: disable_timeout
+    lineinfile:
+      path: /etc/cockpit/cockpit.conf
+      line: "IdleTimeout=0"
+      insertafter: "[Session]"
+      regexp: ".*IdleTimeout.*=.*"
+
 - hosts: rhel_hosts
   tasks:
   - name: cockpit on RHEL packages
