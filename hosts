@@ -35,6 +35,7 @@ ocp42_bootstrap ansible_host=192.168.42.131 ansible_user=root
 tower ansible_user=root ansible_host=192.168.122.13
 kab-devel ansible_user=root ansible_host=192.168.122.69
 firstvm ansible_user=root ansible_host=192.168.42.178
+rhel82 ansible_user=root ansible_host=192.168.122.77
 
 [rhel_hosts]
 rhel75.home.pladd.net
@@ -62,6 +63,7 @@ rhv
 tower
 kab-devel
 firstvm
+rhel82
 
 [fedora_hosts]
 pladd-laptop.usersys.redhat.com

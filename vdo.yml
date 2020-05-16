@@ -3,82 +3,125 @@
 - hosts: vdo_hosts
 
   tasks:
-  - name: vdo packages
-    yum:
-      name:
-        - vdo
-        - kmod-kvdo
-      state: latest
+    - name: vdo packages
+      yum:
+        name:
+          - vdo
+          - kmod-kvdo
+        state: latest
 
-  - name: vdo service
-    service:
-      name: vdo
-      state: started
-      enabled: true
+    - name: vdo service
+      service:
+        name: vdo
+        state: started
+        enabled: true
 
 - hosts: ogre
   vars:
+    partition_num: 4
+    luks_device: "/dev/sda{{ partition_num }}"
+    luks_keyfile_path: /root/luks.keyfile
+    luks_name: rhv_luks
     mount_point: /rhv_data
     vdo_devname: rhv_data
+  vars_files:
+    - passwords.vault
 
   tasks:
-  # - name: rhv_partition
-  #   parted:
-  #     device: /dev/sda
-  #     number: 4
-  #     name: r
-  #     state: present
-  #     flags: [ lvm ]
-  #     part_start: 2378498572288B
-  #     part_end: 40%
-  - name: vg_for_RHV
-    lvg:
-      vg: rhv_vg
-      pvs: /dev/sda4
+    - name: fail if vault not decrypted
+      fail: msg="Vault not decrypted"
+      when: luks_password is undefined
 
-  - name: lv_for_vdo
-    lvol:
-      vg: rhv_vg
-      lv: vdo_lv
-      size: 100%VG
+    - name: disk_data
+      parted:
+        device: /dev/sda
+        unit: B
+      register: sda_info
 
-  # needs https://github.com/ansible/ansible/issues/54556 - fails after created
-  - name: vdo_volume
-    vdo:
-      name: "{{ vdo_devname }}"
-      state: present
-      running: yes
-      device: /dev/mapper/rhv_vg-vdo_lv
-      logicalsize: 3T
+    - name: show_data
+      debug:
+        var: sda_info
 
-  - name: xfs format
-    filesystem:
-      dev: "/dev/mapper/{{ vdo_devname }}"
-      fstype: xfs
-      resizefs: yes
+    - name: luks_partition
+      parted:
+        device: /dev/sda
+        number: "{{ partition_num }}"
+        label: gpt
+        name: "{{ luks_name }}"
+        unit: B
+        state: present
+        part_start: "{{ sda_info.partitions[partition_num-2].end + 1}}B"
+        part_end: "{{ sda_info.partitions[partition_num-2].end + 2199023255552 + 1 }}B" # 2TB
 
-  - name: determine_mount_name
-    command: systemd-escape -p --suffix=mount {{ mount_point }}
-    register: mount_filename
-    changed_when: false
+    - name: luks_keyfile
+      copy:
+        content: "{{ luks_password }}"
+        dest: "{{ luks_keyfile_path }}"
+        mode: u+rw,go=
 
-  - name: show_mount_name
-    debug:
-      var: mount_filename.stdout
+    - name: luks_device
+      luks_device:
+        device: "{{ luks_device }}"
+        name: "{{ luks_name }}"
+        state: "opened"
+        keyfile: "{{ luks_keyfile_path }}"
 
-  - name: vdo mount
-    template:
-      src:  vdo/vdo.j2
-      dest: /etc/systemd/system/{{ mount_filename.stdout }}
-    vars:
-      vdo_devname: rhv_data
-      fstype: xfs
+    - name: unlock_during_boot
+      crypttab:
+        name: "{{ luks_name }}"
+        state: present
+        opts: discard
+        backing_device: "{{ luks_device }}"
 
-  - name: vdo mounted
-    service:
-      name: "{{ mount_filename.stdout }}"
-      state: started
-      enabled: true
+    - name: remove_luks_keyfile
+      file:
+        dest: "{{ luks_keyfile_path }}"
+        state: absent
+
+    - name: vg_for_RHV
+      lvg:
+        vg: rhv_vg
+        pvs: "/dev/mapper/{{ luks_name }}"
+
+    - name: lv_for_vdo
+      lvol:
+        vg: rhv_vg
+        lv: vdo_lv
+        size: 100%VG
+
+    # needs https://github.com/ansible/ansible/issues/54556
+    - name: vdo_volume
+      vdo:
+        name: "{{ vdo_devname }}"
+        state: present
+        running: true
+        device: /dev/mapper/rhv_vg-vdo_lv
+        logicalsize: 3T
+
+    - name: xfs format
+      filesystem:
+        dev: "/dev/mapper/{{ vdo_devname }}"
+        fstype: xfs
+        resizefs: true
+
+    - name: determine_mount_name
+      command: systemd-escape -p --suffix=mount {{ mount_point }}
+      register: mount_filename
+      changed_when: false
+
+    - name: vdo mount
+      template:
+        src:  vdo/vdo.j2
+        dest: "/etc/systemd/system/{{ mount_filename.stdout }}"
+      vars:
+        vdo_devname: rhv_data
+        fstype: xfs
+
+    - name: vdo mounted
+      service:
+        name: "{{ mount_filename.stdout }}"
+        state: started
+        enabled: true
 
 - hosts: beast
   vars:
@@ -86,47 +129,47 @@
     vdo_devname: vdovol
 
   tasks:
-  - name: vdolv
-    lvol:
-      vg: rootvg
-      lv: vdolv
-      size: 500G
+    - name: vdolv
+      lvol:
+        vg: rootvg
+        lv: vdolv
+        size: 500G
 
-  # needs https://github.com/ansible/ansible/issues/54556 - fails after created
-  - name: vdo volume
-    vdo:
-      name: "{{ vdo_devname }}"
-      state: present
-      running: yes
-      device: /dev/mapper/rootvg-vdolv
-      logicalsize: 1.5T
+    # needs https://github.com/ansible/ansible/issues/54556
+    - name: vdo volume
+      vdo:
+        name: "{{ vdo_devname }}"
+        state: present
+        running: true
+        device: /dev/mapper/rootvg-vdolv
+        logicalsize: 1.5T
 
-  - name: xfs format
-    filesystem:
-      dev: "/dev/mapper/{{ vdo_devname }}"
-      fstype: xfs
-      resizefs: yes
+    - name: xfs format
+      filesystem:
+        dev: "/dev/mapper/{{ vdo_devname }}"
+        fstype: xfs
+        resizefs: true
 
-  - name: determine_mount_name
-    command: systemd-escape -p --suffix=mount {{ mount_point }}
-    register: mount_filename
-    changed_when: false
+    - name: determine_mount_name
+      command: systemd-escape -p --suffix=mount {{ mount_point }}
+      register: mount_filename
+      changed_when: false
 
-  - name: show_mount_name
-    debug:
-      var: mount_filename.stdout
+    - name: show_mount_name
+      debug:
+        var: mount_filename.stdout
 
-  - name: vdo mount
-    template:
-      src:  vdo/vdo.j2
-      dest: /etc/systemd/system/{{ mount_filename.stdout }}
-    vars:
-      fstype: xfs
+    - name: vdo mount
+      template:
+        src:  vdo/vdo.j2
+        dest: /etc/systemd/system/{{ mount_filename.stdout }}
+      vars:
+        fstype: xfs
 
-  - name: vdo mounted
-    service:
-      name: "{{ mount_filename.stdout }}"
-      state: started
-      enabled: true
+    - name: vdo mounted
+      service:
+        name: "{{ mount_filename.stdout }}"
+        state: started
+        enabled: true
 
 ...

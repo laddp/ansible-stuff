@@ -78,4 +78,6 @@
 
   # sometimes during failures... https://access.redhat.com/solutions/3497301 will fix...
 
+  # idle timeout: Web UI → Administer → Settings → Authentications → Idle timeout
+
 ...

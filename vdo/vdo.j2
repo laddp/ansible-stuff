@@ -1,6 +1,6 @@
 [Unit]
 Description = VDO unit file to mount {{ mount_point }} file system
-Name = {{ mount_filename }}
+Name = {{ mount_filename.stdout }}
 Requires = vdo.service
 After = multi-user.target
 Conflicts = umount.target
