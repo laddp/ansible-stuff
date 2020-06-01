@@ -49,6 +49,7 @@
             - home.pladd.net
           route_metric4: 1
           gateway4: 192.168.42.1
+          auto6: false
 
       - name: ogre_slave1
         type: ethernet

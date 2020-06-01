@@ -4,20 +4,68 @@
   hosts: rhv_manager_hosts
   vars_files:
     - passwords.vault
+  vars:
+    repositories_for_rhel_version:
+      "7":
+      - rhel-7-server-rhv-4.3-manager-rpms
+      - rhel-7-server-rhv-4-manager-tools-rpms
+      - rhel-7-server-ansible-2-rpms
+      - jb-eap-7.2-for-rhel-7-server-rpms
+      "8":
+        - rhel-8-for-x86_64-baseos-rpms
+        - rhel-8-for-x86_64-appstream-rpms
+        - rhv-4-manager-beta-for-rhel-8-x86_64-rpms
+        - fast-datapath-for-rhel-8-x86_64-rpms
+        - ansible-2.9-for-rhel-8-x86_64-rpms
+        - jb-eap-7.3-for-rhel-8-x86_64-rpms
+        - satellite-tools-6.7-for-rhel-8-x86_64-rpms
+        - advanced-virt-for-rhel-8-x86_64-rpms # extra
+
+        # - rhv-4-tools-beta-for-rhel-8-x86_64-rpms
+        # for hosted-engine (replace last 3):
+        # - rhv-4-mgmt-agent-beta-for-rhel-8-x86_64-rpms
+        # - fast-datapath-for-rhel-8-x86_64-rpms
 
   tasks:
   - name: RHV_manager_repositories
     rhsm_repository:
-      name:
-        - rhel-7-server-rhv-4.3-manager-rpms
-        - rhel-7-server-rhv-4-manager-tools-rpms
-        - rhel-7-server-ansible-2-rpms
-        - jb-eap-7.2-for-rhel-7-server-rpms
+      name: "{{ repositories_for_rhel_version[ansible_distribution_major_version] }}"
       state: enabled
+      purge: true
+
+  - name: clear_virt_module_stream
+    command: dnf module disable virt:rhel -y
+    when: ansible_distribution_major_version|int == 8
+    args:
+      warn: false
+
+  - name: setup_virt_module_streams
+    command: dnf module enable virt:8.2 -y
+    when: ansible_distribution_major_version|int == 8
+    args:
+      warn: false
+
+  - name: setup_postgres_module_stream
+    command: dnf module enable postgresql:12 -y
+    when: ansible_distribution_major_version|int == 8
+    args:
+      warn: false
+
+  - name: setup_pki_module_stream
+    command: dnf module enable pki-deps -y
+    when: ansible_distribution_major_version|int == 8
+    args:
+      warn: false
+
+  - name: distro_sync
+    command: dnf distro-sync -y
+    args:
+      warn: false
 
   - name: rhv_manager_packages
     yum:
       name: rhvm
+      # name: rhvm-appliance
 
   - name: fail if vault not decrypted
     fail: msg="Vault not decrypted"
@@ -25,7 +73,7 @@
 
   - name: answer_file
     template:
-      src: rhv/rhv_answerfile.j2
+      src: rhv/rhv44beta_answerfile.j2
       dest: /root/rhv_answerfile.conf
       backup: true
       mode: u=rw,go-rwx
@@ -41,16 +89,27 @@
   #       - "--log=/root/rhv_engine-setup.log"
   #       - "--accept-defaults"
   #     stdin: /dev/null
+  #   register: setup_output
+
+  # - name: setup_output
+  #   debug:
+  #     vars: setup_output
 
 - name: Red Hat Virtualization Hosts
   hosts: rhv_hosts
+  vars:
+    repositories_for_rhel_version:
+      "7":
+      - rhel-7-server-ansible-2-rpms
+      - rhel-7-server-rhv-4-mgmt-agent-rpms
+      "8":
+      - ansible-2.9-for-rhel-8-x86_64-rpms
+      - rhv-4-mgmt-agent-beta-for-rhel-8-x86_64-rpms
 
   tasks:
   - name: RHV_host_repositories
     rhsm_repository:
-      name:
-        - rhel-7-server-ansible-2-rpms
-        - rhel-7-server-rhv-4-mgmt-agent-rpms
+      name: "{{ repositories_for_rhel_version[ansible_distribution_major_version] }}"
       state: enabled
 
 # use?: ansible-galaxy install oVirt.ovirt-ansible-roles
@@ -59,9 +118,8 @@
   - name: host_key
     authorized_key:
       user: root
-      key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDkWTTz7pn6fjvNYx9TSWtEw++qIYKP6Jhq4f5nehOxMSCl9BYdP8qLug/Y1yMcPPDebEyeXGeT+pyf4R5b1+kRCh/fMHCBZMcxD4BRZtbv8KT8VSrkYiZcsOJH9SOTL5gScbGV1lZVYZAFbZjfmgpvtm4VJXikPY4lv/Xtl2xbIv48AdwvYBWPIao5Kbm6+S032jhKYElJeUUTumSqDD0Nxf+Zx50jnocEgDOGpj00FdmtQD9AZ+x/yETaaxbjIBd0K8k5yMNosxnrr6aCpsvXV9qFT/bcqZ+8VQkBgAsigIo48TPqDlMDivNKQ1C71necxflfZ0uDlKIn40g85GNh ovirt-engine"
+      key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC1I6HNiaUmyf08Vgnl3jJ6/aqJjjndZb9tZllCir9heLoNdCh0bro+Chk36Pz6iiU8KCIggskdHuUcUhk9t+HrESDg3BuDpJfMrYkJwk/za/UsqZE/zgo4+jjgJ7y+q/28edASQQ/16AsiMWL5pvtL5uzQ69SjQSy/ZoeU2WugcC9IzHEYlXWPQe5y1sTgg/vuNwFnPVjCB961+Au50x+Q8r4t7RzIG6IPxbHnQK1dkVTv/DrvJCIDuHbdxDBJI9M4TTZFd1ZS15BnzFyjnIhu1YlsuPFPqKzkEU0ATXd1OR9Iv9QeRq4pNvz4eL3BR3LeYOMD7d7T4G56b+oXVTtp ovirt-engine"
 
-# add host via the host dashboard...
   - name: storage_permissions
     file:
       owner: vdsm
@@ -70,9 +128,7 @@
       path: /rhv_data
       state: directory
 
-# new storage domain: local on host
-
-# turn off session timeouts
+  # turn off session timeouts
   - name: check_session_timeout
     command: engine-config -g UserSessionTimeOutInterval
     register: session_timeout
@@ -83,10 +139,27 @@
     notify: restart_ovirt_engine
     when: "'-1' not in session_timeout.stdout"
 
+  #######
+  ### Add HOST:
+  ### FROM GUI:
+  ### * Compute->Hosts->New
+  ### * "New" button
+  ### * Fill in:
+  ###   * name, Hostname/IP
+  ### * Select SSH Public Key
+  ### * OK
+  ### * Accept warning about power management
+  
+  #######
+  ### Add STORAGE:
+  ### From GUI:
+  ### * Storage -> DC -> edit default, change to local
+  ### * new storage domain: local on host
+
+
   handlers:
   - name: restart_ovirt_engine
     service:
       name: ovirt-engine
       state: restarted
-
 ...
