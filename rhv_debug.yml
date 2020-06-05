@@ -1,0 +1,20 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: Red Hat Virtualization Manager
+  hosts: rhv_manager_hosts
+
+  tasks:
+  - name: NM_trace
+    ini_file:
+      path: /etc/NetworkManager/NetworkManager.conf
+      section: logging
+      option: level
+      value: TRACE
+    
+  - name: journal_ratelimit
+    ini_file:
+      path: /etc/systemd/journald.conf
+      section: Journal
+      option: RateLimitBurst
+      value: 0
+...
