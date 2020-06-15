@@ -1,0 +1,15 @@
+#!/usr/bin/env ansible-playbook
+---
+- hosts: desktops
+  tasks:
+
+  - name: package
+    dnf:
+      name:
+      - cmake
+      - extra-cmake-modules
+      - libfreecell-solver
+      - libfreecell-solver-devel
+      state: latest
+
+...
