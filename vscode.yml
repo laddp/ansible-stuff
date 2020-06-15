@@ -1,0 +1,17 @@
+#!/usr/bin/env ansible-playbook
+---
+- hosts: desktops
+  tasks:
+
+  - name: vscode_repo
+    copy:
+      content: "[vscode]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc"
+      dest: /etc/yum.repos.d/vscode.repo
+    when: ansible_distribution == 'RedHat' or ansible_distribution == 'Fedora'
+
+  - name: package
+    package:
+      name: code
+      state: latest
+
+...
