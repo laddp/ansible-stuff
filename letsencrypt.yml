@@ -29,11 +29,20 @@
     notify:
     - build_pkcs12
     - build_combined_cert
+    - build_ca_to_root
+
+  - name: root_cert
+    get_url:
+      url: https://letsencrypt.org/certs/trustid-x3-root.pem.txt
+      dest: "{{ acme_dir }}/"
+    notify:
+    - build_ca_to_root
 
   - name: config_output
     debug:
       var: wc_output
 
+  #### ILO is too old to handle cert...
   # - name: ilo_cert
   #   command: /home/pladd/git/acme.sh/acme.sh --signcsr --csr {{ acme_dir }}/beast-ilo.home.pladd.net/ilo_csr.txt
   #   environment:
@@ -43,9 +52,9 @@
   #   failed_when: ilo_output.rc != 0 and ilo_output.rc != 2
   #   changed_when: ilo_output.rc == 0
 
-  - name: config_output
-    debug:
-      var: ilo_output
+  # - name: config_output
+  #   debug:
+  #     var: ilo_output
 
   handlers:
   - name: build_pkcs12
@@ -59,8 +68,15 @@
       src: certs/combined_wildcard_cert_key_template.j2
       dest: "{{ certs_dir }}/{{ domain }}_with_key.cer"
     vars:
-      cer: "{{ lookup('file', cert_file_prefix+'.cer') }}"
-      key: "{{ lookup('file', cert_file_prefix+'.key') }}"
+      first: "{{ lookup('file', cert_file_prefix+'.cer') }}"
+      second: "{{ lookup('file', cert_file_prefix+'.key') }}"
+  - name: build_ca_to_root
+    template:
+      src: certs/combined_wildcard_cert_key_template.j2
+      dest: "{{ certs_dir }}/ca_to_root.cer"
+    vars:
+      first: "{{ lookup('file', '{{ certs_dir}}/ca.cer') }}"
+      second: "{{ lookup('file', '{{ acme_dir }}/trustid-x3-root.pem.txt') }}"
 
 
 #############################
@@ -248,5 +264,59 @@
     service:
       name: lighttpd
       state: restarted
+
+#############################
+##
+## Deploy certs to Sat6
+##
+## https://access.redhat.com/documentation/en-us/red_hat_satellite/6.6/html-single/installing_satellite_server_from_a_connected_network/index#configuring-satellite-custom-server-certificate_satellite
+#############################
+- name: deploy_to_sat6
+  hosts: sat6
+  vars:
+    sat6_certs_dir: /root/satellite_cert
+  vars_files:
+    - letsencrypt_vars.yml
+  tasks:
+  - name: sat6_certdir
+    file:
+      dest: "{{ sat6_certs_dir }}"
+      state: directory
+  - name: sat6_certs
+    copy:
+      src: "{{ item.src }}"
+      dest: "{{ sat6_certs_dir }}/{{ item.dest }}"
+      mode: 0640
+    loop:
+    - { src: "{{ certs_dir }}/{{ domain }}.cer", dest: "{{ domain }}.pem" }
+    - { src: "{{ certs_dir }}/{{ domain }}.key", dest: "{{ domain }}.key" }
+    - { src: "{{ certs_dir }}/ca_to_root.cer", dest: ca.pem }
+  - name: check_certs
+    command:
+      argv:
+        - katello-certs-check
+        - "-c {{ sat6_certs_dir }}/{{ domain }}.pem"
+        - "-k {{ sat6_certs_dir }}/{{ domain }}.key"
+        - "-b {{ sat6_certs_dir }}/ca.pem"
+    register: check_output
+
+  # - name: check_output
+  #   debug:
+  #     var: check_output
+  
+  - name: install_certs
+    command:
+      argv:
+      - satellite-installer
+      - --scenario
+      - satellite
+      - --certs-server-cert
+      - "{{ sat6_certs_dir }}/{{ domain }}.pem"
+      - --certs-server-key
+      - "{{ sat6_certs_dir }}/{{ domain }}.key"
+      - --certs-server-ca-cert
+      - "{{ sat6_certs_dir }}/ca.pem"
+      - --certs-update-server
+      - --certs-update-server-ca
 
 ...
