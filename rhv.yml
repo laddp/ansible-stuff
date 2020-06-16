@@ -95,6 +95,19 @@
   #   debug:
   #     vars: setup_output
 
+  - name: alternate_fqdn
+    lineinfile:
+      path: /etc/ovirt-engine/engine.conf.d/99-custom-sso-setup.conf
+      create: true
+      line: 'SSO_ALTERNATE_ENGINE_FQDNS="localhost ogre-direct.home.pladd.net ogre-direct2.home.pladd.net"'
+    notify: restart_ovirt_engine
+
+  handlers:
+  - name: restart_ovirt_engine
+    service:
+      name: ovirt-engine
+      state: restarted
+
 - name: Red Hat Virtualization Hosts
   hosts: rhv_hosts
   vars:

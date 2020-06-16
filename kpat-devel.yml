@@ -3,13 +3,28 @@
 - hosts: desktops
   tasks:
 
-  - name: package
+  - name: packages
     dnf:
       name:
       - cmake
       - extra-cmake-modules
       - libfreecell-solver
       - libfreecell-solver-devel
+      - kf5-kconfig
+      - kf5-kconfig-devel
+      - kf5-kdbusaddons-devel
+      - kf5-kconfigwidgets-devel
+      - kf5-ki18n-devel
+      - kf5-kwidgetsaddons-devel
+      - kf5-kcrash-devel
+      - kf5-kguiaddons-devel
+      - kf5-kdoctools
+      - kf5-kio-devel
+      - kf5-knewstuff-devel
+      - kf5-kcompletion-devel
+      - kf5-kxmlgui-devel
+      - kf5-kdoctools-devel
+      - libkdegames-devel
       state: latest
 
 ...

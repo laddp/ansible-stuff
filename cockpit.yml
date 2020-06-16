@@ -39,18 +39,12 @@
     - pmcd
     - pmlogger
 
-  - name: session_block
-    lineinfile:
-      path: /etc/cockpit/cockpit.conf
-      create: yes
-      line: "[Session]"
-
   - name: disable_timeout
-    lineinfile:
+    ini_file:
       path: /etc/cockpit/cockpit.conf
-      line: "IdleTimeout=0"
-      insertafter: "[Session]"
-      regexp: ".*IdleTimeout.*=.*"
+      section: Session
+      option: IdleTimeout
+      value: "0"
 
 - hosts: rhel_hosts
   tasks:
