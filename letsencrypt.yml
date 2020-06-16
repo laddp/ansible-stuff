@@ -213,4 +213,40 @@
       - ovirt-engine
       - ovirt-imageio-proxy
       - httpd
+
+#############################
+##
+## Deploy certs to PiHole
+##
+#############################
+- name: deploy_to_pihole
+  hosts: pihole
+  vars:
+    pihole_certs_dir: /etc/ssl/private
+  vars_files:
+    - letsencrypt_vars.yml
+  tasks:
+  - name: pihole_certs
+    copy:
+      src: "{{ certs_dir }}/{{ item.file }}"
+      dest: "{{ pihole_certs_dir }}/{{ domain }}.{{ item.extension }}"
+      owner: www-data
+      group: www-data
+      mode: 0640
+    notify: restart_lighttpd
+    loop:
+    - { file: fullchain.cer, extension: pem }
+    - { file: "{{ domain }}.key", extension: key }
+  - name: lighttpd_config
+    template:
+      src: certs/pihole_lighthttpd_external.conf.j2
+      dest: "/etc/lighttpd/external.conf"
+    notify: restart_lighttpd
+
+  handlers:
+  - name: restart_lighttpd
+    service:
+      name: lighttpd
+      state: restarted
+
 ...
