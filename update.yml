@@ -1,12 +1,23 @@
 #!/usr/bin/env ansible-playbook
 ---
 - name: Update all existing packages
-  hosts: rhel_hosts
+  hosts: all
+  vars_files:
+  - unifi.vault
 
   tasks:
-  - name: System up to date
+  - name: yum_systems_up_to_date
     yum:
       name:  '*'
       state: latest
+    when:
+    - ansible_distribution == 'RedHat'
+    - ansible_distribution == 'Fedora'
+
+  - name: ubuntu_systems_up_to_date
+    apt:
+      name: "*"
+      state: latest
+    when: ansible_distribution == 'Ubuntu'
 
 ...
