@@ -319,4 +319,38 @@
       - --certs-update-server
       - --certs-update-server-ca
 
+#############################
+##
+## Deploy certs to Unifi
+##
+#############################
+- name: deploy_to_unifi
+  hosts: unifi
+  vars:
+    unifi_certs_dir: /var/lib/unifi
+  vars_files:
+    - unifi.vault
+    - letsencrypt_vars.yml
+  tasks:
+  - name: unifi_keystore
+    java_keystore:
+      name: unifi
+      certificate: "{{ lookup('file', cert_file_prefix+'.cer') }}"
+      private_key: "{{ lookup('file', cert_file_prefix+'.key') }}"
+      password: aircontrolenterprise
+      dest: "{{ unifi_certs_dir }}/keystore_new"
+
+  - name: unifi_cert_backup
+    copy:
+      remote_src: true
+      src: "{{ unifi_certs_dir }}/keystore_new"
+      dest: "{{ unifi_certs_dir }}/keystore"
+      backup: true
+    notify: restart_unifi
+
+  handlers:
+  - name: restart_unifi
+    service:
+      name: unifi
+      state: restarted
 ...
