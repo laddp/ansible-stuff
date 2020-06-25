@@ -34,9 +34,10 @@ nbde ansible_user=root ansible_host=nbde.pladd.usersys.redhat.com
 nbde7 ansible_user=root ansible_host=nbde7.pladd.usersys.redhat.com
 ocp42_bootstrap ansible_host=192.168.42.131 ansible_user=root
 tower ansible_user=root ansible_host=192.168.122.13
-kab-devel ansible_user=root ansible_host=192.168.122.69
+kab-devel ansible_user=root
 firstvm ansible_user=root ansible_host=192.168.42.178
 rhel82 ansible_user=root ansible_host=192.168.122.77
+pladd-znc ansible_host=pladd-znc.usersys.redhat.com ansible_user=cloud-user ansible_become=yes
 
 [rhel_hosts]
 rhel75.home.pladd.net
@@ -65,6 +66,7 @@ tower
 kab-devel
 firstvm
 rhel82
+pladd-znc
 
 [fedora_hosts]
 laptop.home.pladd.net

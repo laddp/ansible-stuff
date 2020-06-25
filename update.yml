@@ -11,8 +11,7 @@
       name:  '*'
       state: latest
     when:
-    - ansible_distribution == 'RedHat'
-    - ansible_distribution == 'Fedora'
+    - ansible_distribution == 'RedHat' or ansible_distribution == 'Fedora'
 
   - name: ubuntu_systems_up_to_date
     apt:
