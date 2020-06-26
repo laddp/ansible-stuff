@@ -38,6 +38,7 @@ kab-devel ansible_user=root
 firstvm ansible_user=root ansible_host=192.168.42.178
 rhel82 ansible_user=root ansible_host=192.168.122.77
 pladd-znc ansible_host=pladd-znc.usersys.redhat.com ansible_user=cloud-user ansible_become=yes
+master-0 ansible_host=master-0.pladdocp311.lab.pnq2.cee.redhat.com ansible_user=quicklab ansible_become=yes
 
 [rhel_hosts]
 rhel75.home.pladd.net
