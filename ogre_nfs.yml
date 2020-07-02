@@ -1,0 +1,17 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: ogre_NFS_exports
+  hosts: ogre
+  vars:
+    - nfs_exports: [ "/rhv_data *(rw,sync,no_root_squash)" ]
+  roles:
+    - { role: geerlingguy.nfs }
+
+  tasks:
+    - name: open_firewall
+      firewalld:
+        service: nfs
+        state: enabled
+        permanent: true
+        immediate: true
+...

@@ -27,6 +27,8 @@
       password: "{{ subscription_manager_pw }}"
       #pool_ids: "8a85f9833e1404a9013e3cddf99305e6" # Employee SKU
       pool_ids: "8a85f9833e1404a9013e3cddf95a0599" # Employee SKU
+      # pool_ids: "8a85f99c6c8b9588016c8be0f1b50ec1" # Newest Employee SKU
+      # pool_ids: "8a85f9843c3ade76013c3b451f690bcd" # RHEV Employee SKU
 
   - name: repositories
     rhsm_repository:

@@ -24,6 +24,7 @@
       - "192.168.42.210  ogre.home.pladd.net"
       - "192.168.42.211  ogre-direct.home.pladd.net"
       - "192.168.42.212  ogre-direct2.home.pladd.net"
+      - "192.168.42.215  rhv.home.pladd.net"
       - "192.168.42.219  ogre-idrac.home.pladd.net"
     notify:
       - reload_dns
