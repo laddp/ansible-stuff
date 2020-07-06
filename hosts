@@ -39,6 +39,7 @@ firstvm ansible_user=root ansible_host=192.168.42.178
 rhel82 ansible_user=root ansible_host=192.168.122.77
 pladd-znc ansible_host=pladd-znc.usersys.redhat.com ansible_user=cloud-user ansible_become=yes
 master-0 ansible_host=master-0.pladdocp311.lab.pnq2.cee.redhat.com ansible_user=quicklab ansible_become=yes
+rhv ansible_host=rhv.home.pladd.net ansible_user=root
 
 [rhel_hosts]
 rhel75.home.pladd.net
@@ -133,7 +134,7 @@ nbde
 nbde7
 
 [rhv_manager_hosts]
-ogre
+rhv
 
 [rhv_hosts]
 ogre

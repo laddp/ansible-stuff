@@ -112,7 +112,7 @@
 ## * https://access.redhat.com/solutions/2610251
 #############################
 - name: deploy_to_RHV
-  hosts: rhv_hosts
+  hosts: rhv_manager_hosts
   vars_files:
     - letsencrypt_vars.yml
 
@@ -227,7 +227,7 @@
       - ovirt-websocket-proxy
       - ovirt-provider-ovn
       - ovirt-engine
-      - ovirt-imageio-proxy
+      # - ovirt-imageio-proxy
       - httpd
 
 #############################

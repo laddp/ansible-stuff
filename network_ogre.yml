@@ -18,6 +18,7 @@
             - home.pladd.net
           route_metric4: 300
           gateway4: 192.168.42.1
+        autoconnect: false
 
       - name: enp65s0f1
         type: ethernet
@@ -33,6 +34,7 @@
             - home.pladd.net
           route_metric4: 300
           gateway4: 192.168.42.1
+        autoconnect: false
 
       - name: bond0
         type: bond
