@@ -1,0 +1,47 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: test_leapp
+  hosts: rhel78
+  vars:
+    vg: rhel_rhel78
+    root: root
+    rollback: rollback
+
+  tasks:
+  - name: packages
+    yum:
+      name:
+        - leapp
+        - leapp-repository
+        - leapp-repository-deps
+        - lvm2-python-boom
+      state: latest
+
+  - name: rollback_lv
+    lvol:
+      vg: "{{ vg }}"
+      lv: "{{ root }}"
+      snapshot: "{{ rollback }}"
+      size: 10g
+
+  - name: boom_list
+    command: "boom list -L {{ vg }}/{{ rollback }} -o rootdev --noheadings"
+    register: boom
+
+  - name: boom
+    command: "boom create --title 'RHEL snapshot' --rootlv {{ vg }}/{{ rollback }}"
+    register: boom
+    when: "boom.stdout|length == 0"
+  - debug:
+      var: boom
+
+  - name: grub
+    shell: "grub2-mkconfig > /boot/grub2/grub.cfg"
+    register: grub
+  - debug:
+      var: grub
+
+  - name: copy_leapp_data
+    copy:
+
+...

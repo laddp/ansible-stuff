@@ -1,0 +1,60 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: test_leapp
+  hosts: rhel78
+
+  tasks:
+  - name: packages
+    yum:
+      name:
+        - httpd
+        - mariadb-server
+        - MySQL-python
+        - php
+        - php-mysql
+      state: latest
+
+  - name: http_hello_world
+    copy:
+      src: leapp.php
+      dest: /var/www/html/index.php
+
+  - name: services
+    service:
+      name: "{{ item }}"
+      state: started
+      enabled: true
+    loop:
+      - httpd
+      - mariadb
+
+  - name: firewall
+    firewalld:
+      service: http
+      state: enabled
+      permanent: true
+    loop:
+
+  - name: sampledb_source
+    copy:
+      src: leappdb.sql
+      dest: /tmp
+
+  - name: sample_database
+    mysql_db:
+      name: leapptest
+      state: import
+      target: /tmp/leappdb.sql
+    register: foo
+
+  - debug:
+      var: foo
+
+  - name: db_user
+    mysql_user:
+      name: leapp
+      password: "12345"
+      priv: '*.*:ALL'
+      state: present
+
+...

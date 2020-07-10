@@ -11,8 +11,7 @@ ocp-n2.home.pladd.net ansible_user=root
 beast ansible_user=root ansible_host=pladd.net ansible_port=4242
 ogre ansible_user=root ansible_host=192.168.42.210
 tower.home.pladd.net ansible_user=root
-rhel75.home.pladd.net ansible_user=root
-rhel76.home.pladd.net ansible_user=root ansible_host=192.168.122.101
+rhel78 ansible_user=root ansible_host=192.168.122.106
 rhel76upgrade.home.pladd.net ansible_user=root
 gluster34.home.pladd.net ansible_user=root
 awx ansible_host=192.168.122.60 ansible_user=root
@@ -20,7 +19,6 @@ tower ansible_host=192.168.122.13 ansible_user=root
 home_switch ansible_host=192.168.42.2 ansible_user=pmladd
 home_gw ansible_host=192.168.42.1 ansible_user=pmladd
 rhel80 ansible_user=root
-rhel77 ansible_user=root
 master-0.pladdocp311.lab.rdu2.cee.redhat.com ansible_user=quicklab ansible_become=yes
 master-1.pladdocp311.lab.rdu2.cee.redhat.com ansible_user=quicklab ansible_become=yes
 master-2.pladdocp311.lab.rdu2.cee.redhat.com ansible_user=quicklab ansible_become=yes
@@ -42,9 +40,7 @@ master-0 ansible_host=master-0.pladdocp311.lab.pnq2.cee.redhat.com ansible_user=
 rhv ansible_host=rhv.home.pladd.net ansible_user=root
 
 [rhel_hosts]
-rhel75.home.pladd.net
-rhel76.home.pladd.net
-rhel76upgrade.home.pladd.net
+rhel78
 ocp-m1.home.pladd.net
 ocp-m2.home.pladd.net
 ocp-m3.home.pladd.net
@@ -57,7 +53,6 @@ gluster34.home.pladd.net
 awx
 tower
 rhel80
-rhel77
 sat6
 tang
 nbde
