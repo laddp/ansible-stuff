@@ -15,6 +15,7 @@
         - leapp-repository
         - leapp-repository-deps
         - lvm2-python-boom
+        - cockpit-leapp
       state: latest
 
   - name: rollback_lv
@@ -42,6 +43,49 @@
       var: grub
 
   - name: copy_leapp_data
-    copy:
+    unarchive:
+      dest: /etc/leapp/files
+      src: leapp-data7.tar.gz
+
+  - name: firewalld
+    firewalld:
+      service: cockpit
+      state: enabled
+      permanent: yes
+      immediate: yes
+
+  - name: cockpit service socket
+    service:
+      name: cockpit.socket
+      state: started
+      enabled: true
+
+  - name: leapp_eval
+    command: "leapp preupgrade"
+    register: leapp
+  - debug:
+      var: leapp
+
+  - name: leapp_doit
+    command: "leapp upgrade --debug"
+    register: leapp
+  - debug:
+      var: leapp
+
+  - name: reboot
+    reboot:
+      reboot_timeout: 3600
+
+  - name: delete_snapshot
+    lvol:
+      vg: "{{ vg }}"
+      lv: "{{ rollback }}"
+      state: absent
+
+  - name: rollback_to_snapshot
+    command: "lvconvert --merge /dev/{{ vg }}/{{ rollback }}"
+    register: rollback
+  - debug:
+      var: rollback
 
 ...

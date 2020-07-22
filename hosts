@@ -11,7 +11,7 @@ ocp-n2.home.pladd.net ansible_user=root
 beast ansible_user=root ansible_host=pladd.net ansible_port=4242
 ogre ansible_user=root ansible_host=192.168.42.210
 tower.home.pladd.net ansible_user=root
-rhel78 ansible_user=root ansible_host=192.168.122.106
+rhel78 ansible_user=root ansible_host=192.168.122.106 ansible_python_interpreter=/usr/bin/python3
 rhel76upgrade.home.pladd.net ansible_user=root
 gluster34.home.pladd.net ansible_user=root
 awx ansible_host=192.168.122.60 ansible_user=root

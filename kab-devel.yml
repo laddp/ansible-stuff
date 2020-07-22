@@ -1,0 +1,141 @@
+#!/usr/bin/env ansible-playbook
+---
+- hosts: kab-devel
+  name: system-setup
+  vars:
+    fullname: 'Patrick Ladd'
+    kabuser: pladd
+
+  tasks:
+  - name: RHIT_repo
+    # needed for git to trust certs for internal gitlab
+    # note... sslverify=false required to boostrap certs!
+    copy:
+      content: |
+          [rhit-rhel7-csb-stage]
+          name=RHIT RHEL7 CSB
+          baseurl=https://hdn.corp.redhat.com/rhel7-csb-stage/
+          enabled=1
+          gpgcheck=0
+          sslverify=false
+          skip_if_unavailable=1
+          exclude=redhat-internal-chat-config,redhat-internal-software-management,linux-firmware
+      dest: /etc/yum.repos.d/rhit.repo
+
+  - name: EPEL_repo
+    yum:
+      name: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ansible_distribution_major_version}}.noarch.rpm"
+
+  - name: packages
+    yum:
+      name:
+        - git
+        - redhat-internal-cert-install
+        - python3-pip
+        - python-virtualenv
+        - libcurl-devel
+        - gcc
+        - python3
+        - docker
+        - python-docker-py # needs EPEL to get python-pysocks
+
+  - name: docker_daemon
+    service:
+      name: docker
+      state: started
+      enabled: true
+  - name: docker_swarm
+    docker_swarm:
+      state: present
+
+  - name: add_kabuser
+    user:
+      name: "{{ kabuser }}"
+      comment: "{{ fullname }}"
+  - name: ssh_key
+    authorized_key:
+      user: "{{ kabuser }}"
+      key: "{{ item }}"
+    with_file:
+      - /home/{{ kabuser }}/.ssh/id_rsa.pub
+
+- hosts: kab-devel
+  name: user-setup
+
+  vars:
+    ansible_user: pladd
+    fullname: 'Patrick Ladd'
+    kabuser: "{{ ansible_user }}"
+    email: '{{ kabuser }}@redhat.com'
+    homedir: /home/{{ kabuser }}
+    kabweb_dir: "{{ homedir }}/kabweb"
+
+  tasks:
+  - name: ssh_key
+    copy:
+      src: "{{ homedir }}/.ssh/id_rsa"
+      dest: "{{ homedir }}/.ssh/id_rsa"
+      mode: 'u=rw,go='
+
+  - name: git_credentials
+    git_config:
+      scope: global
+      name: "{{ item.name }}"
+      value: "{{ item.value }}"
+    loop:
+      - { name: user.name,  value: "{{ fullname }}" }
+      - { name: user.email, value: "{{ email }}" }
+
+  - name: fetch_gitlab_key
+    command: ssh-keyscan -t rsa gitlab.cee.redhat.com
+    register: gitlab_key
+    changed_when: false
+
+  - name: gitlab_known_host
+    known_hosts:
+      name: gitlab.cee.redhat.com
+      key: "{{ gitlab_key.stdout }}"
+
+  - name: clone_kabweb
+    git:
+      repo: 'git@gitlab.cee.redhat.com:kab/kabweb.git'
+      dest: "{{ kabweb_dir }}"
+      update: no
+
+  - name: pip_install
+    pip:
+      # name: .
+      virtualenv: venv
+      virtualenv_python: python3
+      chdir: "{{ kabweb_dir }}"
+      requirements: dev-requirements.txt
+
+  # - name: django_pip
+  #   pip:
+  #     name: django
+  #     version: 1.11.9
+
+  # - name: pip_requirements
+  #   pip:
+  #     name:
+  #       - django-redis-metrics
+  #       - django-bootstrap-themes
+  #       - html2text
+  #       - python-ldap
+  #       - markdown
+  #       - pycurl
+
+  # # - name: git_kab-ui
+  # #   git:
+  # #     repo: https://gitlab.cee.redhat.com/kab/kab-ui.git
+  # #     dest: /home/pladd/kab-ui/
+  # #     accept_hostkey: yes
+
+  # - name: redis_image
+  #   podman_image:
+  #     name: registry.access.redhat.com/rhscl/redis-32-rhel7
+
+  # - name: redis_container
+  #   command: podman run -p 6379:6379 -d registry.access.redhat.com/rhscl/redis-32-rhel7
+
+...
