@@ -69,6 +69,7 @@
     email: '{{ kabuser }}@redhat.com'
     homedir: /home/{{ kabuser }}
     kabweb_dir: "{{ homedir }}/kabweb"
+    kabui_dir: "{{ homedir }}/kab-ui"
 
   tasks:
   - name: ssh_key
@@ -86,21 +87,22 @@
       - { name: user.name,  value: "{{ fullname }}" }
       - { name: user.email, value: "{{ email }}" }
 
-  - name: fetch_gitlab_key
-    command: ssh-keyscan -t rsa gitlab.cee.redhat.com
-    register: gitlab_key
-    changed_when: false
+  # - name: fetch_gitlab_key
+  #   command: ssh-keyscan -t rsa gitlab.cee.redhat.com
+  #   register: gitlab_key
+  #   changed_when: false
 
-  - name: gitlab_known_host
-    known_hosts:
-      name: gitlab.cee.redhat.com
-      key: "{{ gitlab_key.stdout }}"
+  # - name: gitlab_known_host
+  #   known_hosts:
+  #     name: gitlab.cee.redhat.com
+  #     key: "{{ gitlab_key.stdout }}"
 
   - name: clone_kabweb
     git:
       repo: 'git@gitlab.cee.redhat.com:kab/kabweb.git'
       dest: "{{ kabweb_dir }}"
       update: no
+      accept_hostkey: yes
 
   - name: pip_install
     pip:
@@ -110,32 +112,11 @@
       chdir: "{{ kabweb_dir }}"
       requirements: dev-requirements.txt
 
-  # - name: django_pip
-  #   pip:
-  #     name: django
-  #     version: 1.11.9
-
-  # - name: pip_requirements
-  #   pip:
-  #     name:
-  #       - django-redis-metrics
-  #       - django-bootstrap-themes
-  #       - html2text
-  #       - python-ldap
-  #       - markdown
-  #       - pycurl
-
-  # # - name: git_kab-ui
-  # #   git:
-  # #     repo: https://gitlab.cee.redhat.com/kab/kab-ui.git
-  # #     dest: /home/pladd/kab-ui/
-  # #     accept_hostkey: yes
-
-  # - name: redis_image
-  #   podman_image:
-  #     name: registry.access.redhat.com/rhscl/redis-32-rhel7
-
-  # - name: redis_container
-  #   command: podman run -p 6379:6379 -d registry.access.redhat.com/rhscl/redis-32-rhel7
+  - name: clone_kab-ui
+    git:
+      repo: 'git@gitlab.cee.redhat.com:kab/kab-ui.git'
+      dest: "{{ kabui_dir }}"
+      update: no
+      accept_hostkey: yes
 
 ...
