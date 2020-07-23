@@ -39,6 +39,24 @@
         - docker
         - python-docker-py # needs EPEL to get python-pysocks
 
+  - name: get_latest_s2i_assets
+    uri:
+      url: "https://api.github.com/repos/openshift/source-to-image/releases/latest"
+      return_content: true
+    register: s2i_assets
+
+  # - name: debug
+  #   debug:
+  #     var: "{{ item }}"
+  #   loop:
+  #     - s2i_assets.json
+
+  - name: s2i_download
+    unarchive:
+      remote_src: true
+      src: '{{ (s2i_assets.json.assets|selectattr("name", "contains", "linux-amd64.tar.gz")|first)["browser_download_url"] }}'
+      dest: /usr/local/bin
+
   - name: docker_daemon
     service:
       name: docker
