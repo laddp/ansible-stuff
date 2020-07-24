@@ -34,6 +34,7 @@
         - python3-pip
         - python-virtualenv
         - libcurl-devel
+        - python3-devel
         - gcc
         - python3
         - docker
@@ -55,7 +56,13 @@
     unarchive:
       remote_src: true
       src: '{{ (s2i_assets.json.assets|selectattr("name", "contains", "linux-amd64.tar.gz")|first)["browser_download_url"] }}'
-      dest: /usr/local/bin
+      dest: /usr/local/bin/
+      mode: ugo+rwx
+
+  - name: docker_group
+    group:
+      name: docker
+    notify: restart_docker
 
   - name: docker_daemon
     service:
@@ -70,12 +77,20 @@
     user:
       name: "{{ kabuser }}"
       comment: "{{ fullname }}"
+      groups: docker
+
   - name: ssh_key
     authorized_key:
       user: "{{ kabuser }}"
       key: "{{ item }}"
     with_file:
       - /home/{{ kabuser }}/.ssh/id_rsa.pub
+
+  handlers:
+  - name: restart_docker
+    service:
+      name: docker
+      state: restarted
 
 - hosts: kab-devel
   name: user-setup
