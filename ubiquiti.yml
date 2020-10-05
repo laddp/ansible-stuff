@@ -1,3 +1,4 @@
+#!/usr/bin/env ansible-playbook
 ---
 - name: Create Ubiquiti management VM
   hosts: beast
@@ -36,4 +37,22 @@
       state: running
       name: ubiquiti
 
+- name: Configure unifi
+  hosts: unifi
+  vars_files:
+    - passwords.vault
+  vars:
+    - ansible_become_pass: "{{ unifi_sudo_pass }}"
+
+  tasks:
+  - name: package_source
+    copy:
+      dest: /etc/apt/sources.list.d/100-ubnt-unifi.list
+      content: "deb https://www.ui.com/downloads/unifi/debian stable ubiquiti"
+
+  - name: package_up_to_date
+    apt:
+      name:
+        - unifi
+      state: latest
 ...
