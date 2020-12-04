@@ -12,9 +12,8 @@ beast ansible_user=root ansible_host=pladd.net ansible_port=4242
 ogre ansible_user=root ansible_host=192.168.42.210
 tower.home.pladd.net ansible_user=root
 #rhel78 ansible_user=root ansible_python_interpreter=/usr/bin/python3
-rhel78 ansible_user=root
+rhel79 ansible_user=root
 rhel76upgrade.home.pladd.net ansible_user=root
-gluster34.home.pladd.net ansible_user=root
 awx ansible_host=192.168.122.60 ansible_user=root
 tower ansible_host=192.168.122.13 ansible_user=root
 home_switch ansible_host=192.168.42.2 ansible_user=pmladd
@@ -36,12 +35,21 @@ tower ansible_user=root ansible_host=192.168.122.13
 kab-devel ansible_user=root
 firstvm ansible_user=root ansible_host=192.168.42.178
 rhel82 ansible_user=root ansible_host=192.168.122.77
+rhel83 ansible_user=root
 pladd-znc ansible_host=pladd-znc.usersys.redhat.com ansible_user=cloud-user ansible_become=yes
 master-0 ansible_host=master-0.pladdocp311.lab.pnq2.cee.redhat.com ansible_user=quicklab ansible_become=yes
 rhv ansible_host=rhv.home.pladd.net ansible_user=root
+rhgs35-1 ansible_user=root
+rhgs35-2 ansible_user=root
+rhgs35-3 ansible_user=root
+rhgs-web ansible_user=root
+ceph-console ansible_host=ceph-console.home.pladd.net ansible_user=root
+ceph-1 ansible_host=ceph-1.home.pladd.net ansible_user=root
+ceph-2 ansible_host=ceph-2.home.pladd.net ansible_user=root
+ceph-3 ansible_host=ceph-3.home.pladd.net ansible_user=root
 
 [rhel_hosts]
-rhel78
+rhel79
 ocp-m1.home.pladd.net
 ocp-m2.home.pladd.net
 ocp-m3.home.pladd.net
@@ -64,7 +72,16 @@ tower
 kab-devel
 firstvm
 rhel82
+rhel83
 pladd-znc
+rhgs35-1
+rhgs35-2
+rhgs35-3
+rhgs-web
+ceph-console
+ceph-1
+ceph-2
+ceph-3
 
 [fedora_hosts]
 laptop.home.pladd.net
@@ -101,6 +118,10 @@ beast
 ogre
 
 [gluster_hosts]
+rhgs35-1
+rhgs35-2
+rhgs35-3
+rhgs-web
 
 [istio_hosts]
 master-0.pladdocp311.lab.rdu2.cee.redhat.com 

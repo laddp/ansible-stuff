@@ -1,0 +1,13 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: add Software Collections Repo
+  hosts: rhel_hosts
+
+  tasks:
+  - name: repositories
+    rhsm_repository:
+      name: "rhel-server-rhscl-{{ansible_distribution_major_version}}-rpms"
+      state: enabled
+      purge: no
+
+...

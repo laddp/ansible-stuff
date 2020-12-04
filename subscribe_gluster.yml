@@ -1,0 +1,44 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: register server, set repositories
+  hosts: gluster_hosts
+  vars:
+    repositories_for_rhel_version:
+      "7":
+        - "rhel-7-server-rpms"
+        - "rh-gluster-3-for-rhel-7-server-rpms"
+        - "rh-gluster-3-samba-for-rhel-7-server-rpms"
+        - "rh-gluster-3-nfs-for-rhel-7-server-rpms"
+        - "rhel-ha-for-rhel-7-server-rpms"
+      "8":
+        - "rhel-8-for-x86_64-baseos-rpms"
+        - "rhel-8-for-x86_64-appstream-rpms"
+        - "rh-gluster-3-for-rhel-8-x86_64-rpms"
+        - "rh-gluster-3-samba-for-rhel-8-x86_64-rpms"
+        - "rh-gluster-3-nfs-for-rhel-8-x86_64-rpms"
+        - "rhel-8-for-x86_64-highavailability-rpms"
+        - "rh-gluster-3-samba-for-rhel-8-x86_64-rpms"
+  vars_files:
+    - passwords.vault
+
+  tasks:
+  - name: fail if vault not decrypted
+    fail: msg="Vault not decrypted"
+    when: subscription_manager_id is undefined or subscription_manager_pw is undefined
+
+  - name: subscribe system
+    redhat_subscription:
+      username: "{{ subscription_manager_id }}"
+      password: "{{ subscription_manager_pw }}"
+      #pool_ids: "8a85f9833e1404a9013e3cddf99305e6" # Employee SKU
+      #pool_ids: "8a85f9833e1404a9013e3cddf95a0599" # Employee SKU
+      pool_ids: "8a85f99c6c8b9588016c8be0f1b50ec1" # Newest Employee SKU
+      # pool_ids: "8a85f9843c3ade76013c3b451f690bcd" # RHEV Employee SKU
+
+  - name: repositories
+    rhsm_repository:
+      name: "{{ repositories_for_rhel_version[ansible_distribution_major_version] }}"
+      state: enabled
+      purge: yes
+
+...

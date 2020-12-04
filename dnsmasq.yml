@@ -32,6 +32,9 @@
       block: |
         log-facility=/var/log/dnsmasq.log
         domain-needed
+        bogus-priv
+        strict-order
+        local=/local/
         expand-hosts
     notify:
       - reload NetworkManager
@@ -41,6 +44,25 @@
       path: /etc/NetworkManager/dnsmasq.d/debug-logging.conf
       create: yes
       line: log-queries
+    notify:
+      - reload NetworkManager
+
+  - name: rotate_debug_logs
+    blockinfile:
+      path: /etc/logrotate.d/dnsmasq
+      create: yes
+      block: |
+        /var/log/dnsmasq.log {
+          rotate 14
+          daily
+          maxsize 1G
+        }
+
+  - name: etc_hosts
+    lineinfile:
+      path: /etc/NetworkManager/dnsmasq.d/etc-hosts.conf
+      create: yes
+      line: addn-hosts=/etc/hosts
     notify:
       - reload NetworkManager
 
