@@ -33,9 +33,8 @@ nbde7 ansible_user=root ansible_host=nbde7.pladd.usersys.redhat.com
 ocp42_bootstrap ansible_host=192.168.42.131 ansible_user=root
 tower ansible_user=root ansible_host=192.168.122.13
 kab-devel ansible_user=root
-firstvm ansible_user=root ansible_host=192.168.42.178
 rhel82 ansible_user=root ansible_host=192.168.122.77
-rhel83 ansible_user=root
+rhel83 ansible_user=root ansible_host=rhel83.home.pladd.net
 pladd-znc ansible_host=pladd-znc.usersys.redhat.com ansible_user=cloud-user ansible_become=yes
 master-0 ansible_host=master-0.pladdocp311.lab.pnq2.cee.redhat.com ansible_user=quicklab ansible_become=yes
 rhv ansible_host=rhv.home.pladd.net ansible_user=root
@@ -70,7 +69,6 @@ ocp42_bootstrap
 rhv
 tower
 kab-devel
-firstvm
 rhel82
 rhel83
 pladd-znc
@@ -159,9 +157,23 @@ ogre
 [tower_hosts]
 tower
 
-[rhv_guests]
-firstvm
-
 [desktops]
 laptop.home.pladd.net
 pladd-laptop.usersys.redhat.com
+
+[ceph_hosts]
+ceph-console
+ceph-1
+ceph-2
+ceph-3
+
+[ceph_consoles]
+ceph-console
+
+[virt_guests]
+sat6
+
+[virt_guests:children]
+ceph_hosts
+ceph_consoles
+

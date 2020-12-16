@@ -1,0 +1,48 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: configure_virt_guests
+  hosts: virt_guests
+  vars:
+    info_for_rhel_version:
+      "6":
+        repo: rhel-6-server-rhv-4-agent-rpms
+        package: ovirt-guest-agent-common
+        agent: qemu-ga
+      "7":
+        repo: rhel-7-server-rh-common-rpms
+        package: qemu-guest-agent
+        agent: qemu-guest-agent
+      "8":
+        repo: rhel-8-for-x86_64-appstream-rpms
+        package: qemu-guest-agent
+        agent: qemu-guest-agent
+
+  tasks:
+  - name: repositories
+    rhsm_repository:
+      name: "{{ info_for_rhel_version[ansible_distribution_major_version].repo }}"
+      state: enabled
+
+  - name: package
+    yum:
+      name: "{{ info_for_rhel_version[ansible_distribution_major_version].package }}"
+      state: latest
+
+  - name: guest_agent_started
+    service:
+      name: "{{ info_for_rhel_version[ansible_distribution_major_version].agent }}"
+      state: started
+      enabled: true
+
+  - name: vhost_net module
+    copy:
+      content: vhost_net
+      dest: /etc/modules-load.d/vhost_net.conf
+    notify:
+      modprobe_vhost
+
+  handlers:
+    - name: modprobe_vhost
+      modprobe:
+        name: vhost_net
+...
