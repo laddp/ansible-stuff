@@ -1,5 +1,5 @@
 #rhel75.pladd.net ansible_host=192.168.42.194 ansible_user=root
-pladd-laptop.usersys.redhat.com ansible_user=root ansible_python_interpreter=/usr/bin/python3 ansible_host=pladd-laptop.home.pladd.net
+pladd-laptop.usersys.redhat.com ansible_user=root ansible_python_interpreter=/usr/bin/python3 ansible_host=localhost
 laptop.home.pladd.net ansible_user=root ansible_python_interpreter=/usr/bin/python3
 unifi ansible_host=unifi.home.pladd.net ansible_become=yes ansible_user=pladd
 ocp-m1.home.pladd.net ansible_user=root
@@ -26,7 +26,8 @@ infra-0.pladdocp311.lab.rdu2.cee.redhat.com ansible_user=quicklab ansible_become
 node-0.pladdocp311.lab.rdu2.cee.redhat.com ansible_user=quicklab ansible_become=yes
 node-1.pladdocp311.lab.rdu2.cee.redhat.com ansible_user=quicklab ansible_become=yes
 sat6 ansible_host=sat6.home.pladd.net ansible_user=root
-pihole ansible_user=pladd ansible_become=yes
+#pihole ansible_user=pi ansible_become=yes ansible_host=192.168.42.195
+pihole ansible_user=pladd ansible_become=yes ansible_host=192.168.42.59
 tang ansible_user=root ansible_host=tang.pladd.usersys.redhat.com
 nbde ansible_user=root ansible_host=nbde.pladd.usersys.redhat.com
 nbde7 ansible_user=root ansible_host=nbde7.pladd.usersys.redhat.com
@@ -87,6 +88,8 @@ pladd-laptop.usersys.redhat.com
 
 [ubuntu_hosts]
 unifi.home.pladd.net
+
+[debian_hosts]
 pihole
 
 [ubiquiti]

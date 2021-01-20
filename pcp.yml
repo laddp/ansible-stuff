@@ -1,0 +1,11 @@
+#!/usr/bin/env ansible-playbook
+---
+- hosts: rhel_hosts
+
+  tasks:
+  - name: pcp_packages
+    yum:
+      name:
+      - pcp-zeroconf
+      state: latest
+...

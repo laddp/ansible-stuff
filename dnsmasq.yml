@@ -5,6 +5,9 @@
   vars_files:
     - passwords.vault
 
+###### NONE OF THIS IS NEEDED AS OF FEDORA 33 - IT USES systemd-resolved instead of dnsmasq
+
+
   tasks:
   - name: fail if vault not decrypted
     fail: msg="Vault not decrypted"
@@ -40,10 +43,11 @@
       - reload NetworkManager
 
   - name: debug_logging
-    lineinfile:
+    blockinfile:
       path: /etc/NetworkManager/dnsmasq.d/debug-logging.conf
       create: yes
-      line: log-queries
+      block: |
+        log-queries=extra
     notify:
       - reload NetworkManager
 
@@ -55,7 +59,13 @@
         /var/log/dnsmasq.log {
           rotate 14
           daily
+          notifempty
           maxsize 1G
+          delaycompress
+          sharedscripts
+          postrotate
+            [ ! -f /var/run/NetworkManager/dnsmasq.pid ] || kill -USR2 `cat /var/run/NetworkManager/dnsmasq.pid`
+          endscript
         }
 
   - name: etc_hosts

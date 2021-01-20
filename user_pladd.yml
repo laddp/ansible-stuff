@@ -1,0 +1,14 @@
+---
+- name: add_Patrick
+  user:
+    name: pladd
+    comment: "Patrick Ladd"
+    password: "{{ pladd_password_hash }}"
+
+- name: ssh_key
+  authorized_key:
+    user: pladd
+    key: "{{ item }}"
+  with_file:
+    - /home/pladd/.ssh/id_rsa.pub
+...

@@ -13,10 +13,10 @@
     when:
     - ansible_distribution == 'RedHat' or ansible_distribution == 'Fedora'
 
-  - name: ubuntu_systems_up_to_date
+  - name: apt_systems_up_to_date
     apt:
       name: "*"
       state: latest
-    when: ansible_distribution == 'Ubuntu'
+    when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian'
 
 ...

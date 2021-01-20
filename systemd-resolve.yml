@@ -1,0 +1,23 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: systemd-resolve setup for home
+  hosts: pladd-laptop.usersys.redhat.com
+
+  tasks:
+  - name: debug
+    blockinfile:
+      path: /etc/systemd/system/systemd-resolved.service.d/override.conf
+      create: yes
+      block: |
+        [Service]
+        Environment=SYSTEMD_LOG_LEVEL=debug
+    notify:
+      - restart resolved
+
+  handlers:
+  - name: restart resolved
+    systemd:
+      name: systemd-resolved
+      state: restarted
+      daemon_reload: yes
+...

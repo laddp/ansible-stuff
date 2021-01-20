@@ -1,0 +1,223 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: setup pihole
+  hosts: pihole
+
+  # some bits poached from https://github.com/giuaig/ansible-raspi-config/blob/master/raspi-config.yml
+  # raspi-config is at https://github.com/RPi-Distro/raspi-config/blob/master/raspi-config
+
+  # card formatting:
+  # dd bs=4M if=~pladd/Downloads/2021-01-11-raspios-buster-armhf-lite.img of=/dev/sdb conv=fsync status=progress
+  # ENABLE SSH:
+  # touch /boot/ssh on card after creating
+  # AFTER FIRST BOOT: ssh-copy-id pi@IPADDR
+
+  vars:
+    HOSTNAME: pihole
+    MEMSPLIT: "16"
+    BOOTBEHAVIOUR: "B1" #B1 cli, B2 cli autologin, B3 desktop, B4 desktop autologin
+    LOCALE: "en_US.UTF-8"
+    TIMEZONE: "America/New_York"
+    SSH: True
+
+    pihole_network: 192.168.42
+    net_masklen: 24
+    pihole_ip: "{{pihole_network}}.59"
+    pihole_cidr: "{{pihole_ip}}/{{net_masklen}}"
+    net_router: "{{pihole_network}}.1"
+    net_cidr:  "{{pihole_network}}.0/{{net_masklen}}"
+    net_domain: home.pladd.net
+
+  vars_files:
+    - passwords.vault
+
+  tasks:
+  - name: fail if vault not decrypted
+    fail: msg="Vault not decrypted"
+    when: pihole_webpassword is undefined or pladd_password_hash is undefined
+
+  ###################
+  ## PI SETUP
+  ###################
+  
+  # Setup pladd user
+  - include_tasks: user_pladd.yml
+
+  - name: pladd_sudoer
+    copy:
+      content: "pladd ALL=(ALL) NOPASSWD: ALL"
+      dest: /etc/sudoers.d/010_pladd-nopasswd
+
+  - name: disable_pi_user
+    user:
+      name: pi
+      password: "!"
+      shell: /usr/sbin/nologin
+
+  # HOSTNAME
+  - name: hostname
+    hostname:
+      name: "{{HOSTNAME}}"
+    register: hostname
+
+  # BOOT BEHAVIOR
+  - name: Set Boot behaviour
+    shell: "raspi-config nonint do_boot_behaviour {{ BOOTBEHAVIOUR }}"
+
+  # LOCALE
+  - name: Set locale
+    shell: "raspi-config nonint do_change_locale {{ LOCALE }}"
+
+  # TIMEZONE
+  - name: Change timezone
+    timezone:
+      name: "{{ TIMEZONE }}"
+
+  # SSH
+  - name: Check if SSH is enabled or not
+    shell: "raspi-config nonint get_ssh"
+    register: ssh_status
+    changed_when: False
+
+  # - name: Print SSH status
+  #   debug: 
+  #     msg: "SSH status is: {{ ssh_status.stdout }}"
+
+  - name: Enable SSH
+    shell: "raspi-config nonint do_ssh 0"
+    when: (SSH == True) and (ssh_status.stdout != '0')
+
+  - name: Disable SSH
+    shell: "raspi-config nonint do_ssh 1"
+    when: (SSH == False) and (ssh_status.stdout != '1')
+
+  # EXPAND FS
+  - name: Check if FS is expandable
+    shell: "raspi-config nonint get_can_expand"
+    register: fs_filled
+    changed_when: False
+
+  - name: Print if FS is expandable or not
+    debug:
+      msg: "Filesystem is expandable! [{{ fs_filled.stdout }}]"
+    when: fs_filled.stdout == '1'
+
+  - name: Mark Filesystem for expansion
+    shell: "raspi-config nonint do_expand_rootfs"
+    register: expandfs
+    when: fs_filled.stdout == '1'
+
+  # GPU MEMSPLIT
+  - name: Get current GPU memory split
+    shell: "raspi-config nonint get_config_var gpu_mem /boot/config.txt"
+    register: gpu_mem
+    changed_when: False
+
+  # - name: Print current GPU memory split
+  #   debug:
+  #     msg: "Current GPU memory split: {{ gpu_mem.stdout }}"
+
+  - name: Set GPU memory split
+    shell: "raspi-config nonint do_memory_split {{ MEMSPLIT }}"
+    when: gpu_mem.stdout != MEMSPLIT
+    register: gpumem
+
+  - name: reboot_pihole
+    reboot:
+    when: hostname.changed or expandfs.changed or gpumem.changed
+
+  - name: up_to_date
+    apt:
+      name: "*"
+      state: latest
+
+  - name: useful_packages
+    apt:
+      name:
+        - bash-completion
+        - unzip
+        - vim
+        - wget
+        - iotop
+        - htop
+        - atop
+        - nmap
+        - tcpdump
+        - traceroute
+        - dnsutils # for dig
+        - rsync
+        - lsof
+        - tree
+        - dstat
+        - chrony # keep accurate time!
+      state: latest
+
+  - name: copy_top_config
+    copy:
+      src: toprc
+      dest: /root/.toprc
+
+  ###################
+  ###### PIHOLE setup
+  ###################
+  - name: pihole_installer
+    get_url:
+      url: https://install.pi-hole.net
+      dest: /root/basic-install.sh
+      mode: u=rwx,go=x
+      owner: root
+
+  - name: pihole_user
+    user:
+      name: pihole
+      group: root
+      createhome: no
+      shell: /usr/sbin/nologin
+
+  - name: pihole_directory
+    file:
+      name: /etc/pihole
+      state: directory
+
+  - name: pihole_setup_file
+    template:
+      src: pihole_setupVars.j2
+      dest: /etc/pihole/setupVars.conf
+      owner: pihole
+      group: root
+      backup: yes
+
+
+  ##### install isn't idempotent - uncomment to run it...
+  # - name: pihole_install
+  #   command: /root/basic-install.sh --unattended
+  #   register: pihole_install
+  # - name: install_output
+  #   debug:
+  #     var: pihole_install
+
+  - name: pihole_update
+    command: pihole -up
+    register: pihole_update
+  
+  - name: update_output
+    debug:
+      var: pihole_update
+
+  # IP ADDRESS
+  - name: static_ip
+    blockinfile:
+      path: /etc/dhcpcd.conf
+      create: yes
+      block: |
+        interface eth0
+        static ip_address={{pihole_ip}}/{{net_masklen}}
+        static routers={{net_router}}
+        static domain_name_servers=127.0.0.1 {{net_router}} 8.8.8.8 8.8.4.4
+    register: static_ip_setup
+
+  - name: reboot_pihole
+    reboot:
+    when: static_ip_setup.changed
+
+...

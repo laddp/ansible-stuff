@@ -20,7 +20,7 @@
         - nmap
         - tcpdump
         - traceroute
-        - wireshark
+#        - wireshark - loads X!
         - bind-utils # for dig
         - rsync
 #        - ntpdate

@@ -1,17 +1,13 @@
 #!/usr/bin/env ansible-playbook
 ---
 - hosts: all
+  vars_files:
+    - passwords.vault
 
   tasks:
-  - name: add_Patrick
-    user:
-      name: pladd
-      comment: "Patrick Ladd"
+  - name: fail if vault not decrypted
+    fail: msg="Vault not decrypted"
+    when: pladd_password_hash is undefined
 
-  - name: ssh_key
-    authorized_key:
-      user: pladd
-      key: "{{ item }}"
-    with_file:
-      - /home/pladd/.ssh/id_rsa.pub
+  - include_tasks: user_pladd.yml
 ...
