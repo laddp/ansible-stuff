@@ -13,7 +13,7 @@
   # AFTER FIRST BOOT: ssh-copy-id pi@IPADDR
 
   vars:
-    HOSTNAME: pihole
+    HOSTNAME: pihole.home.pladd.net
     MEMSPLIT: "16"
     BOOTBEHAVIOUR: "B1" #B1 cli, B2 cli autologin, B3 desktop, B4 desktop autologin
     LOCALE: "en_US.UTF-8"
