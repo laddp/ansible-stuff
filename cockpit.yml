@@ -6,7 +6,6 @@
     yum:
       name:
         - cockpit
-        - cockpit-dashboard
         - cockpit-ws
         - cockpit-packagekit
         - cockpit-storaged
