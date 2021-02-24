@@ -1,0 +1,20 @@
+#!/bin/bash
+set -o nounset
+
+object="$1"
+operation="$2"
+suboperation="$3"
+extra="$4"
+
+systemd-cat echo "running libvirt network hook: $@"
+
+# something is stomping on this async, so just do it always
+#if [ "$object" == "{{network_name}}" ]; then
+#    case "$operation" in
+#        started|port-created|updated)
+            systemd-cat echo "$0: setting resolvectl for {{network_name}} {{bridge_name}} {{domain}}"
+            resolvectl dns {{bridge_name}} {{network_gateway}}
+            resolvectl domain {{bridge_name}} {{domain}}
+            resolvectl dnssec {{bridge_name}} no
+#    esac
+#fi

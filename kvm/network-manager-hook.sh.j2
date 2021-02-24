@@ -1,0 +1,16 @@
+#!/bin/sh
+export LC_ALL=C
+
+iface="$1"
+action="$2"
+
+systemd-cat echo "Running NetworkManager dispatcher script: $@"
+if [ "$iface" == "{{bridge_name}}" ] && [ "$action"  == "up" ]; then
+    systemd-cat echo "$0: setting resolvectl for {{network_name}} {{bridge_name}} {{domain}}"
+    resolvectl domain {{bridge_name}} {{domain}}
+    resolvectl dns {{bridge_name}} {{network_gateway}}
+    resolvectl default-route  {{bridge_name}} false
+    resolvectl dnssec {{bridge_name}} false
+fi
+
+exit 0

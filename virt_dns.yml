@@ -1,0 +1,62 @@
+#!/usr/bin/env ansible-playbook
+---
+- hosts: virt_hypervisors
+  vars:
+    network_name: default
+    bridge_name: virbr0
+    network_gateway: 192.168.122.1
+    domain: libvirt
+  roles:
+    - role: stackhpc.libvirt-host
+      libvirt_host_networks:
+        - name: "{{network_name}}"
+          mode: nat
+          bridge: "{{bridge_name}}"
+          domain: "{{domain}}"
+          ip: "{{network_gateway}}"
+          netmask: 255.255.255.0
+          dhcp_start: 192.168.122.100
+          dhcp_end: 192.168.122.200
+
+  tasks:
+  - name: resolved-nm-hook
+    template:
+      src: kvm/network-manager-hook.sh.j2
+      dest: /etc/NetworkManager/dispatcher.d/{{bridge_name}}-libvirt-hook.sh
+      mode: u+rwx,go+rx
+
+  - name: libvirt-hooks-dir
+    file:
+      path: /etc/libvirt/hooks/network.d/
+      state: directory
+
+  - name: resolved-dns-hook
+    template:
+      src: kvm/resolved-dns-hook.sh.j2
+      dest: /etc/libvirt/hooks/network.d/{{bridge_name}}-resolved-dns-hook.sh
+      mode: u+rwx,go+rx
+
+  # - name: libvirt_nss_package
+  #   yum:
+  #     name:
+  #     - libvirt-nss
+  #     state: latest
+
+  # - name: nsswitch_config
+  #   lineinfile:
+  #     dest: "{{item}}"
+  #     regexp: '^hosts:.*'
+  #     line: "hosts: files libvirt libvirt_guest resolve [!UNAVAIL=return] myhostname dns"
+  #   notify: authselect_apply
+  #   loop:
+  #   - /etc/authselect/user-nsswitch.conf
+  ##   - /etc/nsswitch.conf
+
+  # - name: nsswitch_change_option
+  #   command: authselect enable-feature with-custom-hosts
+  #   notify: authselect_apply
+
+  # handlers:
+  # - name: authselect_apply
+  #   command: authselect apply-changes
+...
