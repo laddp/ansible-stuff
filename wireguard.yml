@@ -1,12 +1,10 @@
+#!/usr/bin/env ansible-playbook
 ---
 - name: wireguard VPN setup
   hosts: wireguard_hosts
 
   tasks:
-  - name: dnf copr repository
-    command:
-      cmd: "dnf copr enable -y jdoss/wireguard"
-      creates: "/etc/yum.repos.d/_copr:copr.fedorainfracloud.org:jdoss:wireguard.repo"
+  - import_tasks: epel-task.yml
 
   - name: wireguard RPMs
     yum:
