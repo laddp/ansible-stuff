@@ -1,7 +1,7 @@
 #!/usr/bin/env ansible-playbook
 ---
 - name: caching DNS setup
-  hosts: pladd-laptop.usersys.redhat.com
+  hosts: pladd-laptop
   vars_files:
     - passwords.vault
 

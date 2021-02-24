@@ -1,7 +1,8 @@
 #!/usr/bin/env ansible-playbook
 ---
 - name: systemd-resolve setup for home
-  hosts: pladd-laptop.usersys.redhat.com
+  hosts: pladd-laptop
+
 
   tasks:
   - name: debug
@@ -13,6 +14,16 @@
         Environment=SYSTEMD_LOG_LEVEL=debug
     notify:
       - restart resolved
+
+  # - name: resolved-resolve-libvirt
+  #   blockinfile:
+  #     dest: /etc/systemd/resolved.conf.d/libvirt_resolve.conf
+  #     create: yes
+  #     block: |
+  #       [Resolve]
+  #       DNS=192.168.122.1%virbr0
+  #   notify:
+  #     - restart resolved
 
   handlers:
   - name: restart resolved

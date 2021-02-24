@@ -1,5 +1,5 @@
 #rhel75.pladd.net ansible_host=192.168.42.194 ansible_user=root
-pladd-laptop.usersys.redhat.com ansible_user=root ansible_python_interpreter=/usr/bin/python3 ansible_host=localhost
+pladd-laptop ansible_host=pladd-laptop ansible_user=root ansible_python_interpreter=/usr/bin/python3 ansible_host=localhost
 laptop.home.pladd.net ansible_user=root ansible_python_interpreter=/usr/bin/python3
 unifi ansible_host=unifi.home.pladd.net ansible_become=yes ansible_user=pladd
 ocp-m1.home.pladd.net ansible_user=root
@@ -84,7 +84,7 @@ ceph-3
 
 [fedora_hosts]
 laptop.home.pladd.net
-pladd-laptop.usersys.redhat.com
+pladd-laptop
 
 [ubuntu_hosts]
 unifi.home.pladd.net
@@ -110,7 +110,7 @@ ocp_masters
 ocp_nodes
 
 [kvm_hosts]
-pladd-laptop.usersys.redhat.com
+pladd-laptop
 beast
 ogre
 
@@ -139,7 +139,7 @@ master-0.pladdocp311.lab.rdu2.cee.redhat.com
 beast
 
 [wireguard_hosts]
-pladd-laptop.usersys.redhat.com
+pladd-laptop
 
 [wireguard_hosts:children]
 wireguard_servers
@@ -162,7 +162,7 @@ tower
 
 [desktops]
 laptop.home.pladd.net
-pladd-laptop.usersys.redhat.com
+pladd-laptop
 
 [ceph_hosts]
 ceph-console
@@ -172,6 +172,10 @@ ceph-3
 
 [ceph_consoles]
 ceph-console
+
+[virt_hypervisors]
+beast
+pladd-laptop
 
 [virt_guests]
 sat6
