@@ -189,12 +189,12 @@
 
 
   ##### install isn't idempotent - uncomment to run it...
-  # - name: pihole_install
-  #   command: /root/basic-install.sh --unattended
-  #   register: pihole_install
-  # - name: install_output
-  #   debug:
-  #     var: pihole_install
+#  - name: pihole_install
+#    command: /root/basic-install.sh --unattended
+#    register: pihole_install
+#  - name: install_output
+#    debug:
+#      var: pihole_install
 
   - name: pihole_update
     command: pihole -up
