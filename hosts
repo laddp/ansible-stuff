@@ -1,6 +1,5 @@
 #rhel75.pladd.net ansible_host=192.168.42.194 ansible_user=root
 pladd-laptop ansible_host=pladd-laptop ansible_user=root ansible_python_interpreter=/usr/bin/python3 ansible_host=localhost
-laptop.home.pladd.net ansible_user=root ansible_python_interpreter=/usr/bin/python3
 unifi ansible_host=unifi.home.pladd.net ansible_become=yes ansible_user=pladd
 ocp-m1.home.pladd.net ansible_user=root
 ocp-m2.home.pladd.net ansible_user=root

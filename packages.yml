@@ -1,6 +1,6 @@
 #!/usr/bin/env ansible-playbook
 ---
-- hosts: rhel_hosts
+- hosts: rhel_hosts fedora_hosts
 
   tasks:
   - name: useful_packages
@@ -51,12 +51,30 @@
       dest: /root/.toprc
 
 - hosts: desktops
+  vars:
+    Rambox_version: 0.7.7
 
   tasks:
+  - name: Rambox download
+    # https://github.com/ramboxapp/community-edition/releases/
+    get_url:
+      url: https://github.com/ramboxapp/community-edition/releases/download/{{Rambox_version}}/Rambox-{{Rambox_version}}-linux-x86_64.rpm
+      dest: /tmp/Rambox-{{Rambox_version}}-linux-x86_64.rpm
+
+  - name: Signal repo
+    command:
+      cmd: dnf -y copr enable luminoso/Signal-Desktop
+      warn: false
+
   - name: desktop utility
-    package: name={{ item }} state=latest
-    with_items:
+    dnf:
+      state: latest
+      name:
       - network-manager-applet
       - baobab
+      - /tmp/Rambox-{{Rambox_version}}-linux-x86_64.rpm
+      - signal-desktop
 
+- name: vscode
+  import_playbook: vscode.yml
 ...

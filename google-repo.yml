@@ -1,5 +1,0 @@
----
-- hosts: desktops
-  roles:
-    - groks.repo-google
-
