@@ -28,6 +28,7 @@
 #        - libselinux-python # needed for lots of ansible scripts
         - tree
         - dstat
+        - iftop
       state: latest
 
   - name: get_repos
@@ -74,6 +75,8 @@
       - baobab
       - /tmp/Rambox-{{Rambox_version}}-linux-x86_64.rpm
       - signal-desktop
+      - hexchat
+      - filezilla
 
 - name: vscode
   import_playbook: vscode.yml
