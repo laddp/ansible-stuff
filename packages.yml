@@ -1,6 +1,8 @@
 #!/usr/bin/env ansible-playbook
 ---
 - hosts: rhel_hosts fedora_hosts
+  vars:
+    Rambox_version: 0.7.7
 
   tasks:
   - name: useful_packages
@@ -51,23 +53,20 @@
       src: toprc
       dest: /root/.toprc
 
-- hosts: desktops
-  vars:
-    Rambox_version: 0.7.7
-
-  tasks:
-  - name: Rambox download
+  - name: Rambox_download
     # https://github.com/ramboxapp/community-edition/releases/
+    when: "'desktops' in group_names"
     get_url:
       url: https://github.com/ramboxapp/community-edition/releases/download/{{Rambox_version}}/Rambox-{{Rambox_version}}-linux-x86_64.rpm
       dest: /tmp/Rambox-{{Rambox_version}}-linux-x86_64.rpm
-
-  - name: Signal repo
+  
+  - name: Signal_repo
     command:
       cmd: dnf -y copr enable luminoso/Signal-Desktop
       warn: false
+    when: "'desktops' in group_names"
 
-  - name: desktop utility
+  - name: desktop_packages
     dnf:
       state: latest
       name:
@@ -77,7 +76,14 @@
       - signal-desktop
       - hexchat
       - filezilla
+      - krb5-auth-dialog
+      - krb5-workstation
+    when: "'desktops' in group_names"
 
 - name: vscode
   import_playbook: vscode.yml
+  when: "'desktops' in group_names"
+
+- name: git
+  import_playbook: git.yml
 ...
