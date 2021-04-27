@@ -5,6 +5,21 @@
     Rambox_version: 0.7.7
 
   tasks:
+  - name: RPM_fusion_keys
+    rpm_key:
+      state: present
+      key: "{{ item }}"
+    loop:
+      - https://rpmfusion.org/keys?action=AttachFile&do=get&target=RPM-GPG-KEY-rpmfusion-free-fedora-2020
+      - https://rpmfusion.org/keys?action=AttachFile&do=get&target=RPM-GPG-KEY-rpmfusion-nonfree-fedora-2020
+
+  - name: RPM_fusion_repo
+    dnf:
+      state: present
+      name:
+      - https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_distribution_major_version }}.noarch.rpm
+      - https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_distribution_major_version }}.noarch.rpm
+
   - name: useful_packages
     yum:
       name:
@@ -55,16 +70,26 @@
 
   - name: Rambox_download
     # https://github.com/ramboxapp/community-edition/releases/
-    when: "'desktops' in group_names"
     get_url:
       url: https://github.com/ramboxapp/community-edition/releases/download/{{Rambox_version}}/Rambox-{{Rambox_version}}-linux-x86_64.rpm
       dest: /tmp/Rambox-{{Rambox_version}}-linux-x86_64.rpm
+    when: "'desktops' in group_names"
   
   - name: Signal_repo
     command:
       cmd: dnf -y copr enable luminoso/Signal-Desktop
       warn: false
-    when: "'desktops' in group_names"
+    when:
+    - "'desktops' in group_names"
+    - repolist.stdout.find("copr:copr.fedorainfracloud.org:luminoso:Signal-Desktop") != -1
+
+  - name: negativo17_spotify_repo
+    command:
+      cmd: dnf config-manager --add-repo=https://negativo17.org/repos/fedora-spotify.repo
+      warn: false
+    when:
+    - "'desktops' in group_names"
+    - repolist.stdout.find("negativo17_spotify_repo") != -1
 
   - name: desktop_packages
     dnf:
@@ -78,6 +103,13 @@
       - filezilla
       - krb5-auth-dialog
       - krb5-workstation
+      - eosrei-emojione-fonts
+      - google-android-emoji-fonts
+      - google-noto-emoji-color-fonts
+      - google-noto-emoji-fonts
+      - pavucontrol
+      - paprefs
+      - spotify-client
     when: "'desktops' in group_names"
 
 - name: vscode
