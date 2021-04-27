@@ -82,7 +82,6 @@ ceph-2
 ceph-3
 
 [fedora_hosts]
-laptop.home.pladd.net
 pladd-laptop
 
 [ubuntu_hosts]
@@ -160,7 +159,6 @@ ogre
 tower
 
 [desktops]
-laptop.home.pladd.net
 pladd-laptop
 
 [ceph_hosts]

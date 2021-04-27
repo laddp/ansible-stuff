@@ -1,16 +1,40 @@
+#!/usr/bin/env ansible-playbook
 ---
 - hosts: all
 
   tasks:
-  - name: git packages
+  - name: git_package
     package: name={{ item }} state=latest
     with_items:
       - git
 
-- hosts: desktops
-  tasks:
-  - name: git interface
+  - name: git_gui
     package: name={{ item }} state=latest
     with_items:
       - git-cola
+    when: "'desktops' in group_names"
 
+  - git_config:
+      name: init.defaultBranch
+      value: main
+      scope: system
+
+  - git_config:
+      name: core.editor
+      value: vim
+      scope: system
+
+  - git_config:
+      name: user.name
+      value: Patrick Ladd
+      scope: global
+    become_user: pladd
+    become: true
+
+  - git_config:
+      name: user.email
+      value: pladd@redhat.com
+      scope: global
+    become_user: pladd
+    become: true
+...
