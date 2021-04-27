@@ -12,6 +12,7 @@
     loop:
       - https://rpmfusion.org/keys?action=AttachFile&do=get&target=RPM-GPG-KEY-rpmfusion-free-fedora-2020
       - https://rpmfusion.org/keys?action=AttachFile&do=get&target=RPM-GPG-KEY-rpmfusion-nonfree-fedora-2020
+    when: ansible_distribution == 'Fedora'
 
   - name: RPM_fusion_repo
     dnf:
@@ -19,6 +20,7 @@
       name:
       - https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_distribution_major_version }}.noarch.rpm
       - https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_distribution_major_version }}.noarch.rpm
+    when: ansible_distribution == 'Fedora'
 
   - name: useful_packages
     yum:
@@ -50,7 +52,7 @@
 
   - name: get_repos
     command:
-      cmd: yum repolist
+      cmd: yum repolist --enabled
       warn: false
     register: repolist
     changed_when: false
@@ -60,8 +62,14 @@
       name:
         - tracer
     when:
-      - repolist.stdout.find("epel/x86_64") != -1
-      - ansible_distribution == 'RedHat'
+    - repolist.stdout.find("epel/x86_64") != -1
+    - ansible_distribution == 'RedHat'
+
+  - name: packages_if_fedora
+    dnf:
+      name:
+        - dnf-plugin-system-upgrade
+    when: ansible_distribution == 'Fedora'
 
   - name: copy_top_config
     copy:
@@ -74,14 +82,14 @@
       url: https://github.com/ramboxapp/community-edition/releases/download/{{Rambox_version}}/Rambox-{{Rambox_version}}-linux-x86_64.rpm
       dest: /tmp/Rambox-{{Rambox_version}}-linux-x86_64.rpm
     when: "'desktops' in group_names"
-  
+
   - name: Signal_repo
     command:
       cmd: dnf -y copr enable luminoso/Signal-Desktop
       warn: false
     when:
     - "'desktops' in group_names"
-    - repolist.stdout.find("copr:copr.fedorainfracloud.org:luminoso:Signal-Desktop") != -1
+    - repolist.stdout_lines is not search("copr:copr.fedorainfracloud.org:luminoso:Signal-Desktop")
 
   - name: negativo17_spotify_repo
     command:
@@ -89,7 +97,7 @@
       warn: false
     when:
     - "'desktops' in group_names"
-    - repolist.stdout.find("negativo17_spotify_repo") != -1
+    - repolist.stdout_lines is not search("negativo17_spotify_repo")
 
   - name: desktop_packages
     dnf:
