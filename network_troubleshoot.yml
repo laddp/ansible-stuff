@@ -4,22 +4,20 @@
 
   tasks:
   - name: network packages
-    package: name={{ item }} state=latest
-    with_items:
-    - nmap
-    - tcpdump
-    - traceroute
-    - wireshark
-    - bind-utils # for dig
-    - ntop
+    package:
+      state: latest
+      name:
+      - nmap
+      - tcpdump
+      - traceroute
+      - wireshark-cli
+      - bind-utils # for dig
 
-- hosts: desktops
-
-  tasks:
   - name: network GUI packages
-    package: name={{ item }} state=latest
-    with_items:
-    - nmap-frontend
-    - wireshark-gnome
-    - firewall-config
+    package:
+      state: latest
+      name:
+      - wireshark
+      - firewall-config
+    when: "'desktops' in group_names"
 ...

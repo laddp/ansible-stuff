@@ -1,13 +1,33 @@
+#!/usr/bin/env ansible-playbook
 ---
 - hosts: all
 
   tasks:
-  - name: rsawhill repo
+  - name: download_binary_gpg_key
+    get_url:
+      url: http://b19.org/rsaw.pgp
+      dest: /tmp/rsaw.pgp
+
+  - name: convert_key_to_asiiarmor
+    command: "gpg --keyring /tmp/rsaw.keyring --no-default-keyring --import /tmp/rsaw.pgp"
+    args:
+      creates: /tmp/rsaw.keyring
+  - name: convert_key_to_asiiarmor2
+    command: "gpg --keyring /tmp/rsaw.keyring --no-default-keyring --export -a --output /tmp/rsaw.pgp.asc"
+    args:
+      creates: /tmp/rsaw.pgp.asc
+
+  - name: rsawhill_key
+    rpm_key:
+      state: present
+      key: /tmp/rsaw.pgp.asc
+
+  - name: rsawhill_repo
     yum:
       name: http://people.redhat.com/rsawhill/rpms/latest-rsawaroha-release.rpm
       state: latest
 
-  - name: xsos and rsar RPMs
+  - name: xsos_and_rsar_RPMs
     yum:
       name:
       - xsos

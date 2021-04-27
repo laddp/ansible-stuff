@@ -118,6 +118,7 @@
       - pavucontrol
       - paprefs
       - spotify-client
+      - gimp
     when: "'desktops' in group_names"
 
 - name: vscode
@@ -126,4 +127,7 @@
 
 - name: git
   import_playbook: git.yml
+
+- name: xsos
+  import_playbook: xsos.yml
 ...
