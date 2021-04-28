@@ -1,9 +1,12 @@
+#!/usr/bin/env ansible-playbook
 ---
 - hosts: desktops
 
   tasks:
   - name: disk management
-    package: name={{ item }} state=latest
-    with_items:
+    package:
+      state: latest
+      name:
       - gparted
       - ntfs-3g
+...
