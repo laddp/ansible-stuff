@@ -48,6 +48,7 @@
         - tree
         - dstat
         - iftop
+        - rpmconf
       state: latest
 
   - name: get_repos
@@ -115,8 +116,8 @@
       - google-android-emoji-fonts
       - google-noto-emoji-color-fonts
       - google-noto-emoji-fonts
-      - pavucontrol
-      - paprefs
+      # - pavucontrol
+      # - paprefs
       - spotify-client
       - gimp
     when: "'desktops' in group_names"
