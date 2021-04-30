@@ -32,6 +32,17 @@
       dest: /root/
       mode: a+x
 
-  - name: run_bootstrap
-    command: /root/bootstrap.sh
+  # - name: run_bootstrap
+  #   command: /root/bootstrap.sh
+
+  - name: rhquery_repo
+    yum_repository:
+      name: rhquery
+      description: rhquery tool
+      baseurl: http://file.rdu.redhat.com/jhunt/rhquery/fedora/$releasever/noarch/
+      gpgcheck: 0
+
+  - name: rhquery_tool
+    dnf:
+      name: rhquery
 ...

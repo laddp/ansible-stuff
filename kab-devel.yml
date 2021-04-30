@@ -10,21 +10,16 @@
   - name: RHIT_repo
     # needed for git to trust certs for internal gitlab
     # note... sslverify=false required to boostrap certs!
-    copy:
-      content: |
-          [rhit-rhel7-csb-stage]
-          name=RHIT RHEL7 CSB
-          baseurl=https://hdn.corp.redhat.com/rhel7-csb-stage/
-          enabled=1
-          gpgcheck=0
-          sslverify=false
-          skip_if_unavailable=1
-          exclude=redhat-internal-chat-config,redhat-internal-software-management,linux-firmware
-      dest: /etc/yum.repos.d/rhit.repo
+    yum_repository:
+      name: rhit
+      description: RHIT RHEL7 CSB
+      baseurl: https://hdn.corp.redhat.com/rhel7-csb-stage/
+      gpgcheck: 0
+      sslverify: false
+      skip_if_unavailable: 1
+      # exclude=redhat-internal-chat-config,redhat-internal-software-management,linux-firmware
 
-  - name: EPEL_repo
-    yum:
-      name: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ansible_distribution_major_version}}.noarch.rpm"
+  - import_tasks: epel-task.yml
 
   - name: packages
     yum:

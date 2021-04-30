@@ -4,9 +4,11 @@
   tasks:
 
   - name: vscode_repo
-    copy:
-      content: "[vscode]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc"
-      dest: /etc/yum.repos.d/vscode.repo
+    yum_repository:
+      name: vscode
+      description: Visual Studio Code
+      baseurl: https://packages.microsoft.com/yumrepos/vscode
+      gpgkey: https://packages.microsoft.com/keys/microsoft.asc
     when: ansible_distribution == 'RedHat' or ansible_distribution == 'Fedora'
 
   - name: package
