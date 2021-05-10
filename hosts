@@ -10,8 +10,8 @@ ocp-n2.home.pladd.net ansible_user=root
 beast ansible_user=root ansible_host=pladd.net ansible_port=4242
 ogre ansible_user=root ansible_host=192.168.42.210
 tower.home.pladd.net ansible_user=root
-#rhel78 ansible_user=root ansible_python_interpreter=/usr/bin/python3
-rhel79 ansible_user=root
+rhel78 ansible_user=root
+rhel79 ansible_user=root ansible_host=192.168.122.160
 rhel76upgrade.home.pladd.net ansible_user=root
 awx ansible_host=192.168.122.60 ansible_user=root
 tower ansible_host=192.168.122.13 ansible_user=root
@@ -49,6 +49,7 @@ ceph-3 ansible_host=ceph-3.home.pladd.net ansible_user=root
 
 [rhel_hosts]
 rhel79
+rhel78
 ocp-m1.home.pladd.net
 ocp-m2.home.pladd.net
 ocp-m3.home.pladd.net

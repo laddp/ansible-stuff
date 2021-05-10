@@ -120,6 +120,10 @@
       # - paprefs
       - spotify-client
       - gimp
+      - rpm-build
+      - virt-manager
+      - tito # git->rpm packager
+      - zoom
     when: "'desktops' in group_names"
 
 - name: vscode
