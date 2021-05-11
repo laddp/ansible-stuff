@@ -1,24 +1,14 @@
 #!/usr/bin/env ansible-playbook
 ---
 - hosts: pladd-laptop
-  vars:
-    vpn_packages:
-    - redhat-internal-cert-install-0.1-23.el7.csb.noarch.rpm
-    - redhat-internal-NetworkManager-openvpn-profiles-non-gnome-0.1-46.el7.csb.noarch.rpm
 
   tasks:
-  - name: download_vpn_packages
-    # need updated packages downloaded from https://redhat.service-now.com/help?id=kb_article_view&sysparm_article=KB0005424&sys_kb_id=c8a7b47adb7b4c14def29447db961922
-    get_url:
-      url: "https://people.redhat.com/pladd/vpn/{{ item }}"
-      dest: /tmp/{{ item }}
-    loop: "{{ vpn_packages }}"
-
   - name: install_vpn_packages
     dnf:
       state: latest
-      name: /tmp/{{ item }}
-    loop: "{{ vpn_packages }}"
+      name:
+      - https://people.redhat.com/pladd/vpn/redhat-internal-cert-install-0.1-23.el7.csb.noarch.rpm
+      - https://people.redhat.com/pladd/vpn/redhat-internal-NetworkManager-openvpn-profiles-non-gnome-0.1-46.el7.csb.noarch.rpm
 
   # for some reason bootstrap script needs subscription-manager...
   - name: subscription-manager
@@ -45,4 +35,14 @@
   - name: rhquery_tool
     dnf:
       name: rhquery
+
+  - name: ringcentral_gpg_key
+    rpm_key:
+      state: present
+      key: https://downloads.ringcentral.com/RCM/RC/meetings/linux/LinuxPublicKey.pub
+
+  - name: ringcentral_meetings
+    dnf:
+      name: https://downloads.ringcentral.com/RCM/RC/meetings/linux/RCMeetingsClientSetup.rpm
+      state: latest
 ...
