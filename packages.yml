@@ -49,6 +49,7 @@
         - dstat
         - iftop
         - rpmconf
+        - tracer-common
       state: latest
 
   - name: get_repos
@@ -124,6 +125,7 @@
       - virt-manager
       - tito # git->rpm packager
       - zoom
+      - vlc
     when: "'desktops' in group_names"
 
 - name: vscode
