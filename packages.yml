@@ -52,6 +52,12 @@
         - tracer-common
       state: latest
 
+  - name: tracer_package_dnf
+    dnf:
+      name:
+      - python3-dnf-plugin-tracer
+    when: ansible_distribution == 'Fedora' or (ansible_distribution == 'RedHat' and ansible_distribution_major_version >= 8)
+
   - name: get_repos
     command:
       cmd: yum repolist --enabled
