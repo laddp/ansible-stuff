@@ -19,4 +19,14 @@
       state: latest
     when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian'
 
+  - name: firmware_updates
+    command: fwupdmgr update -y
+    register: fwupdmgr
+    when: inventory_hostname == 'pladd-laptop'
+
+  - name: fwupdmgr_output
+    debug:
+      var: fwupdmgr.stdout_lines
+    when: inventory_hostname == 'pladd-laptop'
+
 ...
