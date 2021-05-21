@@ -132,6 +132,7 @@
       - tito # git->rpm packager
       - zoom
       - vlc
+      - libreoffice
     when: "'desktops' in group_names"
 
 - name: vscode

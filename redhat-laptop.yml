@@ -45,4 +45,18 @@
     dnf:
       name: https://downloads.ringcentral.com/RCM/RC/meetings/linux/RCMeetingsClientSetup.rpm
       state: latest
+
+  - name: internal_packages
+    package:
+      name:
+      - redhat-internal-libreoffice-templates
+      - redhat-internal-libreoffice-red-hat-brand-icons
+      - redhat-internal-redhat-fonts
+      - redhat-internal-we-are-red-hat-week-backgrounds
+      # - ringcentral
+      - ringcentral-embeddable-voice-app
+      - redhat-internal-yubikey
+      - redhat-internal-walkme-extension-chrome
+      - redhat-internal-smtp-config
+      - redhat-internal-cert-install
 ...
