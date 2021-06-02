@@ -137,6 +137,13 @@
       - kde-connect
     when: "'desktops' in group_names"
 
+  - name: kdeconnect_firewall
+    firewalld:
+      service: kdeconnect
+      state: enabled
+      permanent: yes
+      immediate: yes
+
 - name: vscode
   import_playbook: vscode.yml
   when: "'desktops' in group_names"
