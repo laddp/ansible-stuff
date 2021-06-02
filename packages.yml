@@ -1,6 +1,7 @@
 #!/usr/bin/env ansible-playbook
 ---
-- hosts: rhel_hosts fedora_hosts
+- name: useful packages
+  hosts: rhel_hosts fedora_hosts
   vars:
     Rambox_version: 0.7.7
 
@@ -133,6 +134,7 @@
       - zoom
       - vlc
       - libreoffice
+      - kde-connect
     when: "'desktops' in group_names"
 
 - name: vscode

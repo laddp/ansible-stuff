@@ -1,6 +1,7 @@
 #!/usr/bin/env ansible-playbook
 ---
-- hosts: all
+- name: git install
+  hosts: all
 
   tasks:
   - name: git_package

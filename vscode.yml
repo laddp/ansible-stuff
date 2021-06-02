@@ -1,6 +1,7 @@
 #!/usr/bin/env ansible-playbook
 ---
-- hosts: desktops
+- name: vscode install
+  hosts: desktops
   tasks:
 
   - name: vscode_repo
