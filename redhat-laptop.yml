@@ -51,12 +51,47 @@
       name:
       - redhat-internal-libreoffice-templates
       - redhat-internal-libreoffice-red-hat-brand-icons
-      - redhat-internal-redhat-fonts
-      - redhat-internal-we-are-red-hat-week-backgrounds
+#      - redhat-internal-redhat-fonts
+#      - redhat-internal-we-are-red-hat-week-backgrounds - upgrade pulls in lots of wacky stuff
       # - ringcentral
       - ringcentral-embeddable-voice-app
       - redhat-internal-yubikey
       - redhat-internal-walkme-extension-chrome
       - redhat-internal-smtp-config
       - redhat-internal-cert-install
+      - redhat-internal-wireless-config
+      - redhat-text-fonts
+      - redhat-display-fonts
+      - redhat-internal-notosans-fonts
+      - redhat-internal-NetworkManager-openvpn-profiles
+      - redhat-internal-file-templates
+      - redhat-internal-iso-to-usb
+      - redhat-internal-backup-config
+      - redhat-internal-contact-it-support
+      - redhat-internal-libreoffice-extension-convert_text_to_number
+      - redhat-internal-libreoffice-extension-vrtnetworkequipment
+      - redhat-internal-print-server-selector
+      - redhat-internal-software-catalog
+      - redhat-internal-wireless-config
+
+      # culled from list pulled in by redhat-internal-software-management
+      # redhat-internal-changelog-comms
+      # redhat-internal-chat-config
+      # redhat-internal-csb-release
+      # redhat-internal-dynamic-motd
+      # redhat-internal-firefox-config
+      # redhat-internal-gnome-config
+      # redhat-internal-gnome-shell-extension-lock-keys
+      # redhat-internal-infosec-config
+      # redhat-internal-luks-change
+      # redhat-internal-luks-escrow
+      # redhat-internal-network-check
+      # redhat-internal-polkit-config
+      # redhat-internal-rootpassword
+      # redhat-internal-software-catalog
+      # redhat-internal-splunkforwarder-config
+      # redhat-internal-sssd-config
+      # redhat-internal-thunderbird-config
+      # redhat-internal-update-notification
+      # redhat-internal-walkme-extension-firefox
 ...

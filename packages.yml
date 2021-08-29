@@ -35,6 +35,7 @@
         - sos
         - ansible
         - iotop
+        - atop
         - procps-ng
         - net-tools
         - nmap
@@ -49,8 +50,12 @@
         - tree
         - dstat
         - iftop
+        - nethogs
         - rpmconf
         - tracer-common
+        - podman
+        - buildah
+        - skopeo
       state: latest
 
   - name: tracer_package_dnf
@@ -135,6 +140,10 @@
       - vlc
       - libreoffice
       - kde-connect
+      - virt-viewer
+      - youtube-dl
+      - java-latest-openjdk
+      - "https://go.microsoft.com/fwlink/p/?LinkID=2112907&clcid=0x409&culture=en-us&country=US"
     when: "'desktops' in group_names"
 
   - name: kdeconnect_firewall

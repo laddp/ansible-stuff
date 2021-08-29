@@ -20,7 +20,7 @@
     when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian'
 
   - name: firmware_updates
-    command: fwupdmgr update -y
+    command: "fwupdmgr refresh; fwupdmgr update -y"
     register: fwupdmgr
     when: inventory_hostname == 'pladd-laptop'
 
