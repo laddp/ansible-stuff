@@ -1,0 +1,44 @@
+#!/usr/bin/env ansible-playbook
+---
+- hosts: pladd-laptop
+
+  tasks:
+  - name: disable_sshd.service
+    service:
+      name: sshd.service
+      state: stopped
+      enabled: false
+  
+  - name: enable_sshd.socket
+    service:
+      name: sshd.socket
+      state: started
+      enabled: true
+
+  - name: ssh_config
+    blockinfile:
+      path: /home/pladd/.ssh/config
+      create: yes
+      owner: pladd
+      group: pladd
+      mode: u=rw,go=-
+      block: |
+        Host github.com
+          HostName github.com
+          User laddp
+          IdentityFile ~/.ssh/id_rsa
+        ### from https://source.redhat.com/groups/public/itmarketing/it_marketing_wiki/ssh_bastion_config_2018_edition
+        Host * 
+          Compression                 yes
+          ControlMaster               auto
+          #ControlPath                ~/.cache/ssh/%C.sock # Only enable this if you understand what it does
+          ControlPersist              4h
+          ServerAliveInterval         300
+          ServerAliveCountMax         600
+          GSSAPIDelegateCredentials   yes
+          GSSAPIAuthentication        yes
+          ForwardAgent                no                                                       
+          ForwardX11                  no                                                          
+          ForwardX11Trusted           no 
+          Include                     /etc/crypto-policies/back-ends/openssh.config 
+...

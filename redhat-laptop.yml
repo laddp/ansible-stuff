@@ -94,4 +94,53 @@
       # redhat-internal-thunderbird-config
       # redhat-internal-update-notification
       # redhat-internal-walkme-extension-firefox
+
+  - name: ssh_config
+    blockinfile:
+      path: /home/pladd/.ssh/config
+      create: yes
+      owner: pladd
+      group: pladd
+      mode: u=rw,go=-
+      block: |
+        # Include ~/.ssh/redhat-bastion.config
+        #### pladd specific stuff
+        Host *.quicklab.*.cee.redhat.com
+          User quicklab
+          IdentityFile ~/.ssh/quicklab.key
+          UserKnownHostsFile /dev/null
+          StrictHostKeyChecking no
+        Host *.lab.*.cee.redhat.com
+          User quicklab
+          IdentityFile ~/.ssh/quicklab.key
+          UserKnownHostsFile /dev/null
+          StrictHostKeyChecking no
+        Host *.lab.upshift.rdu2.redhat.com
+          User quicklab
+          IdentityFile ~/.ssh/quicklab.key
+          UserKnownHostsFile /dev/null
+          StrictHostKeyChecking no
+        Host pladd-znc.usersys.redhat.com
+          User cloud-user
+        Host pvm-hosted-kab.hosts.prod.upshift.rdu2.redhat.com pvm-kabbott-rhel7.hosts.prod.upshift.rdu2.redhat.com kab.usersys.redhat.com tux.usersys.redhat.com
+          User karl1
+
+  - name: ssh_include_rh
+    get_url:
+      url: https://gitlab.corp.redhat.com/it-iam/system-configs/-/raw/master/ssh/fedora-and-rhel-config
+      dest: /home/pladd/.ssh/redhat-bastion.config
+      mode: u=rw,go=-
+      owner: pladd
+      group: pladd
+
+  - name: RH_LDAP_config
+    blockinfile:
+      path: /etc/openldap/ldap.conf
+      block: |
+        SASL_NOCANON on
+        URI ldaps://idm01.iam.prod.int.phx2.redhat.com/ ldaps://idm02.iam.prod.int.phx2.redhat.com/ ldaps://idm01.iam.prod.int.rdu2.redhat.com/ ldaps://idm02.iam.prod.int.rdu2.redhat.com/
+        BASE dc=ipa,dc=redhat,dc=com
+        TLS_CACERTDIR /etc/openldap/cacerts
+        SASL_MECH GSSAPI
+        TLS_REQCERT demand
 ...
