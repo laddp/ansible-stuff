@@ -6,26 +6,27 @@
   tasks:
   - name: static_dns_entries
     lineinfile:
-      path: /etc/hosts
+#      path: /etc/hosts
+      path: /etc/pihole/custom.list
       line: "{{ item }}"
     loop:
-      - "127.0.0.1       pihole.home.pladd.net"
-      - "192.168.42.1    usg-home.home.pladd.net"
-      - "192.168.42.2    unifi-switch.home.pladd.net"
-      - "192.168.42.3    unifi-switch-lr.home.pladd.net"
-      - "192.168.42.50   unifi.home.pladd.net"
-      - "192.168.42.51   wifi-lr.home.pladd.net"
-      - "192.168.42.52   wifi-office.home.pladd.net"
-      - "192.168.42.59   pihole.home.pladd.net"
-      - "192.168.42.99   sat6.home.pladd.net"
-      - "192.168.42.200  beast.home.pladd.net"
-      - "192.168.42.201  beast-direct.home.pladd.net"
-      - "192.168.42.209  beast-ilo.home.pladd.net"
-      - "192.168.42.210  ogre.home.pladd.net"
-      - "192.168.42.211  ogre-direct.home.pladd.net"
-      - "192.168.42.212  ogre-direct2.home.pladd.net"
-      - "192.168.42.215  rhv.home.pladd.net"
-      - "192.168.42.219  ogre-idrac.home.pladd.net"
+      - "127.0.0.1 pihole.home.pladd.net"
+      - "192.168.42.1 usg-home.home.pladd.net"
+      - "192.168.42.2 unifi-switch.home.pladd.net"
+      - "192.168.42.3 unifi-switch-lr.home.pladd.net"
+      - "192.168.42.50 unifi.home.pladd.net"
+      - "192.168.42.51 wifi-lr.home.pladd.net"
+      - "192.168.42.52 wifi-office.home.pladd.net"
+      - "192.168.42.59 pihole.home.pladd.net"
+      - "192.168.42.99 sat6.home.pladd.net"
+      - "192.168.42.200 beast.home.pladd.net"
+      - "192.168.42.201 beast-direct.home.pladd.net"
+      - "192.168.42.209 beast-ilo.home.pladd.net"
+      - "192.168.42.210 ogre.home.pladd.net"
+      - "192.168.42.211 ogre-direct.home.pladd.net"
+      - "192.168.42.212 ogre-direct2.home.pladd.net"
+      - "192.168.42.215 rhv.home.pladd.net"
+      - "192.168.42.219 ogre-idrac.home.pladd.net"
     notify:
       - reload_dns
 

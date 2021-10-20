@@ -17,6 +17,12 @@
     fail: msg="Vault not decrypted"
     when: freedns_user is undefined or freedns_password is undefined
 
+  - name: python_openssl_package
+    yum:
+      name: python3-pyOpenSSL
+      state: latest
+    become: true
+
   # uses https://github.com/acmesh-official/acme.sh
   - name: wildcard_cert
     command: /home/pladd/git/acme.sh/acme.sh --issue --dns dns_freedns -d {{ domain }} -d {{ wildcard_domain }} -d {{ wildcard_home_domain }}
