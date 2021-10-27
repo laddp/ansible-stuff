@@ -1,0 +1,28 @@
+#!/usr/bin/env ansible-playbook
+---
+- hosts: pladd-laptop
+
+  vars:
+    fonts:
+    - name: Cousine
+      url: https://fonts.google.com/download?family=Cousine
+
+  tasks:
+  - name: font_directory
+    file:
+      dest: "{{ item.name }}"
+      state: directory
+    loop: "{{ fonts }}"
+
+  - name: donwload_font
+    unarchive:
+      remote_src: true
+      src: "{{ item.url }}"
+      dest: /usr/share/fonts/{{ item.name }}
+    loop: "{{ fonts }}"
+    notify: refresh_font_cache
+
+  handlers:
+  - name: refresh_font_cache
+    command: fc-cache -v
+...
