@@ -2,8 +2,6 @@
 ---
 - name: useful packages
   hosts: rhel_hosts fedora_hosts
-  vars:
-    Rambox_version: 0.7.7
 
   tasks:
   - name: RPM_fusion_keys
@@ -90,11 +88,17 @@
       src: toprc
       dest: /root/.toprc
 
+  - name: Rambox_latest_version
+    uri:
+      url: https://api.github.com/repos/ramboxapp/community-edition/releases/latest
+      return_content: true
+    register: rambox_latest
+    when: "'desktops' in group_names"
+
   - name: Rambox_download
-    # https://github.com/ramboxapp/community-edition/releases/
     get_url:
-      url: https://github.com/ramboxapp/community-edition/releases/download/{{Rambox_version}}/Rambox-{{Rambox_version}}-linux-x86_64.rpm
-      dest: /tmp/Rambox-{{Rambox_version}}-linux-x86_64.rpm
+      url: https://github.com/ramboxapp/community-edition/releases/download/{{rambox_latest.json.name}}/Rambox-{{rambox_latest.json.name}}-linux-x86_64.rpm
+      dest: /tmp/Rambox-{{rambox_latest.json.name}}-linux-x86_64.rpm
     when: "'desktops' in group_names"
 
   - name: Signal_repo
@@ -119,7 +123,7 @@
       name:
       - network-manager-applet
       - baobab
-      - /tmp/Rambox-{{Rambox_version}}-linux-x86_64.rpm
+      - /tmp/Rambox-{{rambox_latest.json.name}}-linux-x86_64.rpm
       - signal-desktop
       - hexchat
       - filezilla
