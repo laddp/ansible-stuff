@@ -1,0 +1,20 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: spotify install
+  hosts: desktops
+  tasks:
+
+  - name: negativo17_spotify_repo
+    yum_repository:
+      name: negativo17_spotify
+      description: Negativo17 Spotify client
+      baseurl: https://negativo17.org/repos/spotify/fedora-$releasever/$basearch/
+      enabled: true
+    when: ansible_distribution == 'RedHat' or ansible_distribution == 'Fedora'
+
+  - name: package
+    package:
+      name: spotify-client
+      state: latest
+
+...

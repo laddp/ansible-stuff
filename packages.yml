@@ -54,6 +54,8 @@
         - podman
         - buildah
         - skopeo
+        - tuned
+        - lshw
       state: latest
 
   - name: tracer_package_dnf
@@ -88,19 +90,6 @@
       src: toprc
       dest: /root/.toprc
 
-  - name: Rambox_latest_version
-    uri:
-      url: https://api.github.com/repos/ramboxapp/community-edition/releases/latest
-      return_content: true
-    register: rambox_latest
-    when: "'desktops' in group_names"
-
-  - name: Rambox_download
-    get_url:
-      url: https://github.com/ramboxapp/community-edition/releases/download/{{rambox_latest.json.name}}/Rambox-{{rambox_latest.json.name}}-linux-x86_64.rpm
-      dest: /tmp/Rambox-{{rambox_latest.json.name}}-linux-x86_64.rpm
-    when: "'desktops' in group_names"
-
   - name: Signal_repo
     command:
       cmd: dnf -y copr enable luminoso/Signal-Desktop
@@ -108,14 +97,7 @@
     when:
     - "'desktops' in group_names"
     - repolist.stdout_lines is not search("copr:copr.fedorainfracloud.org:luminoso:Signal-Desktop")
-
-  - name: negativo17_spotify_repo
-    command:
-      cmd: dnf config-manager --add-repo=https://negativo17.org/repos/fedora-spotify.repo
-      warn: false
-    when:
-    - "'desktops' in group_names"
-    - repolist.stdout_lines is not search("negativo17_spotify_repo")
+    - ansible_distribution == 'Fedora'
 
   - name: desktop_packages
     dnf:
@@ -123,7 +105,6 @@
       name:
       - network-manager-applet
       - baobab
-      - /tmp/Rambox-{{rambox_latest.json.name}}-linux-x86_64.rpm
       - signal-desktop
       - hexchat
       - filezilla
@@ -135,7 +116,6 @@
       - google-noto-emoji-fonts
       # - pavucontrol
       # - paprefs
-      - spotify-client
       - gimp
       - rpm-build
       - virt-manager
@@ -147,8 +127,31 @@
       - virt-viewer
       - youtube-dl
       - java-latest-openjdk
-      - "https://go.microsoft.com/fwlink/p/?LinkID=2112907&clcid=0x409&culture=en-us&country=US"
+      - pylint
     when: "'desktops' in group_names"
+
+  - name: Rambox_latest_version
+    uri:
+      url: https://api.github.com/repos/ramboxapp/community-edition/releases/latest
+      return_content: true
+    register: rambox_latest
+    when: "'desktops' in group_names"
+
+  - name: webex key
+    rpm_key:
+      state: present
+      key: https://binaries.webex.com/WebexDesktop-Ubuntu-Official-Package/webex_public.key
+    when: ansible_distribution == 'Fedora'
+
+  - name: desktop_rpm_packages
+    dnf:
+      name:
+      - https://github.com/ramboxapp/community-edition/releases/download/{{rambox_latest.json.name}}/Rambox-{{rambox_latest.json.name}}-linux-x86_64.rpm
+      - "https://binaries.webex.com/WebexDesktop-CentOS-Official-Package/Webex.rpm"
+      state: latest
+    when:
+    - "'desktops' in group_names"
+    - ansible_distribution == 'Fedora'
 
   - name: kdeconnect_firewall
     firewalld:
@@ -159,6 +162,14 @@
 
 - name: vscode
   import_playbook: vscode.yml
+  when: "'desktops' in group_names"
+
+- name: teams
+  import_playbook: teams.yml
+  when: "'desktops' in group_names"
+
+- name: spotify
+  import_playbook: spotify.yml
   when: "'desktops' in group_names"
 
 - name: git
