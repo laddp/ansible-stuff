@@ -1,0 +1,19 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: Install_webex
+  hosts: fedora_hosts
+
+  tasks:
+  - name: webex_key
+    rpm_key:
+      state: present
+      key: https://binaries.webex.com/WebexDesktop-Ubuntu-Official-Package/webex_public.key
+    when: ansible_distribution == 'Fedora'
+
+  - name: webex_rpm_package
+    dnf:
+      name: "https://binaries.webex.com/WebexDesktop-CentOS-Official-Package/Webex.rpm"
+      state: latest
+    when:
+    - "'desktops' in group_names"
+    - ansible_distribution == 'Fedora'

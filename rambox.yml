@@ -1,0 +1,59 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: Install_Rambox
+  hosts: fedora_hosts
+
+  tasks:
+  - name: Rambox_latest_release
+    uri:
+      url: https://api.github.com/repos/ramboxapp/download/releases/latest
+      return_content: true
+    register: rambox_latest_release
+    when: "'desktops' in group_names"
+
+  # - name: debug
+  #   debug:
+  #     var: rambox_latest_release.json
+
+  - name: Rambox_latest_version
+    uri:
+      url: "{{rambox_latest_release.json.assets[0].browser_download_url}}"
+      return_content: true
+      headers:
+        Accept: application/json
+    register: rambox_latest_version
+    when: "'desktops' in group_names"
+
+  # - name: debug
+  #   debug:
+  #     var: rambox_latest_version.content
+
+  - name: Rambox_fact
+    set_fact:
+      Rambox_release: "{{rambox_latest_release.json.name}}"
+      Rambox_latest: "{{rambox_latest_version.content | from_yaml}}"
+
+  - name: debug
+    debug:
+      var: Rambox_release
+
+  # - name: debug
+  #   debug:
+  #     var: Rambox_latest
+
+  - name: Rambox_version_fact
+    set_fact:
+      Rambox_version: "{{Rambox_latest.version}}"
+
+  # - name: debug
+  #   debug:
+  #     var: Rambox_version
+
+  - name: install_rambox
+    dnf:
+      name: https://github.com/ramboxapp/download/releases/download/{{Rambox_release}}/Rambox-{{Rambox_version}}-linux-x64.rpm
+      disable_gpg_check: yes
+      state: latest
+    when:
+    - "'desktops' in group_names"
+    - ansible_distribution == 'Fedora'

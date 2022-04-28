@@ -128,30 +128,8 @@
       - youtube-dl
       - java-latest-openjdk
       - pylint
+      - pandoc # convert text formats
     when: "'desktops' in group_names"
-
-  - name: Rambox_latest_version
-    uri:
-      url: https://api.github.com/repos/ramboxapp/community-edition/releases/latest
-      return_content: true
-    register: rambox_latest
-    when: "'desktops' in group_names"
-
-  - name: webex key
-    rpm_key:
-      state: present
-      key: https://binaries.webex.com/WebexDesktop-Ubuntu-Official-Package/webex_public.key
-    when: ansible_distribution == 'Fedora'
-
-  - name: desktop_rpm_packages
-    dnf:
-      name:
-      - https://github.com/ramboxapp/community-edition/releases/download/{{rambox_latest.json.name}}/Rambox-{{rambox_latest.json.name}}-linux-x86_64.rpm
-      - "https://binaries.webex.com/WebexDesktop-CentOS-Official-Package/Webex.rpm"
-      state: latest
-    when:
-    - "'desktops' in group_names"
-    - ansible_distribution == 'Fedora'
 
   - name: kdeconnect_firewall
     firewalld:
@@ -159,6 +137,14 @@
       state: enabled
       permanent: yes
       immediate: yes
+
+- name: webex
+  import_playbook: webex.yml
+  when: "'desktops' in group_names"
+
+- name: rambox
+  import_playbook: rambox.yml
+  when: "'desktops' in group_names"
 
 - name: vscode
   import_playbook: vscode.yml
