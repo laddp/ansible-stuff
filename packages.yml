@@ -83,6 +83,7 @@
     dnf:
       name:
         - dnf-plugin-system-upgrade
+        - remove-retired-packages
     when: ansible_distribution == 'Fedora'
 
   - name: copy_top_config
