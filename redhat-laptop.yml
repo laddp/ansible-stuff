@@ -73,6 +73,7 @@
       - redhat-internal-print-server-selector
       - redhat-internal-software-catalog
       - redhat-internal-wireless-config
+      - redhat-internal-ddns-client
 
       # culled from list pulled in by redhat-internal-software-management
       # redhat-internal-changelog-comms

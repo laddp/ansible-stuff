@@ -19,14 +19,20 @@
       state: latest
     when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian'
 
-  - name: firmware_updates
-    command: "fwupdmgr refresh; fwupdmgr update -y"
+  - name: firmware_update_refresh
+    command: "fwupdmgr refresh"
+    register: fwrefresh
+    when: inventory_hostname == 'pladd-laptop'
+    failed_when: fwrefresh.rc == 1 or fwrefresh.rc > 2
+
+  - name: firmware_update
+    command: "fwupdmgr update -y"
     register: fwupdmgr
     when: inventory_hostname == 'pladd-laptop'
 
   - name: fwupdmgr_output
     debug:
-      var: fwupdmgr.stdout_lines
+      var: fwupdmgr.stderr
     when: inventory_hostname == 'pladd-laptop'
 
 ...

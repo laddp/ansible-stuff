@@ -1,0 +1,8 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: redhat_certs
+  hosts: rhel_hosts fedora_hosts
+
+  tasks:
+  - import_tasks: rh_certs_tasks.yml
+...

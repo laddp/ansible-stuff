@@ -31,9 +31,7 @@
         - wget
         - numactl
         - sos
-        - ansible
         - iotop
-        - atop
         - procps-ng
         - net-tools
         - nmap
@@ -47,22 +45,37 @@
 #        - libselinux-python # needed for lots of ansible scripts
         - tree
         - dstat
-        - iftop
-        - nethogs
-        - rpmconf
         - tracer-common
         - podman
         - buildah
         - skopeo
         - tuned
         - lshw
+        - sysstat
+        - nmstate
       state: latest
+
+  - name: rhel8_packages
+    dnf:
+      name:
+        - ansible-core
+    when: ansible_distribution == 'RedHat' and ansible_distribution_major_version|int >= 8
+
+  - name: pre_rhel8_packages
+    dnf:
+      name:
+        - ansible
+        - atop
+        - iftop
+        - nethogs
+        - rpmconf
+    when: ansible_distribution == 'Fedora' or (ansible_distribution == 'RedHat' and ansible_distribution_major_version|int < 8)
 
   - name: tracer_package_dnf
     dnf:
       name:
       - python3-dnf-plugin-tracer
-    when: ansible_distribution == 'Fedora' or (ansible_distribution == 'RedHat' and ansible_distribution_major_version >= 8)
+    when: ansible_distribution == 'Fedora'
 
   - name: get_repos
     command:
@@ -130,6 +143,8 @@
       - java-latest-openjdk
       - pylint
       - pandoc # convert text formats
+      - k3b
+      - g++
     when: "'desktops' in group_names"
 
   - name: kdeconnect_firewall
@@ -164,4 +179,9 @@
 
 - name: xsos
   import_playbook: xsos.yml
+  when: "'servers' not in group_names"
+
+- name: omg
+  import_playbook: omg.yml
+  when: "'servers' not in group_names"
 ...

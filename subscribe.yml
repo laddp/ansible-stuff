@@ -13,6 +13,9 @@
         - "rhel-8-for-x86_64-baseos-rpms"
         - "ansible-2-for-rhel-8-x86_64-rpms"
         - "rhel-8-for-x86_64-appstream-rpms"
+      "9":
+        - "rhel-9-for-x86_64-baseos-rpms"
+#       - "rhel-9-for-x86_64-appstream-rpms"
   vars_files:
     - passwords.vault
 
@@ -27,8 +30,10 @@
       password: "{{ subscription_manager_pw }}"
       #pool_ids: "8a85f9833e1404a9013e3cddf99305e6" # Employee SKU
       #pool_ids: "8a85f9833e1404a9013e3cddf95a0599" # Employee SKU
-      pool_ids: "8a85f99c6c8b9588016c8be0f1b50ec1" # Newest Employee SKU
-      # pool_ids: "8a85f9843c3ade76013c3b451f690bcd" # RHEV Employee SKU
+      #pool_ids: "8a85f99c6c8b9588016c8be0f1b50ec1" # Newest Employee SKU
+      #pool_ids:  "8a85f9a07db4828b017dc51adb0608fd" # Newest Newest Employee SKU
+      pool_ids:  "8a85f9a07db4828b017dc51ad91008fb" # Newest Newest Newest Employee SKU
+      #pool_ids: "8a85f9843c3ade76013c3b451f690bcd" # RHEV Employee SKU
 
   - name: repositories
     rhsm_repository:

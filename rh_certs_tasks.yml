@@ -1,0 +1,12 @@
+- name: rh_internal_certs
+  yum:
+    name: https://hdn.corp.redhat.com/rhel8-csb/RPMS/noarch/redhat-internal-cert-install-0.1-25.el7.noarch.rpm
+    validate_certs: false
+    disable_gpg_check: true
+
+- name: rh_internal_repo
+  yum_repository:
+    name: rh_csb8
+    description: Red Hat internal repo
+    baseurl: https://hdn.corp.redhat.com/rhel8-csb/
+    gpgkey: https://hdn.corp.redhat.com/rhel8-csb/RPM-GPG-KEY-helpdesk
