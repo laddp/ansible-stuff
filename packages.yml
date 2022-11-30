@@ -53,6 +53,7 @@
         - lshw
         - sysstat
         - nmstate
+        - cpu-x
       state: latest
 
   - name: rhel8_packages
@@ -80,7 +81,6 @@
   - name: get_repos
     command:
       cmd: yum repolist --enabled
-      warn: false
     register: repolist
     changed_when: false
 
@@ -97,6 +97,7 @@
       name:
         - dnf-plugin-system-upgrade
         - remove-retired-packages
+        - rpmfusion-free-release-tainted
     when: ansible_distribution == 'Fedora'
 
   - name: copy_top_config
@@ -104,13 +105,15 @@
       src: toprc
       dest: /root/.toprc
 
-  - name: Signal_repo
-    command:
-      cmd: dnf -y copr enable luminoso/Signal-Desktop
-      warn: false
+  - name: signal_repo # https://download.opensuse.org/repositories/network:/im:/signal/Fedora_37/network:im:signal.repo
+    yum_repository:
+      name: network_im_signal
+      description: "Signal Messaging Devel Project (Fedora_37)"
+      baseurl: https://download.opensuse.org/repositories/network:/im:/signal/Fedora_$releasever/
+      gpgcheck: 1
+      gpgkey: https://download.opensuse.org/repositories/network:/im:/signal/Fedora_$releasever/repodata/repomd.xml.key
     when:
     - "'desktops' in group_names"
-    - repolist.stdout_lines is not search("copr:copr.fedorainfracloud.org:luminoso:Signal-Desktop")
     - ansible_distribution == 'Fedora'
 
   - name: desktop_packages

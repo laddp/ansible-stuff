@@ -46,8 +46,17 @@ ceph-console ansible_host=ceph-console.home.pladd.net ansible_user=root
 ceph-1 ansible_host=ceph-1.home.pladd.net ansible_user=root
 ceph-2 ansible_host=ceph-2.home.pladd.net ansible_user=root
 ceph-3 ansible_host=ceph-3.home.pladd.net ansible_user=root
+pladd-kiwiirc ansible_host=10.8.109.176 ansible_user=root
+operator-sdk ansible_user=root ansible_host=192.168.122.53
+operator-sdk8 ansible_user=root ansible_host=192.168.122.13
+rhel86 ansible_user=root ansible_host=192.168.122.130
+rhel90 ansible_user=root ansible_host=192.168.122.214
 
 [rhel_hosts]
+operator-sdk
+operator-sdk8
+rhel90
+rhel86
 rhel79
 rhel78
 ocp-m1.home.pladd.net
@@ -81,6 +90,7 @@ ceph-console
 ceph-1
 ceph-2
 ceph-3
+pladd-kiwiirc
 
 [fedora_hosts]
 pladd-laptop
@@ -90,6 +100,9 @@ unifi.home.pladd.net
 
 [debian_hosts]
 pihole
+
+[servers]
+pladd-kiwiirc
 
 [ubiquiti]
 home_switch
@@ -115,7 +128,6 @@ ogre
 
 [vdo_hosts]
 beast
-ogre
 
 [gluster_hosts]
 rhgs35-1
@@ -153,9 +165,6 @@ nbde7
 [rhv_manager_hosts]
 rhv
 
-[rhv_hosts]
-ogre
-
 [tower_hosts]
 tower
 
@@ -177,6 +186,7 @@ pladd-laptop
 
 [virt_guests]
 sat6
+pladd-kiwiirc
 
 [virt_guests:children]
 ceph_hosts
