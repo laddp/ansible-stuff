@@ -1,6 +1,6 @@
 - name: rh_internal_certs
   yum:
-    name: https://hdn.corp.redhat.com/rhel8-csb/RPMS/noarch/redhat-internal-cert-install-0.1-25.el7.noarch.rpm
+    name: https://hdn.corp.redhat.com/rhel8-csb/RPMS/noarch/redhat-internal-cert-install-0.1-28.el7.noarch.rpm
     validate_certs: false
     disable_gpg_check: true
 

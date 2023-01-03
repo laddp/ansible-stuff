@@ -103,6 +103,7 @@ pihole
 
 [servers]
 pladd-kiwiirc
+pladd-znc
 
 [ubiquiti]
 home_switch

@@ -53,7 +53,6 @@
         - lshw
         - sysstat
         - nmstate
-        - cpu-x
       state: latest
 
   - name: rhel8_packages
@@ -98,6 +97,7 @@
         - dnf-plugin-system-upgrade
         - remove-retired-packages
         - rpmfusion-free-release-tainted
+        - cpu-x
     when: ansible_distribution == 'Fedora'
 
   - name: copy_top_config

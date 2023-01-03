@@ -1,0 +1,83 @@
+#!/usr/bin/env ansible-playbook
+---
+- hosts: pladd-znc
+  vars_files:
+  - passwords.vault
+
+  tasks:
+  - name: fail if vault not decrypted
+    fail: msg="Vault not decrypted"
+    when: pladd_znc_dyndns is undefined
+
+  - name: disable_sshd.service
+    service:
+      name: sshd.service
+      state: stopped
+      enabled: false
+  
+  - name: enable_sshd.socket
+    service:
+      name: sshd.socket
+      state: started
+      enabled: true
+
+  - name: DDNS-key
+    lineinfile:
+      path: /etc/redhat-internal-ddns/hosts
+      line: "pladd-znc usersys.redhat.com {{ pladd_znc_dyndns }}"
+      create: true
+
+  - import_tasks: epel-task.yml
+  - import_tasks: rh_certs_tasks.yml
+
+  - name: packages
+    package:
+      name:
+      - redhat-internal-cert-install
+      - redhat-internal-backup-config
+      - redhat-internal-ddns-client
+      - firewalld
+      - znc
+
+  - name: services
+    service:
+      name: firewalld
+      state: started
+      enabled: true
+
+  - name: firewalld_znc
+    firewalld:
+      port: "{{ item }}/tcp"
+      state: enabled
+      permanent: yes
+      immediate: yes
+    with_items:
+    - 1025
+    - 6667
+
+  - name: firewalld_ssh
+    firewalld:
+      service: ssh
+      state: enabled
+      permanent: yes
+      immediate: yes
+
+  - name: znc_config
+    copy:
+      src: znc.conf
+      dest: /var/lib/znc/.znc/configs/
+      decrypt: yes
+      owner: znc
+      group: znc
+      mode: "u=rw"
+
+  - name: services
+    service:
+      name: znc
+      state: started
+      enabled: true
+
+  - name: ddns_enable
+    command: redhat-internal-ddns-client.sh enable
+
+...
