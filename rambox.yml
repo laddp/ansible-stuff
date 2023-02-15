@@ -1,59 +1,50 @@
 #!/usr/bin/env ansible-playbook
 ---
-- name: Install_Rambox
+- name: Install_rambox
   hosts: fedora_hosts
 
   tasks:
-  - name: Rambox_latest_release
+  - name: get_rambox_inventory
     uri:
       url: https://api.github.com/repos/ramboxapp/download/releases/latest
       return_content: true
-    register: rambox_latest_release
+    register: rambox_inventory
     when: "'desktops' in group_names"
 
-  # - name: debug
-  #   debug:
-  #     var: rambox_latest_release.json
-
-  - name: Rambox_latest_version
+  - name: get_rambox_latest
     uri:
-      url: "{{rambox_latest_release.json.assets[0].browser_download_url}}"
+      url: "{{rambox_inventory.json.assets[0].browser_download_url}}"
       return_content: true
       headers:
         Accept: application/json
-    register: rambox_latest_version
+    register: rambox_latest
     when: "'desktops' in group_names"
 
-  # - name: debug
-  #   debug:
-  #     var: rambox_latest_version.content
-
-  - name: Rambox_fact
+  - name: rambox_latest_facts
     set_fact:
-      Rambox_release: "{{rambox_latest_release.json.name}}"
-      Rambox_latest: "{{rambox_latest_version.content | from_yaml}}"
+      rambox_latest_release: "{{rambox_inventory.json.name}}"    # Version with prefix 'v'
+      rambox_latest_version_json: "{{rambox_latest.content| from_yaml}}"
 
-  - name: debug
-    debug:
-      var: Rambox_release
-
-  # - name: debug
-  #   debug:
-  #     var: Rambox_latest
-
-  - name: Rambox_version_fact
+  - name: rambox_latest_facts2
     set_fact:
-      Rambox_version: "{{Rambox_latest.version}}"
+      rambox_latest_version: "{{rambox_latest_version_json.version}}" # Bare Version without 'v'
 
-  # - name: debug
-  #   debug:
-  #     var: Rambox_version
+  - debug:
+      var: rambox_latest_version
+
+  - name: get_installed_version
+    package_facts:
+
+  - debug:
+      var: "ansible_facts.packages['rambox'][0].version"
+    when: "'rambox' in ansible_facts.packages"
 
   - name: install_rambox
     dnf:
-      name: https://github.com/ramboxapp/download/releases/download/{{Rambox_release}}/Rambox-{{Rambox_version}}-linux-x64.rpm
+      name: https://github.com/ramboxapp/download/releases/download/{{rambox_latest_release}}/rambox-{{rambox_latest_version}}-linux-x64.rpm
       disable_gpg_check: yes
       state: latest
     when:
     - "'desktops' in group_names"
     - ansible_distribution == 'Fedora'
+    - not ("'rambox' in ansible_facts.packages") or ansible_facts.packages['rambox'][0].version != rambox_latest_version
