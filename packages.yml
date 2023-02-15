@@ -148,6 +148,7 @@
       - pandoc # convert text formats
       - k3b
       - g++
+      - ImageMagick
     when: "'desktops' in group_names"
 
   - name: kdeconnect_firewall
