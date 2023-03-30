@@ -3,14 +3,20 @@
 - hosts: pladd-laptop
 
   vars:
-    fonts:
+    fonts:  # NOTE: Name can't contain spaces
     - name: Cousine
       url: https://fonts.google.com/download?family=Cousine
+    - name: Red_Hat_Display
+      url: https://fonts.google.com/download?family=Red%20Hat%20Display
+    - name: Red_Hat_Text
+      url: https://fonts.google.com/download?family=Red%20Hat%20Text
+    - name: Red_Hat_Mono
+      url: https://fonts.google.com/download?family=Red%20Hat%20Mono
 
   tasks:
   - name: font_directory
     file:
-      dest: "{{ item.name }}"
+      dest: /usr/share/fonts/{{ item.name }}
       state: directory
     loop: "{{ fonts }}"
 
