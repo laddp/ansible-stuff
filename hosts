@@ -192,4 +192,3 @@ pladd-kiwiirc
 [virt_guests:children]
 ceph_hosts
 ceph_consoles
-

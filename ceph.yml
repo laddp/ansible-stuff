@@ -2,8 +2,6 @@
 ---
 - name: setup_ceph
   hosts: ceph_hosts
-  vars_files:
-    - passwords.vault
   vars:
     repositories_for_rhel_version:
       "7":
@@ -13,11 +11,10 @@
       - rhceph-4-tools-for-rhel-8-x86_64-rpms
       - ansible-2.8-for-rhel-8-x86_64-rpms
 
-  tasks:
-  - name: fail if vault not decrypted
-    fail: msg="Vault not decrypted"
-    when: pladd_ceph_ansible_token is undefined
+- import_playbook: registry_token.yml
+  when: inventory_hostname in groups['ceph_consoles']
 
+  tasks:
   - name: repositories
     rhsm_repository:
       name: "{{ repositories_for_rhel_version[ansible_distribution_major_version] }}"
@@ -29,19 +26,6 @@
       - ceph-ansible
       - cockpit-ceph-installer
       state: latest
-    when: inventory_hostname in groups['ceph_consoles']
-
-  - name: docker_config_dir
-    file: 
-      path: /root/.docker/
-      recurse: yes
-      state: directory
-    when: inventory_hostname in groups['ceph_consoles']
-
-  - name: registry_token
-    template:
-      src: registry_auth_token.j2
-      dest: /root/.docker/config.json
     when: inventory_hostname in groups['ceph_consoles']
 
   - name: ansible_runner
