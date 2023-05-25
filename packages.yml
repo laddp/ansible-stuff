@@ -143,6 +143,7 @@
       - kde-connect
       - virt-viewer
       - youtube-dl
+      - yt-dlp # youtube-dl fork
       - java-latest-openjdk
       - pylint
       - pandoc # convert text formats
