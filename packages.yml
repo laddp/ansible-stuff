@@ -1,192 +1,193 @@
 #!/usr/bin/env ansible-playbook
 ---
-- name: useful packages
+- name: Setup_my_favorite_packages
   hosts: rhel_hosts fedora_hosts
 
   tasks:
-  - name: RPM_fusion_keys
-    rpm_key:
-      state: present
-      key: "{{ item }}"
-    loop:
-      - https://rpmfusion.org/keys?action=AttachFile&do=get&target=RPM-GPG-KEY-rpmfusion-free-fedora-2020
-      - https://rpmfusion.org/keys?action=AttachFile&do=get&target=RPM-GPG-KEY-rpmfusion-nonfree-fedora-2020
-    when: ansible_distribution == 'Fedora'
+    - name: RPM_fusion_keys
+      ansible.builtin.rpm_key:
+        state: present
+        key: "{{ item }}"
+      loop:
+        - https://rpmfusion.org/keys?action=AttachFile&do=get&target=RPM-GPG-KEY-rpmfusion-free-fedora-2020
+        - https://rpmfusion.org/keys?action=AttachFile&do=get&target=RPM-GPG-KEY-rpmfusion-nonfree-fedora-2020
+      when: ansible_distribution == 'Fedora'
 
-  - name: RPM_fusion_repo
-    dnf:
-      state: present
-      name:
-      - https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_distribution_major_version }}.noarch.rpm
-      - https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_distribution_major_version }}.noarch.rpm
-    when: ansible_distribution == 'Fedora'
+    - name: RPM_fusion_repo
+      ansible.builtin.dnf:
+        state: present
+        name:
+          - https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_distribution_major_version }}.noarch.rpm
+          - https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_distribution_major_version }}.noarch.rpm
+      when: ansible_distribution == 'Fedora'
 
-  - name: useful_packages
-    yum:
-      name:
-        - bash-completion
-        - pciutils
-        - unzip
-        - vim
-        - wget
-        - numactl
-        - sos
-        - iotop
-        - procps-ng
-        - net-tools
-        - nmap
-        - tcpdump
-        - traceroute
-#        - wireshark - loads X!
-        - bind-utils # for dig
-        - rsync
-#        - ntpdate
-        - lsof
-#        - libselinux-python # needed for lots of ansible scripts
-        - tree
-        - dstat
-        - tracer-common
-        - podman
-        - buildah
-        - skopeo
-        - tuned
-        - lshw
-        - sysstat
-        - nmstate
-      state: latest
+    - name: Useful_packages
+      ansible.builtin.yum:
+        name:
+          - bash-completion
+          - pciutils
+          - unzip
+          - vim
+          - wget
+          - numactl
+          - sos
+          - iotop
+          - procps-ng
+          - net-tools
+          - nmap
+          - tcpdump
+          - traceroute
+  #        - wireshark - loads X!
+          - bind-utils # for dig
+          - rsync
+  #        - ntpdate
+          - lsof
+  #        - libselinux-python # needed for lots of ansible scripts
+          - tree
+          - dstat
+          - tracer-common
+          - podman
+          - buildah
+          - skopeo
+          - tuned
+          - lshw
+          - sysstat
+          - nmstate
 
-  - name: rhel8_packages
-    dnf:
-      name:
-        - ansible-core
-    when: ansible_distribution == 'RedHat' and ansible_distribution_major_version|int >= 8
+    - name: RHEL8_packages
+      ansible.builtin.dnf:
+        name:
+          - ansible-core
+      when: ansible_distribution == 'RedHat' and ansible_distribution_major_version | int >= 8
 
-  - name: pre_rhel8_packages
-    dnf:
-      name:
-        - ansible
-        - atop
-        - iftop
-        - nethogs
-        - rpmconf
-    when: ansible_distribution == 'Fedora' or (ansible_distribution == 'RedHat' and ansible_distribution_major_version|int < 8)
+    - name: Pre_rhel8_packages
+      ansible.builtin.dnf:
+        name:
+          - ansible
+          - atop
+          - iftop
+          - nethogs
+          - rpmconf
+      when: ansible_distribution == 'Fedora' or (ansible_distribution == 'RedHat' and ansible_distribution_major_version | int < 8)
 
-  - name: tracer_package_dnf
-    dnf:
-      name:
-      - python3-dnf-plugin-tracer
-    when: ansible_distribution == 'Fedora'
+    - name: Tracer_package_dnf
+      ansible.builtin.dnf:
+        name:
+          - python3-dnf-plugin-tracer
+      when: ansible_distribution == 'Fedora'
 
-  - name: get_repos
-    command:
-      cmd: yum repolist --enabled
-    register: repolist
-    changed_when: false
+    - name: Get_repos
+      ansible.builtin.command:
+        cmd: yum repolist --enabled
+      register: repolist
+      changed_when: false
+      args:
+        warn: false
 
-  - name: packages_if_epel
-    yum:
-      name:
-        - tracer
-    when:
-    - repolist.stdout.find("epel/x86_64") != -1
-    - ansible_distribution == 'RedHat'
+    - name: Packages_if_epel
+      ansible.builtin.yum:
+        name:
+          - tracer
+      when:
+        - repolist.stdout.find("epel/x86_64") != -1
+        - ansible_distribution == 'RedHat'
 
-  - name: packages_if_fedora
-    dnf:
-      name:
-        - dnf-plugin-system-upgrade
-        - remove-retired-packages
-        - rpmfusion-free-release-tainted
-        - cpu-x
-    when: ansible_distribution == 'Fedora'
+    - name: Packages_if_fedora
+      ansible.builtin.dnf:
+        name:
+          - dnf-plugin-system-upgrade
+          - remove-retired-packages
+          - rpmfusion-free-release-tainted
+          - cpu-x
+      when: ansible_distribution == 'Fedora'
 
-  - name: copy_top_config
-    copy:
-      src: toprc
-      dest: /root/.toprc
+    - name: Copy_top_config
+      ansible.builtin.copy:
+        src: toprc
+        dest: /root/.toprc
+        mode: a+rw
 
-  - name: signal_repo # https://download.opensuse.org/repositories/network:/im:/signal/Fedora_37/network:im:signal.repo
-    yum_repository:
-      name: network_im_signal
-      description: "Signal Messaging Devel Project (Fedora_37)"
-      baseurl: https://download.opensuse.org/repositories/network:/im:/signal/Fedora_$releasever/
-      gpgcheck: 1
-      gpgkey: https://download.opensuse.org/repositories/network:/im:/signal/Fedora_$releasever/repodata/repomd.xml.key
-    when:
-    - "'desktops' in group_names"
-    - ansible_distribution == 'Fedora'
+    - name: Signal_repo # https://download.opensuse.org/repositories/network:/im:/signal/Fedora_37/network:im:signal.repo
+      ansible.builtin.yum_repository:
+        name: network_im_signal
+        description: "Signal Messaging Devel Project (Fedora_37)"
+        baseurl: https://download.opensuse.org/repositories/network:/im:/signal/Fedora_$releasever/
+        gpgcheck: 1
+        gpgkey: https://download.opensuse.org/repositories/network:/im:/signal/Fedora_$releasever/repodata/repomd.xml.key
+      when:
+        - "'desktops' in group_names"
+        - ansible_distribution == 'Fedora'
 
-  - name: desktop_packages
-    dnf:
-      state: latest
-      name:
-      - network-manager-applet
-      - baobab
-      - signal-desktop
-      - hexchat
-      - filezilla
-      - krb5-auth-dialog
-      - krb5-workstation
-      - eosrei-emojione-fonts
-      - google-android-emoji-fonts
-      - google-noto-emoji-color-fonts
-      - google-noto-emoji-fonts
-      # - pavucontrol
-      # - paprefs
-      - gimp
-      - rpm-build
-      - virt-manager
-      - tito # git->rpm packager
-      - zoom
-      - vlc
-      - libreoffice
-      - kde-connect
-      - virt-viewer
-      - youtube-dl
-      - yt-dlp # youtube-dl fork
-      - java-latest-openjdk
-      - pylint
-      - pandoc # convert text formats
-      - k3b
-      - g++
-      - ImageMagick
-    when: "'desktops' in group_names"
+    - name: Desktop_packages
+      ansible.builtin.dnf:
+        name:
+          - network-manager-applet
+          - baobab
+          - signal-desktop
+          - hexchat
+          - filezilla
+          - krb5-auth-dialog
+          - krb5-workstation
+          - eosrei-emojione-fonts
+          - google-android-emoji-fonts
+          - google-noto-emoji-color-fonts
+          - google-noto-emoji-fonts
+          # - pavucontrol
+          # - paprefs
+          - gimp
+          - rpm-build
+          - virt-manager
+          - tito # git->rpm packager
+          - zoom
+          - vlc
+          - libreoffice
+          - kde-connect
+          - virt-viewer
+          - youtube-dl
+          - yt-dlp # youtube-dl fork
+          - java-latest-openjdk
+          - pylint
+          - pandoc # convert text formats
+          - k3b
+          - g++
+          - ImageMagick
+      when: "'desktops' in group_names"
 
-  - name: kdeconnect_firewall
-    firewalld:
-      service: kdeconnect
-      state: enabled
-      permanent: yes
-      immediate: yes
+    - name: KDEconnect_firewall
+      ansible.posix.firewalld:
+        service: kdeconnect
+        state: enabled
+        permanent: true
+        immediate: true
 
-- name: webex
+- name: Webex
   import_playbook: webex.yml
   when: "'desktops' in group_names"
 
-- name: rambox
+- name: Rambox
   import_playbook: rambox.yml
   when: "'desktops' in group_names"
 
-- name: vscode
+- name: VScode
   import_playbook: vscode.yml
   when: "'desktops' in group_names"
 
-- name: teams
+- name: Teams
   import_playbook: teams.yml
   when: "'desktops' in group_names"
 
-- name: spotify
+- name: Spotify
   import_playbook: spotify.yml
   when: "'desktops' in group_names"
 
-- name: git
+- name: Git
   import_playbook: git.yml
 
-- name: xsos
+- name: Xsos
   import_playbook: xsos.yml
   when: "'servers' not in group_names"
 
-- name: omg
+- name: Osmg
   import_playbook: omg.yml
   when: "'servers' not in group_names"
 ...
