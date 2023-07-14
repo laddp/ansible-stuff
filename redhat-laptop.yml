@@ -1,22 +1,22 @@
 #!/usr/bin/env ansible-playbook
 ---
 - hosts: pladd-laptop
+  name: RedHat_Laptop_Setup
 
   tasks:
-  - name: install_vpn_packages
-    dnf:
-      state: latest
+  - name: Install_vpn_packages
+    ansible.builtin.dnf:
       name:
-      - https://people.redhat.com/pladd/vpn/redhat-internal-cert-install-0.1-23.el7.csb.noarch.rpm
-      - https://people.redhat.com/pladd/vpn/redhat-internal-NetworkManager-openvpn-profiles-non-gnome-0.1-46.el7.csb.noarch.rpm
+         - https://people.redhat.com/pladd/vpn/redhat-internal-cert-install-0.1-23.el7.csb.noarch.rpm
+         - https://people.redhat.com/pladd/vpn/redhat-internal-NetworkManager-openvpn-profiles-non-gnome-0.1-46.el7.csb.noarch.rpm
 
   # for some reason bootstrap script needs subscription-manager...
-  - name: subscription-manager
-    dnf:
+  - name: Subscription-manager
+    ansilbe.builtin.dnf:
       name: subscription-manager
       state: latest
 
-  - name: bootstrap_script
+  - name: Bootstrap_script
     get_url:
       url: https://gitlab.cee.redhat.com/jscarbor/fedora-config/raw/master/bootstrap.sh
       dest: /root/
@@ -25,28 +25,28 @@
   # - name: run_bootstrap
   #   command: /root/bootstrap.sh
 
-  - name: rhquery_repo
+  - name: Rhquery_repo
     yum_repository:
       name: rhquery
       description: rhquery tool
       baseurl: http://file.rdu.redhat.com/jhunt/rhquery/fedora/$releasever/noarch/
       gpgcheck: 0
 
-  - name: rhquery_tool
+  - name: Rhquery_tool
     dnf:
       name: rhquery
 
-  - name: ringcentral_gpg_key
+  - name: Ringcentral_gpg_key
     rpm_key:
       state: present
       key: https://downloads.ringcentral.com/RCM/RC/meetings/linux/LinuxPublicKey.pub
 
-  - name: ringcentral_meetings
+  - name: Ringcentral_meetings
     dnf:
       name: https://downloads.ringcentral.com/RCM/RC/meetings/linux/RCMeetingsClientSetup.rpm
       state: latest
 
-  - name: internal_packages
+  - name: Internal_packages
     package:
       name:
       - redhat-internal-libreoffice-templates
@@ -96,7 +96,7 @@
       # redhat-internal-update-notification
       # redhat-internal-walkme-extension-firefox
 
-  - name: ssh_config
+  - name: Ssh_config
     blockinfile:
       path: /home/pladd/.ssh/config
       create: yes
@@ -135,8 +135,14 @@
           User cloud-user
         Host pvm-hosted-kab.hosts.prod.upshift.rdu2.redhat.com pvm-kabbott-rhel7.hosts.prod.upshift.rdu2.redhat.com kab.usersys.redhat.com tux.usersys.redhat.com
           User karl1
+        Host 192.168.42.209
+          HostKeyAlgorithms +ssh-rsa
+          PubkeyAcceptedKeyTypes +ssh-rsa
+          KexAlgorithms +diffie-hellman-group1-sha1
+          KexAlgorithms +diffie-hellman-group14-sha1
+          RequiredRSASize 1024
 
-  - name: ssh_include_rh
+  - name: Ssh_include_rh
     get_url:
       url: https://gitlab.corp.redhat.com/it-iam/system-configs/-/raw/master/ssh/fedora-and-rhel-config
       dest: /home/pladd/.ssh/redhat-bastion.config

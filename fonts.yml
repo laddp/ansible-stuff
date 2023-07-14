@@ -1,34 +1,36 @@
 #!/usr/bin/env ansible-playbook
 ---
 - hosts: pladd-laptop
+  name: Font_install
 
   vars:
     fonts:  # NOTE: Name can't contain spaces
-    - name: Cousine
-      url: https://fonts.google.com/download?family=Cousine
-    - name: Red_Hat_Display
-      url: https://fonts.google.com/download?family=Red%20Hat%20Display
-    - name: Red_Hat_Text
-      url: https://fonts.google.com/download?family=Red%20Hat%20Text
-    - name: Red_Hat_Mono
-      url: https://fonts.google.com/download?family=Red%20Hat%20Mono
+      - name: Cousine
+        url: https://fonts.google.com/download?family=Cousine
+      - name: Red_Hat_Display
+        url: https://fonts.google.com/download?family=Red%20Hat%20Display
+      - name: Red_Hat_Text
+        url: https://fonts.google.com/download?family=Red%20Hat%20Text
+      - name: Red_Hat_Mono
+        url: https://fonts.google.com/download?family=Red%20Hat%20Mono
 
   tasks:
-  - name: font_directory
-    file:
-      dest: /usr/share/fonts/{{ item.name }}
-      state: directory
-    loop: "{{ fonts }}"
+    - name: Font_directory
+      ansible.builtin.file:
+        dest: /usr/share/fonts/{{ item.name }}
+        state: directory
+        mode: u+rwx,go+rx
+      loop: "{{ fonts }}"
 
-  - name: donwload_font
-    unarchive:
-      remote_src: true
-      src: "{{ item.url }}"
-      dest: /usr/share/fonts/{{ item.name }}
-    loop: "{{ fonts }}"
-    notify: refresh_font_cache
+    - name: Donwload_font
+      ansible.builtin.unarchive:
+        remote_src: true
+        src: "{{ item.url }}"
+        dest: /usr/share/fonts/{{ item.name }}
+      loop: "{{ fonts }}"
+      notify: refresh_font_cache
 
   handlers:
-  - name: refresh_font_cache
-    command: fc-cache -v
+    - name: Refresh_font_cache
+      ansible.builtin.command: fc-cache -v
 ...
