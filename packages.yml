@@ -81,8 +81,8 @@
         cmd: yum repolist --enabled
       register: repolist
       changed_when: false
-      args:
-        warn: false
+      # args:
+      #   warn: false
 
     - name: Packages_if_epel
       ansible.builtin.yum:
@@ -151,6 +151,14 @@
           - k3b
           - g++
           - ImageMagick
+          - mkvtoolnix-gui
+          - mkvtoolnix
+      when: "'desktops' in group_names"
+
+    - name: Makemkv ripper
+      community.general.flatpak:
+        name: com.makemkv.MakeMKV
+        state: present
       when: "'desktops' in group_names"
 
     - name: KDEconnect_firewall
@@ -172,9 +180,9 @@
   import_playbook: vscode.yml
   when: "'desktops' in group_names"
 
-- name: Teams
-  import_playbook: teams.yml
-  when: "'desktops' in group_names"
+# - name: Teams
+#   import_playbook: teams.yml
+#   when: "'desktops' in group_names"
 
 - name: Spotify
   import_playbook: spotify.yml
@@ -187,7 +195,7 @@
   import_playbook: xsos.yml
   when: "'servers' not in group_names"
 
-- name: Osmg
+- name: Omg
   import_playbook: omg.yml
   when: "'servers' not in group_names"
 ...
