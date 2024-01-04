@@ -3,36 +3,39 @@
 - name: Update all existing packages
   hosts: all
   vars_files:
-  - unifi.vault
+    - unifi.vault
 
   tasks:
-  - name: yum_systems_up_to_date
-    yum:
-      name:  '*'
-      state: latest
-    when:
-    - ansible_distribution == 'RedHat' or ansible_distribution == 'Fedora'
+    - name: Yum_systems_up_to_date
+      ansible.builtin.yum:
+        state: latest
+      when:
+        - ansible_distribution == 'RedHat' or ansible_distribution == 'Fedora'
 
-  - name: apt_systems_up_to_date
-    apt:
-      name: "*"
-      state: latest
-    when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian'
+    - name: Apt_systems_up_to_date
+      ansible.builtin.apt:
+        state: latest
+      when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian'
 
-  - name: firmware_update_refresh
-    command: "fwupdmgr refresh"
-    register: fwrefresh
-    when: inventory_hostname == 'pladd-laptop'
-    failed_when: fwrefresh.rc == 1 or fwrefresh.rc > 2
+    - name: Update_flatpaks
+      ansible.builtin.command: flatpak update --noninteractive
+      register: flatpak_update_output
+      changed_when: "'Nothing to do.' not in flatpak_update_output.stdout"
 
-  - name: firmware_update
-    command: "fwupdmgr update -y"
-    register: fwupdmgr
-    when: inventory_hostname == 'pladd-laptop'
+    - name: Firmware_update_refresh
+      ansible.builtin.command: "fwupdmgr refresh"
+      register: fwrefresh
+      when: inventory_hostname == 'pladd-laptop'
+      failed_when: fwrefresh.rc == 1 or fwrefresh.rc > 2
 
-  - name: fwupdmgr_output
-    debug:
-      var: fwupdmgr.stderr
-    when: inventory_hostname == 'pladd-laptop'
+    - name: Firmware_update
+      ansible.builtin.command: "fwupdmgr update -y"
+      register: fwupdmgr
+      when: inventory_hostname == 'pladd-laptop'
+
+    - name: Fwupdmgr_output
+      ansible.builtin.debug:
+        var: fwupdmgr.stderr
+      when: inventory_hostname == 'pladd-laptop'
 
 ...
