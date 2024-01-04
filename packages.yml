@@ -140,6 +140,10 @@
           - tito # git->rpm packager
           - zoom
           - vlc
+          - libaacs
+          - libbluray
+          - libbluray-bdj
+          - libbdplus
           - libreoffice
           - kde-connect
           - virt-viewer
@@ -160,6 +164,8 @@
         name: com.makemkv.MakeMKV
         state: present
       when: "'desktops' in group_names"
+    # Needs more setup: https://forum.doom9.org/showthread.php?t=176924
+    # https://vlc-bluray.whoknowsmy.name/
 
     - name: KDEconnect_firewall
       ansible.posix.firewalld:
