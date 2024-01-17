@@ -32,10 +32,14 @@
       ansible.builtin.command: "fwupdmgr update -y"
       register: fwupdmgr
       when: inventory_hostname == 'pladd-laptop'
+      changed_when: "'Idle' not in fwrefresh.stderr"
 
     - name: Fwupdmgr_output
       ansible.builtin.debug:
         var: fwupdmgr.stderr
-      when: inventory_hostname == 'pladd-laptop'
+      when:
+        - inventory_hostname == 'pladd-laptop'
+        - "'Idle' not in fwrefresh.stderr"
+
 
 ...
