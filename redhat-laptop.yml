@@ -107,32 +107,25 @@
         # Include ~/.ssh/redhat-bastion.config
         #### pladd specific stuff
         Host *.quicklab.*.cee.redhat.com
-           User quicklab
-           IdentityFile ~/.ssh/quicklab.key
+           User quickcluster
            UserKnownHostsFile /dev/null
            StrictHostKeyChecking no
         Host *.lab.*.cee.redhat.com
-           User quicklab
-           IdentityFile ~/.ssh/quicklab.key
+           User quickcluster
            UserKnownHostsFile /dev/null
            StrictHostKeyChecking no
         Host *.quicklab.upshift.*.redhat.com
-           User quicklab
-           IdentityFile ~/.ssh/quicklab.key
+           User quickcluster
            UserKnownHostsFile /dev/null
            StrictHostKeyChecking no
         Host *.lab.upshift.*.redhat.com
-           User quicklab
-           IdentityFile ~/.ssh/quicklab.key
+           User quickcluster
            UserKnownHostsFile /dev/null
            StrictHostKeyChecking no
         Host *.lab.psi.*.redhat.com
-           User quicklab
-           IdentityFile ~/.ssh/quicklab.key
+           User quickcluster
            UserKnownHostsFile /dev/null
            StrictHostKeyChecking no
-        Host pladd-znc.usersys.redhat.com
-          User cloud-user
         Host pvm-hosted-kab.hosts.prod.upshift.rdu2.redhat.com pvm-kabbott-rhel7.hosts.prod.upshift.rdu2.redhat.com kab.usersys.redhat.com tux.usersys.redhat.com
           User karl1
         Host 192.168.42.209
