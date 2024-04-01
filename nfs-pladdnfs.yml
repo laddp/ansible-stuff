@@ -1,0 +1,60 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: Configure_storage_on_pladdnfs
+  hosts: pladdnfs
+
+  vars:
+    nfs_path: /nfs
+    nfs_exports: ["{{nfs_path}} *(rw,sync,no_root_squash)"]
+    nfs_rpcbind_state: started
+    nfs_rpcbind_enabled: true
+  roles:
+    - name: linux-system-roles.storage
+      storage_pools:
+        - name: nfs_pool
+          disks:
+            - vdb
+            - vdc
+            - vdd
+          volumes:
+            - name: nfs
+              size: "30 GiB"
+              mount_point: "{{nfs_path}}"
+              state: present
+    - name: geerlingguy.nfs
+
+  tasks:
+    - name: SElinux booleans
+      ansible.posix.seboolean:
+        name: nfs_export_all_rw
+        state: true
+        persistent: true
+
+    # - name: NFS service
+    #   service:
+    #     name: nfs
+    #     state: started
+    #     enabled: true
+
+    - name: Firewall_mgmt_package
+      ansible.builtin.yum:
+        name:
+          - python-firewall
+          - firewalld
+
+    - name: Firewall_service
+      ansible.builtin.service:
+        name: firewalld
+        state: started
+        enabled: true
+
+    - name: Firewall_settings
+      ansible.posix.firewalld:
+        service: "{{ item }}"
+        state: enabled
+        immediate: true
+      with_items:
+        - nfs
+        - rpc-bind
+
+...

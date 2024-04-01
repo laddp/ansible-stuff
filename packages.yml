@@ -99,6 +99,7 @@
           - remove-retired-packages
           - rpmfusion-free-release-tainted
           - cpu-x
+          - linux-system-roles
       when: ansible_distribution == 'Fedora'
 
     - name: Copy_top_config

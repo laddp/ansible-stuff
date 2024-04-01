@@ -51,6 +51,7 @@ operator-sdk ansible_user=root ansible_host=192.168.122.53
 operator-sdk8 ansible_user=root ansible_host=192.168.122.13
 rhel86 ansible_user=root ansible_host=192.168.122.130
 rhel90 ansible_user=root ansible_host=192.168.122.214
+pladdnfs ansible_host=node-0.pladdnfs.lab.upshift.rdu2.redhat.com ansible_become=true
 
 [rhel_hosts]
 operator-sdk
@@ -91,6 +92,7 @@ ceph-1
 ceph-2
 ceph-3
 pladd-kiwiirc
+pladdnfs
 
 [fedora_hosts]
 pladd-laptop
@@ -192,3 +194,10 @@ pladd-kiwiirc
 [virt_guests:children]
 ceph_hosts
 ceph_consoles
+
+[flatpak_hosts]
+pladd-laptop
+
+[nfs_hosts]
+beast
+pladdnfs
