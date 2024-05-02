@@ -111,7 +111,7 @@
     - name: Signal_repo # https://download.opensuse.org/repositories/network:/im:/signal/Fedora_37/network:im:signal.repo
       ansible.builtin.yum_repository:
         name: network_im_signal
-        description: "Signal Messaging Devel Project (Fedora_37)"
+        description: "Signal Messaging Devel Project"
         baseurl: https://download.opensuse.org/repositories/network:/im:/signal/Fedora_$releasever/
         gpgcheck: 1
         gpgkey: https://download.opensuse.org/repositories/network:/im:/signal/Fedora_$releasever/repodata/repomd.xml.key
@@ -158,6 +158,7 @@
           - ImageMagick
           - mkvtoolnix-gui
           - mkvtoolnix
+          - snapd
       when: "'desktops' in group_names"
 
     - name: Makemkv ripper
@@ -174,6 +175,11 @@
         state: enabled
         permanent: true
         immediate: true
+
+    - name: Desktop_Snaps # needs snapd package above
+      community.general.snap:
+        name: plex-desktop
+      when: "'desktops' in group_names"
 
 - name: Webex
   import_playbook: webex.yml
