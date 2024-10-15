@@ -17,9 +17,11 @@
     fail: msg="Vault not decrypted"
     when: freedns_user is undefined or freedns_password is undefined
 
-  - name: python_openssl_package
+  - name: needed_crypto_package
     yum:
-      name: python3-pyOpenSSL
+      name:
+#        - python3-pyOpenSSL - causes problems with pkcs12 package
+        - python-cryptography # alternate package
       state: latest
     become: true
 
@@ -64,7 +66,7 @@
 
   handlers:
   - name: build_pkcs12
-    openssl_pkcs12:
+    community.crypto.openssl_pkcs12:
       path: "{{ cert_file_prefix }}.p12"
       privatekey_path: "{{ cert_file_prefix }}.key"
       certificate_path: "{{ certs_dir }}/fullchain.cer"

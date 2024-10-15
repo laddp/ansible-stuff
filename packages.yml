@@ -178,7 +178,9 @@
 
     - name: Desktop_Snaps # needs snapd package above
       community.general.snap:
-        name: plex-desktop
+        name:
+          - plex-desktop
+#          - planify
       when: "'desktops' in group_names"
 
 - name: Webex
