@@ -29,7 +29,7 @@
     yum_repository:
       name: rhquery
       description: rhquery tool
-      baseurl: http://file.rdu.redhat.com/jhunt/rhquery/fedora/$releasever/noarch/
+      baseurl: http://file.corp.redhat.com/jhunt/rhquery/fedora/$releasever/noarch/
       gpgcheck: 0
 
   - name: Rhquery_tool
