@@ -129,7 +129,6 @@
           - filezilla
           - krb5-auth-dialog
           - krb5-workstation
-          - eosrei-emojione-fonts
           - google-android-emoji-fonts
           - google-noto-emoji-color-fonts
           - google-noto-emoji-fonts
@@ -139,7 +138,6 @@
           - rpm-build
           - virt-manager
           - tito # git->rpm packager
-          - zoom
           - vlc
           - libaacs
           - libbluray
@@ -161,11 +159,11 @@
           - snapd
       when: "'desktops' in group_names"
 
-    - name: Makemkv ripper
-      community.general.flatpak:
-        name: com.makemkv.MakeMKV
-        state: present
-      when: "'desktops' in group_names"
+#    - name: Makemkv_ripper
+#      community.general.flatpak:
+#        name: com.makemkv.MakeMKV
+#        state: present
+#      when: "'desktops' in group_names"
     # Needs more setup: https://forum.doom9.org/showthread.php?t=176924
     # https://vlc-bluray.whoknowsmy.name/
 
@@ -183,10 +181,6 @@
 #          - planify
       when: "'desktops' in group_names"
 
-- name: Webex
-  import_playbook: webex.yml
-  when: "'desktops' in group_names"
-
 - name: Rambox
   import_playbook: rambox.yml
   when: "'desktops' in group_names"
@@ -194,10 +188,6 @@
 - name: VScode
   import_playbook: vscode.yml
   when: "'desktops' in group_names"
-
-# - name: Teams
-#   import_playbook: teams.yml
-#   when: "'desktops' in group_names"
 
 - name: Spotify
   import_playbook: spotify.yml
