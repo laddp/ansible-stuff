@@ -1,0 +1,39 @@
+#!/usr/bin/env ansible-playbook
+---
+- hosts: desktops
+  name: OCP_CLI_install
+  vars:
+    cli_dest: /usr/local/bin
+    openshift_versions:
+      - 4.19.0
+      - 4.18.17
+      - 4.17.33
+      - 4.16.42
+      - 4.15.52
+      - 4.14.52
+
+  tasks:
+  - name: Extract_OC_files
+    ansible.builtin.unarchive:
+      remote_src: true
+      src: "https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/{{ item }}/openshift-client-linux-{{ item }}.tar.gz"
+      dest: "{{ cli_dest }}"
+      extra_opts:
+      - --transform
+      - s/^README.md/README.md.{{ item }}/
+      - --transform
+      - s/^oc/oc.{{ item }}/
+      - --transform
+      - s/^kubectl/kubectl.{{ item }}/
+    with_items: "{{ openshift_versions }}"
+
+  - name: Link_latest
+    ansible.builtin.file:
+      src: "{{ cli_dest}}/{{ item }}.{{ openshift_versions[0] }}"
+      dest: "{{ cli_dest}}/{{ item }}"
+      state: link
+      mode: a+rx
+    with_items:
+      - README.md
+      - oc
+      - kubectl
