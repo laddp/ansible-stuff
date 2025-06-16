@@ -13,18 +13,35 @@
       - 4.14.52
 
   tasks:
-  - name: Extract_OC_files
+  - name: Extract_oc_cli
     ansible.builtin.unarchive:
       remote_src: true
       src: "https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/{{ item }}/openshift-client-linux-{{ item }}.tar.gz"
       dest: "{{ cli_dest }}"
+      exclude: README.md
       extra_opts:
-      - --transform
-      - s/^README.md/README.md.{{ item }}/
       - --transform
       - s/^oc/oc.{{ item }}/
       - --transform
       - s/^kubectl/kubectl.{{ item }}/
+    with_items: "{{ openshift_versions }}"
+
+  - name: Extract_oc_mirror
+    ansible.builtin.unarchive:
+      remote_src: true
+      src: "https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/{{ item }}/oc-mirror.tar.gz"
+      dest: "{{ cli_dest }}"
+      extra_opts:
+      - --transform
+      - s/^oc-mirror/oc-mirror.{{ item }}/
+    with_items: "{{ openshift_versions }}"
+
+  - name: Cleanup_oc_mirror_perms
+    ansible.builtin.file:
+      path: "{{ cli_dest}}/oc-mirror.{{ item }}"
+      owner: root
+      group: root
+      mode: a+x
     with_items: "{{ openshift_versions }}"
 
   - name: Link_latest
@@ -34,6 +51,6 @@
       state: link
       mode: a+rx
     with_items:
-      - README.md
       - oc
       - kubectl
+      - oc-mirror
