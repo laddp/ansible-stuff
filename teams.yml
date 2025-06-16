@@ -1,16 +1,12 @@
 #!/usr/bin/env ansible-playbook
 ---
-- name: MS Teams install
+- name: MS_Teams_install
   hosts: desktops
   tasks:
 
-  - name: MS Teams repo
-    yum_repository:
-      name: teams
-      description: Microsoft Teams Client repo
-      baseurl: https://packages.microsoft.com/yumrepos/ms-teams
-      gpgcheck: true
-      gpgkey: https://packages.microsoft.com/keys/microsoft.asc
+  - name: MS_repos
+    dnf:
+      name: https://packages.microsoft.com/fedora/41/prod/Packages/p/packages-microsoft-prod-1.1-1.noarch.rpm
     when: ansible_distribution == 'RedHat' or ansible_distribution == 'Fedora'
 
   - name: package

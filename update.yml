@@ -17,6 +17,16 @@
         state: latest
       when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian'
 
+    - name: pihole_update
+      command: pihole -up
+      register: pihole_update
+      when: inventory_hostname == 'pihole'
+
+    - name: update_output
+      debug:
+        var: pihole_update
+      when: inventory_hostname == 'pihole'
+
     - name: Update_flatpaks
       ansible.builtin.command: flatpak update --noninteractive
       register: flatpak_update_output

@@ -4,7 +4,11 @@
   hosts: all
 
   tasks:
-  - name: omg pip install
+  - name: Install_pip
+    package:
+      name: python3-pip
+
+  - name: Omg_pip_install
     pip:
       name: o-must-gather
       state: latest

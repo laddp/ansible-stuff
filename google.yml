@@ -1,21 +1,30 @@
 #!/usr/bin/env ansible-playbook
 ---
 - hosts: desktops
-  roles:
-  - groks.repo-google
 
   tasks:
-    - name: install google software
-      package: name={{ item }} state=present
-      with_items:
+  - name: Google_Chrome_repository
+    yum_repository:
+      name: google-chrome
+      description: google-chrome
+      baseurl: http://dl.google.com/linux/chrome/rpm/stable/$basearch
+      gpgcheck: true
+      gpgkey: https://dl.google.com/linux/linux_signing_key.pub
+      enabled: true
+
+  - name: Google_Earth_repository
+    yum_repository:
+      name: google-earth
+      description: google-earth
+      baseurl: http://dl.google.com/linux/earth/rpm/stable/$basearch
+      gpgcheck: true
+      gpgkey: https://dl-ssl.google.com/linux/linux_signing_key.pub
+
+
+  - name: install google software
+    package:
+      name:
         - google-chrome-stable
         - google-chrome-beta
           #        - google-chrome-unstable
-        - google-talkplugin
-        - google-musicmanager
-          #        - google-cloud-sdk
-          #        - google-cloud-sdk-app-engine-python
-          #        - google-cloud-sdk-datastore-emulator
-          #        - google-cloud-sdk-pubsub-emulator
-          #        - kubectl
-        - google-earth-ec-stable
+        - google-earth-ec
