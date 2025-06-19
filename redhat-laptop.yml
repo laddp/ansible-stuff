@@ -1,156 +1,233 @@
 #!/usr/bin/env ansible-playbook
 ---
-- hosts: pladd-laptop
-  name: RedHat_Laptop_Setup
+- name: RedHat_Laptop_Setup
+  hosts: pladd-laptop
+  vars_files:
+    - passwords.vault
 
   tasks:
-  - name: Install_vpn_packages
-    ansible.builtin.dnf:
-      name:
-         - https://people.redhat.com/pladd/vpn/redhat-internal-cert-install-0.1-23.el7.csb.noarch.rpm
-         - https://people.redhat.com/pladd/vpn/redhat-internal-NetworkManager-openvpn-profiles-non-gnome-0.1-46.el7.csb.noarch.rpm
+    - name: fail if vault not decrypted
+      fail: msg="Vault not decrypted"
+      when: ansible_become_password is undefined
+    # - name: Install_vpn_packages
+    #   ansible.builtin.dnf:
+    #     name:
+    #       - https://people.redhat.com/pladd/vpn/redhat-internal-cert-install-0.1-23.el7.csb.noarch.rpm
+    #       - https://people.redhat.com/pladd/vpn/redhat-internal-NetworkManager-openvpn-profiles-non-gnome-0.1-46.el7.csb.noarch.rpm
+    #     disable_gpg_check: true
 
-  # for some reason bootstrap script needs subscription-manager...
-  - name: Subscription-manager
-    ansilbe.builtin.dnf:
-      name: subscription-manager
-      state: latest
-
-  - name: Bootstrap_script
-    get_url:
-      url: https://gitlab.cee.redhat.com/jscarbor/fedora-config/raw/master/bootstrap.sh
-      dest: /root/
-      mode: a+x
-
+  #############################################
+  # replaced bootstrap stuff below with ansible
+  #############################################
+  # # for some reason bootstrap script needs subscription-manager...
+  # - name: Subscription-manager
+  #   ansilbe.builtin.dnf:
+  #     name: subscription-manager
+  #     state: latest
+  #
+  # - name: Bootstrap_script
+  #   get_url:
+  #     url: https://gitlab.cee.redhat.com/jscarbor/fedora-config/raw/master/bootstrap.sh
+  #     dest: /root/
+  #     mode: "a+x"
+  #
   # - name: run_bootstrap
   #   command: /root/bootstrap.sh
+  #############################################
 
-  - name: Rhquery_repo
-    yum_repository:
-      name: rhquery
-      description: rhquery tool
-      baseurl: http://file.corp.redhat.com/jhunt/rhquery/fedora/$releasever/noarch/
-      gpgcheck: 0
+    - name: Rhquery_repo
+      ansible.builtin.yum_repository:
+        name: rhquery
+        description: rhquery tool
+        baseurl: http://file.corp.redhat.com/jhunt/rhquery/fedora/$releasever/noarch/
+        gpgcheck: 0
 
-  - name: Rhquery_tool
-    dnf:
-      name: rhquery
+    - name: Rhquery_tool
+      ansible.builtin.dnf:
+        name: rhquery
 
-  - name: Ringcentral_gpg_key
-    rpm_key:
-      state: present
-      key: https://downloads.ringcentral.com/RCM/RC/meetings/linux/LinuxPublicKey.pub
+    # - name: RH_csb_repo_key
+    #   ansible.builtin.rpm_key:
+    #     state: present
+    #     key: https://hdn.corp.redhat.com/fedora-csb/RPM-GPG-KEY-csb-fedora
 
-  - name: Ringcentral_meetings
-    dnf:
-      name: https://downloads.ringcentral.com/RCM/RC/meetings/linux/RCMeetingsClientSetup.rpm
-      state: latest
+    - name: RH_hdn_fedora_csb_repo
+      ansible.builtin.yum_repository:
+        name: rh_hdn_fedora_csb
+        description: rh_hdn_fedora_csb
+        baseurl: https://hdn.corp.redhat.com/fedora-csb/{{ ansible_distribution_major_version }}/
+        gpgkey: https://hdn.corp.redhat.com/fedora-csb/RPM-GPG-KEY-csb-fedora
 
-  - name: Internal_packages
-    package:
-      name:
-      - redhat-internal-libreoffice-templates
-      - redhat-internal-libreoffice-red-hat-brand-icons
-#      - redhat-internal-redhat-fonts
-#      - redhat-internal-we-are-red-hat-week-backgrounds - upgrade pulls in lots of wacky stuff
-      # - ringcentral
-      - ringcentral-embeddable-voice-app
-      - redhat-internal-yubikey
-      - redhat-internal-walkme-extension-chrome
-      - redhat-internal-smtp-config
-      - redhat-internal-cert-install
-      - redhat-internal-wireless-config
-      - redhat-text-fonts
-      - redhat-display-fonts
-      - redhat-internal-notosans-fonts
-      - redhat-internal-NetworkManager-openvpn-profiles
-      - redhat-internal-file-templates
-      - redhat-internal-iso-to-usb
-      - redhat-internal-backup-config
-      - redhat-internal-contact-it-support
-      - redhat-internal-libreoffice-extension-convert_text_to_number
-      - redhat-internal-libreoffice-extension-vrtnetworkequipment
-      - redhat-internal-print-server-selector
-      - redhat-internal-software-catalog
-      - redhat-internal-wireless-config
-      - redhat-internal-ddns-client
+    # https://copr.devel.redhat.com/groups/g/endpoint-systems-sysadmins/coprs/
+    - name: RH_copr_repos
+      ansible.builtin.get_url:
+        url: "{{ item.url }}"
+        dest: /etc/yum.repos.d/{{ item.name }}.repo
+        mode: a+r
+      with_items:
+        - name: rh_csb_fedora
+          url: https://copr.devel.redhat.com/coprs/g/endpoint-systems-sysadmins/csb-fedora/repo/fedora-42/group_endpoint-systems-sysadmins-csb-fedora-fedora-{{ ansible_distribution_major_version }}.repo
+        - name: rh_csb_ansible
+          url: https://copr.devel.redhat.com/coprs/g/endpoint-systems-sysadmins/csb-ansible/repo/fedora-42/group_endpoint-systems-sysadmins-csb-ansible-fedora-{{ ansible_distribution_major_version }}.repo
+        - name: rh_csb_unsupported_fedora_packages
+          url: https://copr.devel.redhat.com/coprs/g/endpoint-systems-sysadmins/unsupported-fedora-packages/repo/fedora-42/group_endpoint-systems-sysadmins-unsupported-fedora-packages-fedora-{{ ansible_distribution_major_version }}.repo
 
-      # culled from list pulled in by redhat-internal-software-management
-      # redhat-internal-changelog-comms
-      # redhat-internal-chat-config
-      # redhat-internal-csb-release
-      # redhat-internal-dynamic-motd
-      # redhat-internal-firefox-config
-      # redhat-internal-gnome-config
-      # redhat-internal-gnome-shell-extension-lock-keys
-      # redhat-internal-infosec-config
-      # redhat-internal-luks-change
-      # redhat-internal-luks-escrow
-      # redhat-internal-network-check
-      # redhat-internal-polkit-config
-      # redhat-internal-rootpassword
-      # redhat-internal-software-catalog
-      # redhat-internal-splunkforwarder-config
-      # redhat-internal-sssd-config
-      # redhat-internal-thunderbird-config
-      # redhat-internal-update-notification
-      # redhat-internal-walkme-extension-firefox
+    # not available in csb-fedora 42 for some reason...
+    - name: Rh_yubikey
+      ansible.builtin.dnf:
+        name: https://coprbe.devel.redhat.com/results/@endpoint-systems-sysadmins/csb-fedora/fedora-41-x86_64/00116044-redhat-internal-yubikey/redhat-internal-yubikey-0.1-11.fc41.noarch.rpm
+        disable_gpg_check: true
 
-  - name: Ssh_config
-    blockinfile:
-      path: /home/pladd/.ssh/config
-      create: yes
-      owner: pladd
-      group: pladd
-      mode: u=rw,go=-
-      block: |
-        # Include ~/.ssh/redhat-bastion.config
-        #### pladd specific stuff
-        Host *.quicklab.*.cee.redhat.com
-           User quickcluster
-           UserKnownHostsFile /dev/null
-           StrictHostKeyChecking no
-        Host *.lab.*.cee.redhat.com
-           User quickcluster
-           UserKnownHostsFile /dev/null
-           StrictHostKeyChecking no
-        Host *.quicklab.upshift.*.redhat.com
-           User quickcluster
-           UserKnownHostsFile /dev/null
-           StrictHostKeyChecking no
-        Host *.lab.upshift.*.redhat.com
-           User quickcluster
-           UserKnownHostsFile /dev/null
-           StrictHostKeyChecking no
-        Host *.lab.psi.*.redhat.com
-           User quickcluster
-           UserKnownHostsFile /dev/null
-           StrictHostKeyChecking no
-        Host pvm-hosted-kab.hosts.prod.upshift.rdu2.redhat.com pvm-kabbott-rhel7.hosts.prod.upshift.rdu2.redhat.com kab.usersys.redhat.com tux.usersys.redhat.com
-          User karl1
-        Host 192.168.42.209
-          HostKeyAlgorithms +ssh-rsa
-          PubkeyAcceptedKeyTypes +ssh-rsa
-          KexAlgorithms +diffie-hellman-group1-sha1
-          KexAlgorithms +diffie-hellman-group14-sha1
-          RequiredRSASize 1024
+    - name: Internal_packages
+      ansible.builtin.package:
+        name:
+          - redhat-internal-cert-install
+          - redhat-internal-NetworkManager-openvpn-profiles
+          - redhat-internal-print-server-selector
+          - cassie # Desktop client for the Red Hat Knowledgebase
+          - csb-fedora-playbooks # Fedora Linux CSB Playbooks and related files -> /usr/share/csb-fedora/
+          - redhat-internal-contact-it-support
+          - redhat-internal-desktop-backgrounds
+          - redhat-internal-remote-assistance-helper
+          # - redhat-internal-yubikey
+          - redhat-internal-linfo3
+          - redhat-internal-luks-change
 
-  - name: Ssh_include_rh
-    get_url:
-      url: https://gitlab.corp.redhat.com/it-iam/system-configs/-/raw/master/ssh/fedora-and-rhel-config
-      dest: /home/pladd/.ssh/redhat-bastion.config
-      mode: u=rw,go=-
-      owner: pladd
-      group: pladd
+#           - redhat-internal-libreoffice-templates
+#           - redhat-internal-libreoffice-red-hat-brand-icons
+#           - redhat-internal-redhat-fonts
+#           - redhat-internal-we-are-red-hat-week-backgrounds - upgrade pulls in lots of wacky stuff
+#           - ringcentral
+#           - ringcentral-embeddable-voice-app
+#           - redhat-internal-walkme-extension-chrome
+#           - redhat-internal-smtp-config
+#           - redhat-internal-cert-install
+#           - redhat-internal-wireless-config
+#           - redhat-text-fonts
+#           - redhat-display-fonts
+#           - redhat-internal-notosans-fonts
+#           - redhat-internal-file-templates
+#           - redhat-internal-iso-to-usb
+#           - redhat-internal-backup-config
+#           - redhat-internal-libreoffice-extension-convert_text_to_number
+#           - redhat-internal-libreoffice-extension-vrtnetworkequipment
+#           - redhat-internal-software-catalog
+#           - redhat-internal-wireless-config
+#           - redhat-internal-ddns-client
+# culled from list pulled in by redhat-internal-software-management
+#           -  redhat-internal-changelog-comms
+#           -  redhat-internal-chat-config
+#           -  redhat-internal-csb-release
+#           -  redhat-internal-dynamic-motd
+#           -  redhat-internal-firefox-config
+#           -  redhat-internal-gnome-config
+#           -  redhat-internal-gnome-shell-extension-lock-keys
+#           -  redhat-internal-infosec-config
+#           -  redhat-internal-luks-change
+#           -  redhat-inter-nal-luks-escrow
+#           -  redhat-internal-network-check
+#           -  redhat-internal-polkit-config
+#           -  redhat-internal-rootpassword
+#           -  redhat-internal-software-catalog
+#           -  redhat-internal-splunkforwarder-config
+#           -  redhat-internal-sssd-config
+#           -  redhat-internal-thunderbird-config
+#           -  redhat-internal-update-notification
+#           -  redhat-internal-walkme-extension-firefox
 
-  - name: RH_LDAP_config
-    blockinfile:
-      path: /etc/openldap/ldap.conf
-      block: |
-        SASL_NOCANON on
-        URI ldaps://idm01.iam.prod.int.phx2.redhat.com/ ldaps://idm02.iam.prod.int.phx2.redhat.com/ ldaps://idm01.iam.prod.int.rdu2.redhat.com/ ldaps://idm02.iam.prod.int.rdu2.redhat.com/
-        BASE dc=ipa,dc=redhat,dc=com
-        TLS_CACERTDIR /etc/openldap/cacerts
-        SASL_MECH GSSAPI
-        TLS_REQCERT demand
+    - name: Ssh_config
+      ansible.builtin.blockinfile:
+        path: /home/pladd/.ssh/config
+        create: true
+        owner: pladd
+        group: pladd
+        mode: u=rw,go=-
+        block: |
+          # Include ~/.ssh/redhat-bastion.config
+          #### pladd specific stuff
+          Host *.quicklab.*.cee.redhat.com
+            User quickcluster
+            UserKnownHostsFile /dev/null
+            StrictHostKeyChecking no
+          Host *.lab.*.cee.redhat.com
+            User quickcluster
+            UserKnownHostsFile /dev/null
+            StrictHostKeyChecking no
+          Host *.quicklab.upshift.*.redhat.com
+            User quickcluster
+            UserKnownHostsFile /dev/null
+            StrictHostKeyChecking no
+          Host *.lab.upshift.*.redhat.com
+            User quickcluster
+            UserKnownHostsFile /dev/null
+            StrictHostKeyChecking no
+          Host *.lab.psi.*.redhat.com
+            User quickcluster
+            UserKnownHostsFile /dev/null
+            StrictHostKeyChecking no
+          Host pvm-hosted-kab.hosts.prod.upshift.rdu2.redhat.com pvm-kabbott-rhel7.hosts.prod.upshift.rdu2.redhat.com kab.usersys.redhat.com tux.usersys.redhat.com
+            User karl1
+          Host 192.168.42.209
+            HostKeyAlgorithms +ssh-rsa
+            PubkeyAcceptedKeyTypes +ssh-rsa
+            KexAlgorithms +diffie-hellman-group1-sha1
+            KexAlgorithms +diffie-hellman-group14-sha1
+            RequiredRSASize 1024
+
+    - name: Ssh_include_rh
+      ansible.builtin.get_url:
+        url: https://gitlab.corp.redhat.com/it-iam/system-configs/-/raw/master/ssh/fedora-and-rhel-config
+        dest: /home/pladd/.ssh/redhat-bastion.config
+        mode: u=rw,go=-
+        owner: pladd
+        group: pladd
+
+    - name: DDNS_copy_files
+      ansible.builtin.copy:
+        src: "/usr/share/csb-fedora/roles/redhat_csb.ddns_client/files/{{ item.src }}"
+        dest: "{{ item.dest }}"
+        mode: "{{ item.mode | default('a+r') }}"
+      notify: Systemd-update
+      with_items:
+        - dest: /usr/bin/redhat-internal-ddns-client
+          src: redhat-internal-ddns-client
+          mode: a+rx
+        - dest: /etc/systemd/system/redhat-ddns.service
+          src: redhat-ddns.service
+        - dest: /etc/systemd/system/redhat-ddns.timer
+          src: redhat-ddns.timer
+
+    - name: DDNS_facts_dir
+      ansible.builtin.file:
+        dest: /etc/ansible/facts.d/
+        state: directory
+        mode: a+rx
+
+    - name: Set_DDNS_facts
+      ansible.builtin.copy:
+        dest: /etc/ansible/facts.d/csb.fact
+        content: |
+          [host]
+          ddns_complete: true
+          ddns_hostname: pladd
+          ddns_hash: {{ ddns_hash }}
+        mode: u+r,go-r
+
+  handlers:
+    - name: Systemd-ddns-service
+      listen: "Systemd-update"
+      ansible.builtin.systemd_service:
+        name: redhat-ddns.service
+        enabled: true
+        state: started
+        daemon_reload: true
+    - name: Systemd-ddns-timer
+      listen: "Systemd-update"
+      ansible.builtin.systemd_service:
+        name: redhat-ddns.timer
+        enabled: true
+        state: started
+
+- name: RH_roles
+  ansible.builtin.import_playbook: redhat-roles.yml
 ...

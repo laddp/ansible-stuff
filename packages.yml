@@ -157,6 +157,8 @@
           - mkvtoolnix-gui
           - mkvtoolnix
           - snapd
+          - ansible-lint
+          - evtest # input event test - find key codes
       when: "'desktops' in group_names"
 
 #    - name: Makemkv_ripper
