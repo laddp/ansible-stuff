@@ -1,0 +1,10 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: Use_RH_roles
+  hosts: pladd-laptop
+  vars:
+    csb_ansible: /usr/share/csb-fedora/roles
+  roles:
+    - "{{ csb_ansible }}/system_certs"
+    - "{{ csb_ansible }}/system_krb5"
+...
