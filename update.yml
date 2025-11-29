@@ -27,19 +27,6 @@
         var: pihole_update
       when: inventory_hostname == 'pihole'
 
-    - name: Update_flatpaks
-      ansible.builtin.command: flatpak update --noninteractive
-      register: flatpak_update_output
-      changed_when: "'Nothing to do.' not in flatpak_update_output.stdout"
-      when: "'flatpak_hosts' in group_names"
-
-    - name: Flatpak_output
-      ansible.builtin.debug:
-        var: flatpak_update_output.stdout
-      when:
-        - "'flatpak_hosts' in group_names"
-        - "'Nothing to do.' not in flatpak_update_output.stdout"
-
     - name: Firmware_update_refresh
       ansible.builtin.command: "fwupdmgr refresh"
       register: fwrefresh
@@ -58,4 +45,10 @@
       when:
         - inventory_hostname == 'pladd-laptop'
         - "'Idle' not in fwrefresh.stderr"
+
+
+- name: Flatpaks
+  import_playbook: flatpak.yml
+  when: "'desktops' in group_names"
+
 ...

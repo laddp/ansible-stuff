@@ -22,7 +22,7 @@
       when: ansible_distribution == 'Fedora'
 
     - name: Useful_packages
-      ansible.builtin.yum:
+      ansible.builtin.dnf:
         name:
           - bash-completion
           - pciutils
@@ -53,6 +53,10 @@
           - lshw
           - sysstat
           - nmstate
+          - lm_sensors
+          - cmake
+          - clean-rpm-gpg-pubkey
+          - guestfs-tools
 
     - name: RHEL8_packages
       ansible.builtin.dnf:
@@ -76,16 +80,17 @@
           - python3-dnf-plugin-tracer
       when: ansible_distribution == 'Fedora'
 
+    # yamllint disable rule:command-instead-of-module
     - name: Get_repos
       ansible.builtin.command:
-        cmd: yum repolist --enabled
+        cmd: dnf repolist --enabled
       register: repolist
       changed_when: false
       # args:
       #   warn: false
 
     - name: Packages_if_epel
-      ansible.builtin.yum:
+      ansible.builtin.dnf:
         name:
           - tracer
       when:
@@ -132,8 +137,6 @@
           - google-android-emoji-fonts
           - google-noto-emoji-color-fonts
           - google-noto-emoji-fonts
-          # - pavucontrol
-          # - paprefs
           - gimp
           - rpm-build
           - virt-manager
@@ -159,15 +162,13 @@
           - snapd
           - ansible-lint
           - evtest # input event test - find key codes
+          - obs-studio
+          - redhat-display-fonts
+          - redhat-text-fonts
+          - helm
+          - postgresql
+          - wireshark
       when: "'desktops' in group_names"
-
-#    - name: Makemkv_ripper
-#      community.general.flatpak:
-#        name: com.makemkv.MakeMKV
-#        state: present
-#      when: "'desktops' in group_names"
-    # Needs more setup: https://forum.doom9.org/showthread.php?t=176924
-    # https://vlc-bluray.whoknowsmy.name/
 
     - name: KDEconnect_firewall
       ansible.posix.firewalld:
@@ -176,12 +177,9 @@
         permanent: true
         immediate: true
 
-    - name: Desktop_Snaps # needs snapd package above
-      community.general.snap:
-        name:
-          - plex-desktop
-#          - planify
-      when: "'desktops' in group_names"
+- name: Flatpak
+  import_playbook: flatpak.yml
+  when: "'desktops' in group_names"
 
 - name: Rambox
   import_playbook: rambox.yml

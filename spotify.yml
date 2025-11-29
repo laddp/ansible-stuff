@@ -10,6 +10,7 @@
       description: Negativo17 Spotify client
       baseurl: https://negativo17.org/repos/spotify/fedora-$releasever/$basearch/
       enabled: true
+      gpgkey: https://github.com/negativo17/gpg-keys/raw/refs/heads/master/RPM-GPG-KEY-slaanesh-2024-09-01
     when: ansible_distribution == 'RedHat' or ansible_distribution == 'Fedora'
 
   - name: package

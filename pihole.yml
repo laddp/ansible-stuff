@@ -1,6 +1,6 @@
 #!/usr/bin/env ansible-playbook
 ---
-- name: setup pihole
+- name: Setup_pihole
   hosts: pihole
 
   # some bits poached from https://github.com/giuaig/ansible-raspi-config/blob/master/raspi-config.yml
@@ -13,211 +13,207 @@
   # AFTER FIRST BOOT: ssh-copy-id pi@IPADDR
 
   vars:
-    HOSTNAME: pihole.home.pladd.net
-    MEMSPLIT: "16"
-    BOOTBEHAVIOUR: "B1" #B1 cli, B2 cli autologin, B3 desktop, B4 desktop autologin
-    LOCALE: "en_US.UTF-8"
-    TIMEZONE: "America/New_York"
-    SSH: True
+    pi_hostname: pihole.home.pladd.net
+    memsplit: "16"
+    bootbehavior: "B1" # B1 cli, B2 cli autologin, B3 desktop, B4 desktop autologin
+    locale: "en_US.UTF-8"
+    timezone: "America/New_York"
+    ssh_enable: true
 
     pihole_network: 192.168.42
     net_masklen: 24
     pihole_ip: "{{pihole_network}}.59"
     pihole_cidr: "{{pihole_ip}}/{{net_masklen}}"
     net_router: "{{pihole_network}}.1"
-    net_cidr:  "{{pihole_network}}.0/{{net_masklen}}"
+    net_cidr: "{{pihole_network}}.0/{{net_masklen}}"
     net_domain: home.pladd.net
 
   vars_files:
     - passwords.vault
 
   tasks:
-  - name: fail if vault not decrypted
-    fail: msg="Vault not decrypted"
-    when: pihole_webpassword is undefined or pladd_password_hash is undefined
+    - name: Fail_if_vault_not_decrypted
+      ansible.builtin.fail:
+        msg: "Vault not decrypted"
+      when: pihole_webpassword is undefined or pladd_password_hash is undefined
 
-  ###################
-  ## PI SETUP
-  ###################
-  
-  # Setup pladd user
-  - include_tasks: user_pladd.yml
+    ###################
+    ## PI SETUP
+    ###################
 
-  - name: pladd_sudoer
-    copy:
-      content: "pladd ALL=(ALL) NOPASSWD: ALL"
-      dest: /etc/sudoers.d/010_pladd-nopasswd
+    # Setup pladd user
+    - name: Pladd_sudoer
+      ansible.builtin.include_tasks: user_pladd.yml
 
-  - name: disable_pi_user
-    user:
-      name: pi
-      password: "!"
-      shell: /usr/sbin/nologin
+    - name: pladd_sudoer
+      copy:
+        content: "pladd ALL=(ALL) NOPASSWD: ALL"
+        dest: /etc/sudoers.d/010_pladd-nopasswd
 
-  # HOSTNAME
-  - name: hostname
-    hostname:
-      name: "{{HOSTNAME}}"
-    register: hostname
+    - name: Disable_pi_user
+      ansible.builtin.user:
+        name: pi
+        password: "!"
+        shell: /usr/sbin/nologin
 
-  # BOOT BEHAVIOR
-  - name: Set Boot behaviour
-    shell: "raspi-config nonint do_boot_behaviour {{ BOOTBEHAVIOUR }}"
+    - name: Hostname
+      ansible.builtin.hostname:
+        name: "{{pi_hostname}}"
+      register: hostname
 
-  # LOCALE
-  - name: Set locale
-    shell: "raspi-config nonint do_change_locale {{ LOCALE }}"
+    - name: Set_Boot_behaviour
+      ansible.builtin.shell: "raspi-config nonint do_boot_behaviour {{ bootbehavior }}"
 
-  # TIMEZONE
-  - name: Change timezone
-    timezone:
-      name: "{{ TIMEZONE }}"
+    - name: Set_locale
+      ansible.builtin.shell: "raspi-config nonint do_change_locale {{ locale }}"
 
-  # SSH
-  - name: Check if SSH is enabled or not
-    shell: "raspi-config nonint get_ssh"
-    register: ssh_status
-    changed_when: False
+    - name: Set_timezone
+      ansible.builtin.timezone:
+        name: "{{ timezone }}"
 
-  # - name: Print SSH status
-  #   debug: 
-  #     msg: "SSH status is: {{ ssh_status.stdout }}"
+    # SSH
+    - name: Check_if_SSH_enabled
+      ansible.builtin.shell: "raspi-config nonint get_ssh"
+      register: ssh_status
+      changed_when: False
 
-  - name: Enable SSH
-    shell: "raspi-config nonint do_ssh 0"
-    when: (SSH == True) and (ssh_status.stdout != '0')
+    #   debug: 
+    #     msg: "SSH status is: {{ ssh_status.stdout }}"
 
-  - name: Disable SSH
-    shell: "raspi-config nonint do_ssh 1"
-    when: (SSH == False) and (ssh_status.stdout != '1')
+    - name: Enable_SSH
+      ansible.builtin.shell: "raspi-config nonint do_ssh 0"
+      when: (ssh_enable == true) and (ssh_status.stdout != '0')
 
-  # EXPAND FS
-  - name: Check if FS is expandable
-    shell: "raspi-config nonint get_can_expand"
-    register: fs_filled
-    changed_when: False
+    - name: Disable_SSH
+      ansible.builtin.shell: "raspi-config nonint do_ssh 1"
+      when: (ssh_enable == false) and (ssh_status.stdout != '1')
 
-  - name: Print if FS is expandable or not
-    debug:
-      msg: "Filesystem is expandable! [{{ fs_filled.stdout }}]"
-    when: fs_filled.stdout == '1'
+    # EXPAND FS
+    - name: Check_if_FS_is_expandable
+      ansible.builtin.shell: "raspi-config nonint get_can_expand"
+      register: fs_filled
+      changed_when: False
 
-  - name: Mark Filesystem for expansion
-    shell: "raspi-config nonint do_expand_rootfs"
-    register: expandfs
-    when: fs_filled.stdout == '1'
+    # - ansible.builtin.debug:
+    #     msg: "Filesystem is expandable! [{{ fs_filled.stdout }}]"
+    #   when: fs_filled.stdout == '1'
 
-  # GPU MEMSPLIT
-  - name: Get current GPU memory split
-    shell: "raspi-config nonint get_config_var gpu_mem /boot/config.txt"
-    register: gpu_mem
-    changed_when: False
+    - name: Mark_Filesystem_for_expansion
+      ansible.builtin.shell: "raspi-config nonint do_expand_rootfs"
+      register: expandfs
+      when: fs_filled.stdout == '1'
 
-  # - name: Print current GPU memory split
-  #   debug:
-  #     msg: "Current GPU memory split: {{ gpu_mem.stdout }}"
+    # GPU memsplit
+    - name: Get_current_GPU_memory_split
+      ansible.builtin.shell: "raspi-config nonint get_config_var gpu_mem /boot/config.txt"
+      register: gpu_mem
+      changed_when: False
 
-  - name: Set GPU memory split
-    shell: "raspi-config nonint do_memory_split {{ MEMSPLIT }}"
-    when: gpu_mem.stdout != MEMSPLIT
-    register: gpumem
+    # - name: Print current GPU memory split
+    #   debug:
+    #     msg: "Current GPU memory split: {{ gpu_mem.stdout }}"
 
-  - name: reboot_pihole
-    reboot:
-    when: hostname.changed or expandfs.changed or gpumem.changed
+    - name: Set GPU memory split
+      shell: "raspi-config nonint do_memory_split {{ memsplit }}"
+      when: gpu_mem.stdout != memsplit
+      register: gpumem
 
-  - name: up_to_date
-    apt:
-      name: "*"
-      state: latest
+    - name: reboot_pihole
+      reboot:
+      when: hostname.changed or expandfs.changed or gpumem.changed
 
-  - name: useful_packages
-    apt:
-      name:
-        - bash-completion
-        - unzip
-        - vim
-        - wget
-        - iotop
-        - htop
-        - atop
-        - nmap
-        - tcpdump
-        - traceroute
-        - dnsutils # for dig
-        - rsync
-        - lsof
-        - tree
-        - dstat
-        - chrony # keep accurate time!
-      state: latest
+    - name: up_to_date
+      apt:
+        name: "*"
+        state: latest
 
-  - name: copy_top_config
-    copy:
-      src: toprc
-      dest: /root/.toprc
+    - name: useful_packages
+      apt:
+        name:
+          - bash-completion
+          - unzip
+          - vim
+          - wget
+          - iotop
+          - htop
+          - atop
+          - nmap
+          - tcpdump
+          - traceroute
+          - dnsutils # for dig
+          - rsync
+          - lsof
+          - tree
+          - dstat
+          - chrony # keep accurate time!
+        state: latest
 
-  ###################
-  ###### PIHOLE setup
-  ###################
-  - name: pihole_installer
-    get_url:
-      url: https://install.pi-hole.net
-      dest: /root/basic-install.sh
-      mode: u=rwx,go=x
-      owner: root
+    - name: copy_top_config
+      copy:
+        src: toprc
+        dest: /root/.toprc
 
-  - name: pihole_user
-    user:
-      name: pihole
-      group: root
-      createhome: no
-      shell: /usr/sbin/nologin
+    ###################
+    ###### PIHOLE setup
+    ###################
+    - name: pihole_installer
+      get_url:
+        url: https://install.pi-hole.net
+        dest: /root/basic-install.sh
+        mode: u=rwx,go=x
+        owner: root
 
-  - name: pihole_directory
-    file:
-      name: /etc/pihole
-      state: directory
+    - name: pihole_user
+      user:
+        name: pihole
+        group: root
+        createhome: no
+        shell: /usr/sbin/nologin
 
-  - name: pihole_setup_file
-    template:
-      src: pihole_setupVars.j2
-      dest: /etc/pihole/setupVars.conf
-      owner: pihole
-      group: root
-      backup: yes
+    - name: pihole_directory
+      file:
+        name: /etc/pihole
+        state: directory
+
+    - name: pihole_setup_file
+      template:
+        src: pihole_setupVars.j2
+        dest: /etc/pihole/setupVars.conf
+        owner: pihole
+        group: root
+        backup: yes
 
 
-  ##### install isn't idempotent - uncomment to run it...
-#  - name: pihole_install
-#    command: /root/basic-install.sh --unattended
-#    register: pihole_install
-#  - name: install_output
-#    debug:
-#      var: pihole_install
+    ##### install isn't idempotent - uncomment to run it...
+  #  - name: pihole_install
+  #    command: /root/basic-install.sh --unattended
+  #    register: pihole_install
+  #  - name: install_output
+  #    debug:
+  #      var: pihole_install
 
-  - name: pihole_update
-    command: pihole -up
-    register: pihole_update
-  
-  - name: update_output
-    debug:
-      var: pihole_update
+    - name: pihole_update
+      command: pihole -up
+      register: pihole_update
+    
+    - name: update_output
+      debug:
+        var: pihole_update
 
-  # IP ADDRESS
-  - name: static_ip
-    blockinfile:
-      path: /etc/dhcpcd.conf
-      create: yes
-      block: |
-        interface eth0
-        static ip_address={{pihole_ip}}/{{net_masklen}}
-        static routers={{net_router}}
-        static domain_name_servers=127.0.0.1 {{net_router}} 8.8.8.8 8.8.4.4
-    register: static_ip_setup
+    # IP ADDRESS
+    - name: static_ip
+      blockinfile:
+        path: /etc/dhcpcd.conf
+        create: yes
+        block: |
+          interface eth0
+          static ip_address={{pihole_ip}}/{{net_masklen}}
+          static routers={{net_router}}
+          static domain_name_servers=127.0.0.1 {{net_router}} 8.8.8.8 8.8.4.4
+      register: static_ip_setup
 
-  - name: reboot_pihole
-    reboot:
-    when: static_ip_setup.changed
+    - name: reboot_pihole
+      reboot:
+      when: static_ip_setup.changed
 
 ...

@@ -4,6 +4,12 @@
   hosts: pladd-laptop
   vars_files:
     - passwords.vault
+  vars:
+    firefox_settings: /etc/firefox/defaults/pref
+    firefox_extensions_path: /etc/firefox/policies
+    chrome_extensions_path: /etc/opt/chrome/policies/managed
+    chrome_sso_dir: "{{ chrome_extensions_path }}"
+    csb_browser_settings_dir: /usr/share/csb-fedora/roles/redhat_csb.browser_settings/files/
 
   tasks:
     - name: fail if vault not decrypted
@@ -135,6 +141,58 @@
 #           -  redhat-internal-update-notification
 #           -  redhat-internal-walkme-extension-firefox
 
+    - name: Browser_config_dirs
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: a+rx
+      with_items:
+        - "{{ firefox_settings }}"
+        - "{{ chrome_sso_dir }}"
+        - "{{ firefox_extensions_path }}"
+        - "{{ chrome_extensions_path }}"
+
+    - name: Chrome_sso_config
+      ansible.builtin.blockinfile:
+        path: "{{ chrome_sso_dir }}/redhat.json"
+        create: true
+        owner: root
+        group: root
+        mode: a+r
+        block:
+          {
+            "AuthServerAllowlist": "*.redhat.com",
+            "DisableAuthNegotiateCnameLookup" : true
+          }
+
+    - name: Chrome_blocked_extensions
+      ansible.builtin.copy:
+        src: "{{ csb_browser_settings_dir }}/policies/managed/removed_extensions.json"
+        dest: "{{ chrome_sso_dir }}"
+
+    - name: Firefox_sso_config
+      ansible.builtin.blockinfile:
+        dest: "{{ firefox_settings }}/aa.redhat.js"
+        create: true
+        owner: root
+        group: root
+        mode: a+r
+        block:
+          pref("network.negotiate-auth.trusted-uris", ".redhat.com");
+
+    - name: CSB_Browser_extension_policies
+      ansible.builtin.copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: root
+        group: root
+        mode: "0644"
+      loop:
+        - src: "{{ csb_browser_settings_dir }}/firefox_policies.json"
+          dest: "{{ firefox_extensions_path }}/policies.json"
+        - src: "{{ csb_browser_settings_dir}}/chrome_policies.json"
+          dest: "{{ chrome_extensions_path }}/csb-chrome-policies.json"
+
     - name: Ssh_config
       ansible.builtin.blockinfile:
         path: /home/pladd/.ssh/config
@@ -173,6 +231,10 @@
             KexAlgorithms +diffie-hellman-group1-sha1
             KexAlgorithms +diffie-hellman-group14-sha1
             RequiredRSASize 1024
+          Host vmi/*
+            ProxyCommand virtctl port-forward --stdio=true %h %p
+          Host vm/*
+            ProxyCommand virtctl port-forward --stdio=true %h %p
 
     - name: Ssh_include_rh
       ansible.builtin.get_url:

@@ -1,0 +1,28 @@
+#!/usr/bin/env ansible-playbook
+---
+# Flatpak task include
+- name: Flatpak_install_update
+  hosts: "desktops"
+
+  tasks:
+    - name: Flathub
+      community.general.flatpak_remote:
+        name: flathub
+        flatpakrepo_url: https://flathub.org/repo/flathub.flatpakrepo
+
+    - name: Flatpaks
+      community.general.flatpak:
+        name:
+          - tv.plex.PlexDesktop
+          - com.plexamp.Plexamp
+          - io.podman_desktop.PodmanDesktop
+        state: latest
+
+#    - name: Makemkv_ripper
+#      community.general.flatpak:
+#        name: com.makemkv.MakeMKV
+#        state: present
+#      when: "'desktops' in group_names"
+    # Needs more setup: https://forum.doom9.org/showthread.php?t=176924
+    # https://vlc-bluray.whoknowsmy.name/
+...
