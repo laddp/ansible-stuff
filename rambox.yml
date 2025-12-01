@@ -29,13 +29,16 @@
     set_fact:
       rambox_latest_version: "{{rambox_latest_version_json.version}}" # Bare Version without 'v'
 
-  - debug:
+  - 
+  - name: report_latest_version
+    debug:
       var: rambox_latest_version
 
   - name: get_installed_version
     package_facts:
 
-  - debug:
+  - name: report_installed_version
+    debug:
       var: "ansible_facts.packages['rambox'][0].version"
     when: "'rambox' in ansible_facts.packages"
 

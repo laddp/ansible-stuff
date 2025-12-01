@@ -17,6 +17,13 @@
           - com.plexamp.Plexamp
           - io.podman_desktop.PodmanDesktop
         state: latest
+      register: flatpak_install
+
+    - name: Flatpak_install_output
+      debug:
+        var: flatpak_install.stdout
+      when:
+        flatpak_install.changed
 
 #    - name: Makemkv_ripper
 #      community.general.flatpak:
