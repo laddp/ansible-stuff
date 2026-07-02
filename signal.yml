@@ -1,0 +1,60 @@
+#!/usr/bin/env ansible-playbook
+---
+# Appimagte task include
+- name: Appimage_install_update
+  hosts: "desktops"
+  become: true
+  become_user: pladd
+  vars:
+    signing_key_filename: signal-desktop.AppImage.asc
+    signature_filename: signal-desktop.AppImage.gpg
+    appimage_filename: signal-desktop.AppImage
+    signal_user: pladd
+    install_path: /home/{{ signal_user }}/.local/bin
+
+  tasks:
+    - name: Signal_signing_key_download
+      ansible.builtin.get_url:
+        url: https://updates.signal.org/static/desktop/appimage.asc
+        dest: /tmp/{{ signing_key_filename }}
+        mode: a+r
+
+    - name: Add_signing_key_to_keyring
+      ansible.builtin.command:
+        gpg --import /tmp/{{ signing_key_filename }}
+      register: signal_signing_key_import
+      changed_when: "' imported' in signal_signing_key_import.stderr"
+
+    - name: Appimage_signature_download
+      ansible.builtin.get_url:
+        url: https://updates.signal.org/desktop/signal-desktop.AppImage.gpg
+        dest: "{{ install_path }}/{{ signature_filename }}"
+        mode: a+r
+
+    - name: Appimage_download
+      ansible.builtin.get_url:
+        url: https://updates.signal.org/desktop/signal-desktop.AppImage
+        dest: "{{ install_path }}/{{ appimage_filename }}"
+        mode: a+rx
+
+    - name: Signal_appimage_verfiy
+      ansible.builtin.command:
+        gpg --verify {{ install_path }}/{{ signature_filename }} {{ install_path }}/{{ appimage_filename }}
+      changed_when: false
+
+    - name: Desktop_shortcut
+      ansible.builtin.copy:
+        content: |
+          [Desktop Entry]
+          Name=Signal AppImage
+          Exec={{ install_path }}/{{ appimage_filename }} %U
+          Terminal=false
+          Type=Application
+          Icon=signal-desktop
+          StartupWMClass=signal
+          Comment=Private messaging from your desktop
+          MimeType=x-scheme-handler/sgnl;x-scheme-handler/signalcaptcha;
+          Categories=Network;InstantMessaging;Chat;
+        dest: /home/{{ signal_user }}/.local/share/applications/signal-desktop.desktop
+        mode: a+r
+...

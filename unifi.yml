@@ -1,58 +1,52 @@
 #!/usr/bin/env ansible-playbook
 ---
-- name: Create Ubiquiti management VM
-  hosts: beast
-  vars:
-    ubvm:
-    - name: ubiquiti
-      memory: 4
-      memory_units: G
-      vcpu: 8
-      disks:
-      - name: ubiquiti
-        path: /var/lib/libvirt/images
-        disk_driver: virtio
-        format: qcow2
-      network_interfaces:
-      - type: direct
-        source: enp65s1
-        mode: bridge
-
-  tasks:
-  - name: store template file for testing
-    template:
-      dest: /root/ubiquiti.xml
-      src: vm_template.xml.j2
-    with_items: "{{ ubvm }}"
-
-  - name: define vm from xml and set autostart
-    virt:
-      command: define
-      xml: "{{ lookup('template', 'vm_template.xml.j2') }}"
-      autostart: yes
-    with_items: "{{ ubvm }}"
-
-  - name: start VM
-    virt:
-      state: running
-      name: ubiquiti
-
 - name: Configure unifi
-  hosts: unifi
+  hosts: pihole
   vars_files:
     - passwords.vault
   vars:
-    - ansible_become_pass: "{{ unifi_sudo_pass }}"
+    ansible_become_pass: "{{ unifi_sudo_pass }}"
 
   tasks:
-  - name: package_source
-    copy:
-      dest: /etc/apt/sources.list.d/100-ubnt-unifi.list
-      content: "deb https://www.ui.com/downloads/unifi/debian stable ubiquiti"
 
-  - name: package_up_to_date
-    apt:
-      name:
-        - unifi
-      state: latest
+    # tasks from https://help.ui.com/hc/en-us/articles/220066768-Updating-and-Installing-Self-Hosted-UniFi-Network-Servers-Linux
+    - name: Python_module_prereq # needed for deb822_repository module
+      ansible.builtin.apt:
+        pkg: python3-debian
+
+    - name: Unifi_reposotory
+      ansible.builtin.deb822_repository:
+        name: unifi
+        architectures: amd64,arm64
+        uris: https://www.ui.com/downloads/unifi/debian
+        suites: stable
+        components: ubiquiti
+        signed_by: https://dl.ui.com/unifi/unifi-repo.gpg
+
+    # - name: MongoDB_repository # not working - no Debian arm64 binaries for mongodb-org
+    #   ansible.builtin.deb822_repository:
+    #     name: mongodb
+    #     architectures: amd64,arm64
+    #     uris: https://repo.mongodb.org/apt/debian
+    #     suites: bookworm/mongodb-org/8.2
+    #     components: main
+    #     signed_by: https://www.mongodb.org/static/pgp/server-8.0.asc
+
+    - name: MongoDB_repository
+      ansible.builtin.deb822_repository:
+        name: mongodb
+        architectures: amd64,arm64
+        uris: https://repo.mongodb.org/apt/ubuntu
+        suites: jammy/mongodb-org/8.0  # 8.2 is not supported for Unifi yet
+        components: multiverse
+        signed_by: https://www.mongodb.org/static/pgp/server-8.0.asc
+
+    - name: Install_Unifi_and_dependencies
+      ansible.builtin.apt:
+        pkg:
+          - ca-certificates
+          - apt-transport-https
+          - mongodb-org
+          - unifi
+        update_cache: yes
 ...

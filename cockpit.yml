@@ -11,7 +11,7 @@
         - cockpit-storaged
         - cockpit-composer
         - cockpit-system
-        - cockpit-pcp
+#        - cockpit-pcp
         - cockpit-bridge
         - cockpit-shell
       state: latest

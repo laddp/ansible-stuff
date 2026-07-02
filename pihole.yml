@@ -24,6 +24,8 @@
     net_masklen: 24
     pihole_ip: "{{pihole_network}}.59"
     pihole_cidr: "{{pihole_ip}}/{{net_masklen}}"
+    unifi_ip: "{{pihole_network}}.50"
+    unifi_cidr: "{{unifi_ip}}/{{net_masklen}}"
     net_router: "{{pihole_network}}.1"
     net_cidr: "{{pihole_network}}.0/{{net_masklen}}"
     net_domain: home.pladd.net
@@ -42,13 +44,16 @@
     ###################
 
     # Setup pladd user
-    - name: Pladd_sudoer
+    - name: Pladd_user
       ansible.builtin.include_tasks: user_pladd.yml
 
-    - name: pladd_sudoer
-      copy:
+    - name: Pladd_sudoer
+      ansible.builtin.copy:
         content: "pladd ALL=(ALL) NOPASSWD: ALL"
         dest: /etc/sudoers.d/010_pladd-nopasswd
+        owner: root
+        group: root
+        mode: '0440'
 
     - name: Disable_pi_user
       ansible.builtin.user:
@@ -58,77 +63,62 @@
 
     - name: Hostname
       ansible.builtin.hostname:
-        name: "{{pi_hostname}}"
+        name: "{{ pi_hostname }}"
       register: hostname
 
     - name: Set_Boot_behaviour
-      ansible.builtin.shell: "raspi-config nonint do_boot_behaviour {{ bootbehavior }}"
+      ansible.builtin.shell: "raspi-config nonint do_boot_behaviour {{ bootbehavior }}" # noqa: command-instead-of-shell no-changed-when
 
     - name: Set_locale
-      ansible.builtin.shell: "raspi-config nonint do_change_locale {{ locale }}"
+      ansible.builtin.shell: "raspi-config nonint do_change_locale {{ locale }}" # noqa: command-instead-of-shell no-changed-when
 
     - name: Set_timezone
-      ansible.builtin.timezone:
+      community.general.timezone:
         name: "{{ timezone }}"
 
     # SSH
     - name: Check_if_SSH_enabled
-      ansible.builtin.shell: "raspi-config nonint get_ssh"
+      ansible.builtin.shell: "raspi-config nonint get_ssh" # noqa: command-instead-of-shell
       register: ssh_status
-      changed_when: False
+      changed_when: false
 
-    #   debug: 
+    #   debug:
     #     msg: "SSH status is: {{ ssh_status.stdout }}"
 
     - name: Enable_SSH
-      ansible.builtin.shell: "raspi-config nonint do_ssh 0"
-      when: (ssh_enable == true) and (ssh_status.stdout != '0')
-
-    - name: Disable_SSH
-      ansible.builtin.shell: "raspi-config nonint do_ssh 1"
-      when: (ssh_enable == false) and (ssh_status.stdout != '1')
+      ansible.builtin.shell: "raspi-config nonint do_ssh 0" # noqa: command-instead-of-shell no-changed-when
+      when: (ssh_enable) and (ssh_status.stdout != '0')
 
     # EXPAND FS
     - name: Check_if_FS_is_expandable
-      ansible.builtin.shell: "raspi-config nonint get_can_expand"
+      ansible.builtin.shell: "raspi-config nonint get_can_expand" # noqa: command-instead-of-shell
       register: fs_filled
-      changed_when: False
+      changed_when: false
 
     # - ansible.builtin.debug:
     #     msg: "Filesystem is expandable! [{{ fs_filled.stdout }}]"
     #   when: fs_filled.stdout == '1'
 
     - name: Mark_Filesystem_for_expansion
-      ansible.builtin.shell: "raspi-config nonint do_expand_rootfs"
+      ansible.builtin.shell: "raspi-config nonint do_expand_rootfs" # noqa: command-instead-of-shell no-changed-when
       register: expandfs
       when: fs_filled.stdout == '1'
 
-    # GPU memsplit
-    - name: Get_current_GPU_memory_split
-      ansible.builtin.shell: "raspi-config nonint get_config_var gpu_mem /boot/config.txt"
-      register: gpu_mem
-      changed_when: False
+    - name: Inline_Reboot_pihole
+      ansible.builtin.reboot:
+      when: hostname.changed or expandfs.changed
 
-    # - name: Print current GPU memory split
-    #   debug:
-    #     msg: "Current GPU memory split: {{ gpu_mem.stdout }}"
+    - name: Update_apt_package_cache
+      ansible.builtin.apt:
+        update_cache: true
 
-    - name: Set GPU memory split
-      shell: "raspi-config nonint do_memory_split {{ memsplit }}"
-      when: gpu_mem.stdout != memsplit
-      register: gpumem
-
-    - name: reboot_pihole
-      reboot:
-      when: hostname.changed or expandfs.changed or gpumem.changed
-
-    - name: up_to_date
-      apt:
-        name: "*"
+    - name: Up_to_date
+      ansible.builtin.apt:
+        name: "*" # noqa: package-latest
         state: latest
 
-    - name: useful_packages
-      apt:
+    - name: Useful_packages
+      ansible.builtin.apt:
         name:
           - bash-completion
           - unzip
@@ -146,42 +136,48 @@
           - tree
           - dstat
           - chrony # keep accurate time!
-        state: latest
 
-    - name: copy_top_config
-      copy:
+    - name: Copy_top_config
+      ansible.builtin.copy:
         src: toprc
         dest: /root/.toprc
+        mode: u=rw,go=r
+        owner: root
+        group: root
 
     ###################
     ###### PIHOLE setup
     ###################
-    - name: pihole_installer
-      get_url:
+    - name: Pihole_installer
+      ansible.builtin.get_url:
         url: https://install.pi-hole.net
         dest: /root/basic-install.sh
         mode: u=rwx,go=x
         owner: root
 
-    - name: pihole_user
-      user:
+    - name: Pihole_user
+      ansible.builtin.user:
         name: pihole
         group: root
-        createhome: no
+        createhome: false
         shell: /usr/sbin/nologin
 
-    - name: pihole_directory
-      file:
+    - name: Pihole_directory
+      ansible.builtin.file:
         name: /etc/pihole
         state: directory
+        mode: u=rwx,go=rx
+        owner: pihole
+        group: root
 
-    - name: pihole_setup_file
-      template:
+    - name: Pihole_setup_file
+      ansible.builtin.template:
         src: pihole_setupVars.j2
         dest: /etc/pihole/setupVars.conf
         owner: pihole
         group: root
-        backup: yes
+        backup: true
+        mode: u=rw,go=r
 
 
     ##### install isn't idempotent - uncomment to run it...
@@ -192,28 +188,46 @@
   #    debug:
   #      var: pihole_install
 
-    - name: pihole_update
-      command: pihole -up
+    - name: Check_for_updates
+      ansible.builtin.shell: pihole -up --check-only # noqa: command-instead-of-shell no-changed-when
       register: pihole_update
-    
-    - name: update_output
-      debug:
-        var: pihole_update
+      changed_when: false
+
+    - name: Pihole_update
+      ansible.builtin.shell: pihole -up  # noqa: command-instead-of-shell no-changed-when
+      when: "'Everything is up to date' not in pihole_update.stdout"
+      notify: Restart_pihole_service
 
     # IP ADDRESS
-    - name: static_ip
-      blockinfile:
-        path: /etc/dhcpcd.conf
-        create: yes
-        block: |
-          interface eth0
-          static ip_address={{pihole_ip}}/{{net_masklen}}
-          static routers={{net_router}}
-          static domain_name_servers=127.0.0.1 {{net_router}} 8.8.8.8 8.8.4.4
-      register: static_ip_setup
+    - name: Set_ip_addresses
+      community.general.nmcli:
+        state: present
+        type: ethernet
+        conn_name: eth0
+        ifname: eth0
+        method4: manual
+        ip4:
+          - "{{ pihole_cidr }}"
+          - "{{ unifi_cidr }}"
+        gw4: "{{ net_router }}"
+        dns4:
+          - "{{ pihole_ip }}"
+          - "{{ net_router }}"
+          - "8.8.8.8"
+        dns4_search:
+          - home.pladd.net
+          - pladd.net
+      notify: Reboot_pihole
 
-    - name: reboot_pihole
-      reboot:
-      when: static_ip_setup.changed
+  handlers:
+    - name: Reboot_pihole
+      ansible.builtin.reboot:
+
+    - name: Restart_pihole_service
+      ansible.builtin.service:
+        name: pihole-FTL
+        state: restarted
+
+- import_playbook: static_dns.yml
 
 ...

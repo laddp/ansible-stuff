@@ -57,6 +57,7 @@
           - cmake
           - clean-rpm-gpg-pubkey
           - guestfs-tools
+          - httpd-tools
 
     - name: RHEL8_packages
       ansible.builtin.dnf:
@@ -113,13 +114,10 @@
         dest: /root/.toprc
         mode: a+rw
 
-    - name: Signal_repo # https://download.opensuse.org/repositories/network:/im:/signal/Fedora_37/network:im:signal.repo
+    - name: Signal_repo # deprecated as of 8.5.0 - https://build.opensuse.org/project/show/network:im:signal
       ansible.builtin.yum_repository:
         name: network_im_signal
-        description: "Signal Messaging Devel Project"
-        baseurl: https://download.opensuse.org/repositories/network:/im:/signal/Fedora_$releasever/
-        gpgcheck: 1
-        gpgkey: https://download.opensuse.org/repositories/network:/im:/signal/Fedora_$releasever/repodata/repomd.xml.key
+        state: absent
       when:
         - "'desktops' in group_names"
         - ansible_distribution == 'Fedora'
@@ -129,7 +127,6 @@
         name:
           - network-manager-applet
           - baobab
-          - signal-desktop
           - hexchat
           - filezilla
           - krb5-auth-dialog
@@ -168,6 +165,18 @@
           - helm
           - postgresql
           - wireshark
+      when: "'desktops' in group_names"
+
+    - name: Veracrypt_keys
+      ansible.builtin.rpm_key:
+        state: present
+        key: https://amcrypto.jp/VeraCrypt/VeraCrypt_PGP_public_key.asc
+      when: ansible_distribution == 'Fedora'
+
+    - name: Veracrypt
+      ansible.builtin.dnf:
+        name:
+          - https://launchpad.net/veracrypt/trunk/1.26.24/+download/veracrypt-1.26.24-Fedora-40-x86_64.rpm
       when: "'desktops' in group_names"
 
     - name: KDEconnect_firewall

@@ -1,37 +1,52 @@
 #!/usr/bin/env ansible-playbook
 ---
-- name: push static IPs to pihole DNS
+- name: Push static IPs to pihole DNS
   hosts: pihole
 
   tasks:
-  - name: static_dns_entries
-    lineinfile:
-#      path: /etc/hosts
-      path: /etc/pihole/custom.list
-      line: "{{ item }}"
-    loop:
-      - "127.0.0.1 pihole.home.pladd.net"
-      - "192.168.42.1 usg-home.home.pladd.net"
-      - "192.168.42.2 unifi-switch.home.pladd.net"
-      - "192.168.42.3 unifi-switch-lr.home.pladd.net"
-      - "192.168.42.50 unifi.home.pladd.net"
-      - "192.168.42.51 wifi-lr.home.pladd.net"
-      - "192.168.42.52 wifi-office.home.pladd.net"
-      - "192.168.42.59 pihole.home.pladd.net"
-      - "192.168.42.99 sat6.home.pladd.net"
-      - "192.168.42.200 beast.home.pladd.net"
-      - "192.168.42.201 beast-direct.home.pladd.net"
-      - "192.168.42.209 beast-ilo.home.pladd.net"
-      - "192.168.42.210 ogre.home.pladd.net"
-      - "192.168.42.211 ogre-direct.home.pladd.net"
-      - "192.168.42.212 ogre-direct2.home.pladd.net"
-      - "192.168.42.215 rhv.home.pladd.net"
-      - "192.168.42.219 ogre-idrac.home.pladd.net"
-    notify:
-      - reload_dns
+
+    - name: Set_dnsmasq_d_options
+      ansible.builtin.lineinfile:
+        path: /etc/pihole/pihole.toml
+        create: true
+        backup: true
+        mode: u=rw,go=r
+        owner: pihole
+        group: root
+        line: "  etc_dnsmasq_d = true ### CHANGED, default = false"
+        regexp: "^  etc_dnsmasq_d"
+        insertafter: "^[misc]"
+
+    - name: Static_dns_entries
+      ansible.builtin.blockinfile:
+        path: /etc/dnsmasq.d/99-custom-dns.conf
+        create: true
+        mode: u=rw,go=r
+        owner: root
+        group: root
+        backup: true
+        block: |
+          address=/usg-home.home.pladd.net/192.168.42.1
+          address=/unifi-switch.home.pladd.net/192.168.42.2
+          address=/unifi-switch-lr.home.pladd.net/192.168.42.3
+          address=/unifi.home.pladd.net/192.168.42.50
+          address=/wifi-lr.home.pladd.net/192.168.42.51
+          address=/wifi-office.home.pladd.net/192.168.42.52
+          address=/pihole.home.pladd.net/192.168.42.59
+          address=/beast.home.pladd.net/192.168.42.200
+          address=/beast-direct.home.pladd.net/192.168.42.201
+          address=/beast-ilo.home.pladd.net/192.168.42.209
+          address=/ogre.home.pladd.net/192.168.42.210
+          address=/ogre-direct.home.pladd.net/192.168.42.211
+          address=/ogre-direct2.home.pladd.net/192.168.42.212
+          address=/ogre-idrac.home.pladd.net/192.168.42.219
+      register: static_dns
+      notify:
+        - Reload_dns
 
   handlers:
-    - name: reload_dns
-      command: "pihole restartdns"
-
+    - name: Reload_dns
+      ansible.builtin.service:
+        name: pihole-FTL
+        state: restarted
 ...

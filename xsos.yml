@@ -1,7 +1,7 @@
 #!/usr/bin/env ansible-playbook
 ---
 - name: xsos install
-  hosts: all
+  hosts: desktops
 
   tasks:
   - name: download_binary_gpg_key
@@ -25,7 +25,7 @@
 
   - name: rsawhill_repo
     yum:
-      name: http://people.redhat.com/rsawhill/rpms/latest-rsawaroha-release.rpm
+      name: https://people.redhat.com/rsawhill/rpms/latest-rsawaroha-release.rpm
       state: latest
 
   - name: xsos_and_rsar_RPMs
